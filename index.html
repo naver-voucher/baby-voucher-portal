@@ -801,6 +801,87 @@
   .st-none .mini-badge { background: var(--bg-elevated); color: var(--text-tertiary); }
   .st-na .mini-badge { background: rgba(255,255,255,0.03); color: var(--text-tertiary); opacity: 0.5; }
 
+  /* ===== Onboarding Progress Tracker ===== */
+  .mini-progress {
+    position: relative; width: 74px; height: 18px;
+    background: var(--bg-elevated); border-radius: 9px; overflow: hidden;
+    display: inline-block;
+  }
+  .mini-progress-bar {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    transition: width 0.3s ease;
+  }
+  .mini-progress-text {
+    position: absolute; left: 0; right: 0; top: 0; bottom: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; font-family: monospace;
+    mix-blend-mode: plus-lighter;
+    text-shadow: 0 0 2px rgba(0,0,0,0.5);
+  }
+  .step-bar-row {
+    display: grid; grid-template-columns: 140px 1fr 60px; align-items: center; gap: 12px;
+    font-size: 11px;
+  }
+  .step-bar-label { color: var(--text-secondary); font-weight: 500; }
+  .step-bar-track {
+    position: relative; height: 8px; background: var(--bg-elevated); border-radius: 4px; overflow: hidden;
+  }
+  .step-bar-fill {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    background: linear-gradient(90deg, var(--accent-green), var(--accent-teal));
+    transition: width 0.3s ease;
+  }
+  .step-bar-count {
+    font-family: monospace; font-size: 11px; color: var(--text-tertiary); text-align: right;
+  }
+  .step-bar-count .done { color: var(--accent-green); font-weight: 700; }
+
+  /* Brand detail checklist */
+  .bd-checklist {
+    margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border);
+  }
+  .bd-checklist-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+  }
+  .bd-checklist-title {
+    font-size: 13px; font-weight: 700; color: var(--accent-blue);
+  }
+  .bd-checklist-progress {
+    font-size: 11px; color: var(--text-secondary); font-family: monospace;
+  }
+  .bd-step-list { display: flex; flex-direction: column; gap: 6px; }
+  .bd-step {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px; background: var(--bg-elevated); border-radius: 8px;
+    cursor: pointer; transition: all 0.15s;
+    user-select: none;
+  }
+  .bd-step:hover { background: var(--bg-card-hover); }
+  .bd-step.done { background: rgba(48,209,88,0.08); border-left: 3px solid var(--accent-green); }
+  .bd-step-check {
+    width: 18px; height: 18px; border-radius: 5px;
+    border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 11px; font-weight: 900; color: #fff;
+  }
+  .bd-step.done .bd-step-check {
+    background: var(--accent-green); border-color: var(--accent-green);
+  }
+  .bd-step-num {
+    font-size: 10px; font-weight: 700; font-family: monospace;
+    color: var(--text-tertiary); min-width: 18px;
+  }
+  .bd-step.done .bd-step-num { color: var(--accent-green); }
+  .bd-step-name { flex: 1; font-size: 12px; color: var(--text-primary); }
+  .bd-step.done .bd-step-name { color: var(--accent-green); font-weight: 600; }
+  .bd-memo {
+    margin-top: 12px; width: 100%; min-height: 60px;
+    background: var(--bg-elevated); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 12px;
+    color: var(--text-primary); font-size: 12px; font-family: inherit;
+    resize: vertical;
+  }
+  .bd-memo:focus { outline: none; border-color: var(--accent-blue); }
+
   /* ===== Checklist ===== */
   .checklist-grid {
     display: flex; flex-direction: column; gap: 10px;
@@ -1382,6 +1463,26 @@
         </div>
       </div>
 
+      <!-- ==================== 입점 진행 현황 ==================== -->
+      <div id="onboardingProgressCard" style="background:var(--bg-card);border:1px solid var(--accent-blue);border-radius:var(--radius-md);padding:16px 20px;margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--accent-blue)">입점 진행 현황 (9단계 체크리스트)</div>
+            <div style="font-size:10px;color:var(--text-tertiary);margin-top:2px" id="onboardingProgressSub">브랜드별 진행 상태 실시간 집계</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <select id="progressScope" onchange="renderOnboardingProgress()" style="font-size:11px;padding:5px 10px;background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-primary);border-radius:6px;cursor:pointer">
+              <option value="new">신규입점만</option>
+              <option value="active">운영중 포함</option>
+              <option value="all">전체</option>
+            </select>
+            <button onclick="exportProgressCSV()" style="font-size:10px;padding:5px 10px;background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-secondary);border-radius:6px;cursor:pointer">&#8681; CSV</button>
+          </div>
+        </div>
+        <div id="onboardingStepBars" style="display:flex;flex-direction:column;gap:6px"></div>
+        <div id="onboardingBottleneck" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:11px;color:var(--text-secondary)"></div>
+      </div>
+
       <!-- 상태 필터 -->
       <div class="admin-header-row">
         <div class="filter-bar" id="brandStatusFilters">
@@ -1586,6 +1687,7 @@
               <th>종료일</th>
               <th onclick="sortTable('allBrandTable','mgr',8)">담당자 <span class="sort-arrow">&#9650;</span></th>
               <th>메일</th>
+              <th style="text-align:center">진행</th>
             </tr>
           </thead>
           <tbody id="allBrandTableBody"></tbody>
@@ -4567,6 +4669,13 @@ NAVER 키즈사업`
         </div>`;
       }
 
+      const prog = getBrandProgress(b.acctId);
+      const progDone = Object.values(prog.steps || {}).filter(Boolean).length;
+      const progTotal = ONBOARDING_STEPS.length;
+      const progPct = Math.round(progDone / progTotal * 100);
+      const progColor = progDone === 0 ? 'var(--text-tertiary)' : progDone === progTotal ? 'var(--accent-green)' : 'var(--accent-blue)';
+      const progHtml = `<div class="mini-progress" title="${progDone}/${progTotal} 단계 완료"><div class="mini-progress-bar" style="width:${progPct}%;background:${progColor}"></div><span class="mini-progress-text" style="color:${progColor}">${progDone}/${progTotal}</span></div>`;
+
       tr.innerHTML = `
         <td><strong>${b.name}</strong></td>
         <td style="font-size:11px;color:var(--text-secondary);font-family:monospace">${b.acctId || '-'}</td>
@@ -4578,6 +4687,7 @@ NAVER 키즈사업`
         <td style="font-size:12px;color:${b.end ? 'var(--accent-red)' : 'var(--text-tertiary)'}">${b.end || '-'}</td>
         <td style="font-size:12px">${b.mgr || '-'}</td>
         <td style="font-size:12px;color:var(--text-secondary)">${b.email || '-'}</td>
+        <td>${progHtml}</td>
       `;
       tbody.appendChild(tr);
     });
@@ -4589,6 +4699,185 @@ NAVER 키즈사업`
     currentBrandStatusFilter = status;
     renderAllBrandTable();
     initBrandStats(); // 유형 필터 카운트 갱신
+  }
+
+  // ==================== ONBOARDING PROGRESS TRACKER ====================
+  const ONBOARDING_STEPS = [
+    { key: '1', label: '시트 기입 / NSS·NIMO 조회', color: 'var(--accent-blue)' },
+    { key: '2', label: '커머스솔루션 계약 등록', color: 'var(--accent-blue)' },
+    { key: '3', label: '계약·소재 요청 메일 발송', color: 'var(--accent-teal)' },
+    { key: '4', label: '미회신사 리마인드', color: 'var(--accent-orange)' },
+    { key: '5', label: '로고·연출컷 리사이징', color: 'var(--accent-purple)' },
+    { key: '6', label: '쿠폰 발행 (NSS)', color: 'var(--accent-green)' },
+    { key: '7', label: 'MEM 지면 셋팅', color: 'var(--accent-green)' },
+    { key: '8', label: '쿠폰 승인 요청', color: 'var(--accent-green)' },
+    { key: '9', label: 'NSS/MEM 최종 검수', color: 'var(--accent-red)' }
+  ];
+  const PROGRESS_KEY = 'bv_onboarding_progress';
+
+  function loadAllProgress() {
+    try { return JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}'); }
+    catch (e) { return {}; }
+  }
+  function saveAllProgress(data) {
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify(data));
+  }
+  function getBrandProgress(acctId) {
+    if (!acctId) return { steps: {}, memo: '', updatedAt: null };
+    const all = loadAllProgress();
+    return all[acctId] || { steps: {}, memo: '', updatedAt: null };
+  }
+  function toggleBrandStep(acctId, stepKey) {
+    if (!acctId) return;
+    const all = loadAllProgress();
+    if (!all[acctId]) all[acctId] = { steps: {}, memo: '', updatedAt: null };
+    all[acctId].steps[stepKey] = !all[acctId].steps[stepKey];
+    all[acctId].updatedAt = new Date().toISOString();
+    saveAllProgress(all);
+  }
+  function saveBrandMemo(acctId, memo) {
+    if (!acctId) return;
+    const all = loadAllProgress();
+    if (!all[acctId]) all[acctId] = { steps: {}, memo: '', updatedAt: null };
+    all[acctId].memo = memo;
+    all[acctId].updatedAt = new Date().toISOString();
+    saveAllProgress(all);
+  }
+
+  function renderBrandChecklist(b) {
+    if (!b.acctId) return '<div class="bd-checklist" style="color:var(--text-tertiary);font-size:12px">계정ID가 없어 진행 체크리스트를 표시할 수 없습니다</div>';
+    const prog = getBrandProgress(b.acctId);
+    const done = ONBOARDING_STEPS.filter(s => prog.steps[s.key]).length;
+    const total = ONBOARDING_STEPS.length;
+    const pct = Math.round(done / total * 100);
+    const stepsHtml = ONBOARDING_STEPS.map(s => {
+      const isDone = !!prog.steps[s.key];
+      return `
+        <div class="bd-step ${isDone ? 'done' : ''}" onclick="handleStepToggle('${b.acctId}','${s.key}', this)">
+          <span class="bd-step-check">${isDone ? '&check;' : ''}</span>
+          <span class="bd-step-num">${s.key}</span>
+          <span class="bd-step-name">${s.label}</span>
+        </div>`;
+    }).join('');
+    const updatedTxt = prog.updatedAt ? new Date(prog.updatedAt).toLocaleString('ko-KR') : '—';
+    return `
+      <div class="bd-checklist">
+        <div class="bd-checklist-header">
+          <div>
+            <div class="bd-checklist-title">&#9734; 입점 진행 체크리스트 (9단계)</div>
+            <div style="font-size:10px;color:var(--text-tertiary);margin-top:2px">마지막 업데이트: ${updatedTxt}</div>
+          </div>
+          <div class="bd-checklist-progress"><strong style="color:${done===total?'var(--accent-green)':'var(--accent-blue)'}">${done}/${total}</strong> · ${pct}%</div>
+        </div>
+        <div class="bd-step-list">${stepsHtml}</div>
+        <textarea class="bd-memo" placeholder="메모 (예: 5/2 통화 / 로고 재요청 / 쿠폰 승인 대기)" oninput="handleMemoChange('${b.acctId}', this.value)">${(prog.memo || '').replace(/</g,'&lt;')}</textarea>
+      </div>
+    `;
+  }
+
+  function handleStepToggle(acctId, stepKey, el) {
+    toggleBrandStep(acctId, stepKey);
+    const prog = getBrandProgress(acctId);
+    const isDone = !!prog.steps[stepKey];
+    el.classList.toggle('done', isDone);
+    el.querySelector('.bd-step-check').innerHTML = isDone ? '&check;' : '';
+    // update progress header
+    const done = ONBOARDING_STEPS.filter(s => prog.steps[s.key]).length;
+    const total = ONBOARDING_STEPS.length;
+    const pct = Math.round(done / total * 100);
+    const headerEl = document.querySelector('.bd-checklist-progress');
+    if (headerEl) headerEl.innerHTML = `<strong style="color:${done===total?'var(--accent-green)':'var(--accent-blue)'}">${done}/${total}</strong> · ${pct}%`;
+    // update row in background
+    renderAllBrandTable();
+    renderOnboardingProgress();
+  }
+
+  let memoSaveTimer = null;
+  function handleMemoChange(acctId, val) {
+    clearTimeout(memoSaveTimer);
+    memoSaveTimer = setTimeout(() => saveBrandMemo(acctId, val), 400);
+  }
+
+  function getProgressScopeBrands() {
+    const scope = (document.getElementById('progressScope') || {}).value || 'new';
+    if (scope === 'all') return allBrands;
+    if (scope === 'active') return allBrands.filter(b => b.status === '운영중');
+    // default: 신규입점
+    return allBrands.filter(b => b.status === '신규입점');
+  }
+
+  function renderOnboardingProgress() {
+    const container = document.getElementById('onboardingStepBars');
+    if (!container) return;
+    const brands = getProgressScopeBrands();
+    const total = brands.length;
+    const subEl = document.getElementById('onboardingProgressSub');
+    if (subEl) subEl.textContent = `대상 브랜드 ${total}개 · 단계별 완료 현황`;
+
+    if (total === 0) {
+      container.innerHTML = '<div style="font-size:11px;color:var(--text-tertiary);padding:8px 0">대상 브랜드가 없습니다</div>';
+      document.getElementById('onboardingBottleneck').innerHTML = '';
+      return;
+    }
+
+    const stepCounts = ONBOARDING_STEPS.map(s => {
+      const c = brands.filter(b => {
+        const p = getBrandProgress(b.acctId);
+        return !!p.steps[s.key];
+      }).length;
+      return { step: s, count: c };
+    });
+
+    container.innerHTML = stepCounts.map(({step, count}) => {
+      const pct = Math.round(count / total * 100);
+      return `
+        <div class="step-bar-row">
+          <span class="step-bar-label"><strong style="color:${step.color};margin-right:6px">${step.key}</strong>${step.label}</span>
+          <div class="step-bar-track"><div class="step-bar-fill" style="width:${pct}%"></div></div>
+          <span class="step-bar-count"><span class="done">${count}</span> / ${total} · ${pct}%</span>
+        </div>`;
+    }).join('');
+
+    // 병목 감지: 가장 낮은 진행률 단계
+    const minStep = stepCounts.reduce((m, c) => c.count < m.count ? c : m, stepCounts[0]);
+    const notDoneOnMin = brands.filter(b => {
+      const p = getBrandProgress(b.acctId);
+      return !p.steps[minStep.step.key];
+    });
+    const bn = document.getElementById('onboardingBottleneck');
+    if (bn) {
+      if (notDoneOnMin.length === 0) {
+        bn.innerHTML = '<span style="color:var(--accent-green)">&#10003; 모든 단계에서 진행 병목이 없습니다</span>';
+      } else {
+        const names = notDoneOnMin.slice(0, 8).map(b => b.name).join(', ');
+        const more = notDoneOnMin.length > 8 ? ` 외 ${notDoneOnMin.length-8}개` : '';
+        bn.innerHTML = `<span style="color:var(--accent-orange)">&#9888;</span> <strong>병목 단계: ${minStep.step.key}. ${minStep.step.label}</strong> — 미완료 ${notDoneOnMin.length}개: <span style="color:var(--text-tertiary)">${names}${more}</span>`;
+      }
+    }
+  }
+
+  function exportProgressCSV() {
+    const brands = getProgressScopeBrands();
+    const header = ['브랜드명','계정ID','담당자','상태'].concat(ONBOARDING_STEPS.map(s => `${s.key}. ${s.label}`)).concat(['완료/전체','메모','마지막수정']);
+    const rows = brands.map(b => {
+      const p = getBrandProgress(b.acctId);
+      const done = ONBOARDING_STEPS.filter(s => p.steps[s.key]).length;
+      const row = [b.name, b.acctId || '', b.mgr || '', b.status || ''];
+      ONBOARDING_STEPS.forEach(s => row.push(p.steps[s.key] ? 'O' : ''));
+      row.push(`${done}/${ONBOARDING_STEPS.length}`);
+      row.push((p.memo || '').replace(/"/g, '""'));
+      row.push(p.updatedAt ? new Date(p.updatedAt).toLocaleString('ko-KR') : '');
+      return row;
+    });
+    const csv = [header, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `입점진행_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('진행 현황 CSV 다운로드 완료', 'ok');
   }
 
   // ==================== BRAND DETAIL MODAL ====================
@@ -4616,6 +4905,7 @@ NAVER 키즈사업`
         <div><span style="color:var(--text-tertiary);font-size:11px;display:block;margin-bottom:4px">연락처</span>${b.phone || '-'}</div>
         ${b.url ? '<div style="grid-column:span 2"><span style="color:var(--text-tertiary);font-size:11px;display:block;margin-bottom:4px">스토어 URL</span><a href="'+b.url+'" target="_blank" style="color:var(--accent-blue);text-decoration:none;word-break:break-all">'+b.url+'</a></div>' : ''}
       </div>
+      ${renderBrandChecklist(b)}
     `;
     showModal(b.name + ' 상세 정보', html);
   }
@@ -5356,6 +5646,7 @@ NAVER 키즈사업`
   renderBrandTable('all');
   initBrandStats();
   renderAllBrandTable();
+  renderOnboardingProgress();
   renderCalendar();
   renderStatusBoard('all');
   renderTemplateCards();
