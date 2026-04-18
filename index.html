@@ -1248,6 +1248,21 @@
     </div>
 
     <div class="nav-section">
+      <div class="nav-section-title">판매자 포털</div>
+      <div class="nav-item" data-section="admin-seller-submissions">
+        <span class="nav-icon">&#9993;&#65039;</span> 제출 현황
+        <span class="badge" id="sellerSubBadge">-</span>
+      </div>
+      <div class="nav-item" data-section="admin-banners">
+        <span class="nav-icon">&#127912;</span> 배너 관리
+      </div>
+      <div class="nav-item" data-section="admin-inquiries">
+        <span class="nav-icon">&#128172;</span> 문의함
+        <span class="badge" id="inquiryBadge">-</span>
+      </div>
+    </div>
+
+    <div class="nav-section">
       <div class="nav-section-title">자동화</div>
       <div class="nav-item" data-section="admin-comms">
         <span class="nav-icon">&#9993;</span> 메일 템플릿
@@ -3159,6 +3174,125 @@
       </div>
     </div>
 
+    <!-- ==================== 판매자 포털 - 제출 현황 ==================== -->
+    <div id="admin-seller-submissions" class="section fade-in">
+      <div class="page-header">
+        <h1>판매자 포털 · 제출 현황</h1>
+        <p>판매자가 seller.html에서 직접 입력한 입점 정보를 한눈에 확인합니다</p>
+      </div>
+
+      <div class="admin-stats-row" style="grid-template-columns: repeat(4,1fr);margin-bottom:20px">
+        <div class="admin-stat"><div class="stat-label">전체 대상</div><div class="stat-value" id="spsTotal" style="color:var(--accent-blue)">-</div></div>
+        <div class="admin-stat"><div class="stat-label">제출 완료</div><div class="stat-value" id="spsDone" style="color:var(--accent-green)">-</div></div>
+        <div class="admin-stat"><div class="stat-label">작성 중</div><div class="stat-value" id="spsDraft" style="color:var(--accent-orange)">-</div></div>
+        <div class="admin-stat"><div class="stat-label">미착수</div><div class="stat-value" id="spsNone" style="color:var(--accent-red)">-</div></div>
+      </div>
+
+      <div style="background:var(--bg-card);border:1px solid var(--accent-blue);border-radius:var(--radius-md);padding:16px 20px;margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--accent-blue)">판매자 전용 링크</div>
+            <div style="font-size:10px;color:var(--text-tertiary);margin-top:2px">각 브랜드에 개별 전송할 수 있는 URL을 자동 생성합니다</div>
+          </div>
+          <button onclick="copyAllSellerLinks()" style="font-size:11px;padding:7px 14px;background:var(--accent-blue);color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600">&#9113; 전체 링크 복사</button>
+        </div>
+        <div style="font-size:11px;color:var(--text-secondary);padding:8px 12px;background:var(--bg-elevated);border-radius:6px;font-family:monospace;word-break:break-all" id="sampleSellerLink">대상 브랜드 선택 시 샘플 링크가 표시됩니다</div>
+      </div>
+
+      <!-- 필터 & 테이블 -->
+      <div class="admin-header-row" style="margin-bottom:10px">
+        <div class="filter-bar" id="spsFilters">
+          <div class="filter-chip active" onclick="filterSellerSub('all', this)">전체</div>
+          <div class="filter-chip" onclick="filterSellerSub('done', this)">제출 완료</div>
+          <div class="filter-chip" onclick="filterSellerSub('draft', this)">작성 중</div>
+          <div class="filter-chip" onclick="filterSellerSub('none', this)">미착수</div>
+        </div>
+        <button class="export-btn" onclick="exportSellerSubmissionsCSV()">&#8681; CSV 다운로드</button>
+      </div>
+
+      <div class="brand-table-wrap">
+        <table class="brand-table">
+          <thead>
+            <tr>
+              <th>브랜드명</th>
+              <th>계정ID</th>
+              <th>담당자</th>
+              <th>상태</th>
+              <th>계약동의</th>
+              <th>로고</th>
+              <th>연출컷</th>
+              <th>FAQ</th>
+              <th>제출일</th>
+              <th style="text-align:center">링크</th>
+            </tr>
+          </thead>
+          <tbody id="sellerSubBody"></tbody>
+        </table>
+      </div>
+      <div class="table-footer"><span id="sellerSubCount">0개</span></div>
+    </div>
+
+    <!-- ==================== 판매자 포털 - 배너 관리 ==================== -->
+    <div id="admin-banners" class="section fade-in">
+      <div class="page-header">
+        <h1>판매자 홍보 배너 관리</h1>
+        <p>매달 판매자가 자체 홍보에 활용할 수 있도록 배너를 업로드하세요</p>
+      </div>
+
+      <div style="background:var(--bg-card);border:1px solid var(--accent-purple);border-radius:var(--radius-md);padding:18px 20px;margin-bottom:20px">
+        <div style="font-size:13px;font-weight:700;color:var(--accent-purple);margin-bottom:10px">&#127912; 새 배너 업로드</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+          <div>
+            <label style="font-size:10px;color:var(--text-tertiary);font-weight:600;display:block;margin-bottom:4px">제목</label>
+            <input type="text" id="bannerTitle" placeholder="5월 메인 배너" style="width:100%;padding:8px 12px;background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-primary);border-radius:6px;font-size:12px">
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--text-tertiary);font-weight:600;display:block;margin-bottom:4px">설명</label>
+            <input type="text" id="bannerDesc" placeholder="1920×1080 · 웹 상단" style="width:100%;padding:8px 12px;background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-primary);border-radius:6px;font-size:12px">
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--text-tertiary);font-weight:600;display:block;margin-bottom:4px">적용월 (YYYY-MM)</label>
+            <input type="text" id="bannerMonth" placeholder="2026-05" style="width:100%;padding:8px 12px;background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-primary);border-radius:6px;font-size:12px">
+          </div>
+        </div>
+        <div id="bannerDropZone" style="border:2px dashed var(--border);border-radius:8px;padding:24px;text-align:center;cursor:pointer;background:var(--bg-elevated)" onclick="document.getElementById('bannerFileInput').click()">
+          <div style="font-size:26px;margin-bottom:4px">&#128206;</div>
+          <div style="font-size:12px;color:var(--text-primary)">배너 이미지 파일 선택</div>
+          <div style="font-size:10px;color:var(--text-tertiary);margin-top:3px">PNG / JPG · 최대 10MB</div>
+        </div>
+        <input type="file" id="bannerFileInput" accept="image/*" style="display:none" onchange="handleBannerUpload(event)">
+        <div id="bannerUploadStatus" style="font-size:11px;color:var(--text-tertiary);margin-top:8px"></div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:13px;font-weight:600">등록된 배너</div>
+        <div style="font-size:11px;color:var(--text-tertiary)"><span id="bannerCount">0</span>개</div>
+      </div>
+      <div id="bannerAdminList" style="display:grid;gap:10px"></div>
+    </div>
+
+    <!-- ==================== 판매자 포털 - 문의함 ==================== -->
+    <div id="admin-inquiries" class="section fade-in">
+      <div class="page-header">
+        <h1>판매자 문의함</h1>
+        <p>판매자가 seller.html에서 직접 남긴 문의사항을 확인하고 답변합니다</p>
+      </div>
+
+      <div class="admin-stats-row" style="grid-template-columns: repeat(3,1fr);margin-bottom:20px">
+        <div class="admin-stat"><div class="stat-label">대기 중</div><div class="stat-value" id="inqStatPending" style="color:var(--accent-orange)">-</div></div>
+        <div class="admin-stat"><div class="stat-label">답변 완료</div><div class="stat-value" id="inqStatDone" style="color:var(--accent-green)">-</div></div>
+        <div class="admin-stat"><div class="stat-label">전체</div><div class="stat-value" id="inqStatTotal" style="color:var(--accent-blue)">-</div></div>
+      </div>
+
+      <div class="filter-bar" style="margin-bottom:14px">
+        <div class="filter-chip active" onclick="filterInquiries('all', this)">전체</div>
+        <div class="filter-chip" onclick="filterInquiries('pending', this)">대기 중</div>
+        <div class="filter-chip" onclick="filterInquiries('done', this)">답변 완료</div>
+      </div>
+
+      <div id="inquiryList" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+
   </main>
 </div>
 
@@ -3390,6 +3524,9 @@
     }
     // Init dynamic sections
     if (section === 'admin-comms') initCommsSection();
+    if (section === 'admin-seller-submissions') renderSellerSubmissions();
+    if (section === 'admin-banners') renderBannerAdminList();
+    if (section === 'admin-inquiries') renderInquiries();
   }
 
   // ==================== OPS GUIDE ====================
@@ -4856,6 +4993,294 @@ NAVER 키즈사업`
     }
   }
 
+  // ==================== 판매자 포털 연동 ====================
+  const SELLER_BASE_URL = location.origin + location.pathname.replace(/[^/]+$/, '') + 'seller.html';
+  const APPS_SCRIPT_URL = localStorage.getItem('bv_apps_script_url') || '';
+  const BANNER_STORAGE_KEY = 'bv_banners';
+  const INQUIRY_STORAGE_KEY = 'bv_inquiries_admin';
+  const SUBMISSION_STORAGE_KEY = 'bv_submissions_admin';
+
+  function getSellerLink(b) {
+    const qs = new URLSearchParams({
+      b: b.acctId || '',
+      n: b.name || '',
+      t: b.type || '',
+      m: b.mgr || '',
+      e: b.email || ''
+    });
+    return SELLER_BASE_URL + '?' + qs.toString();
+  }
+
+  // ---------- 판매자 제출 현황 ----------
+  async function fetchSellerSubmissions() {
+    // 1순위: Apps Script GET
+    if (APPS_SCRIPT_URL) {
+      try {
+        const r = await fetch(APPS_SCRIPT_URL + '?kind=submissions');
+        const j = await r.json();
+        if (Array.isArray(j)) {
+          localStorage.setItem(SUBMISSION_STORAGE_KEY, JSON.stringify(j));
+          return j;
+        }
+      } catch (e) {}
+    }
+    // fallback: localStorage
+    try { return JSON.parse(localStorage.getItem(SUBMISSION_STORAGE_KEY) || '[]'); }
+    catch (e) { return []; }
+  }
+
+  let currentSellerSubFilter = 'all';
+  let sellerSubmissionsCache = [];
+
+  async function renderSellerSubmissions() {
+    sellerSubmissionsCache = await fetchSellerSubmissions();
+    const subsByAcct = {};
+    sellerSubmissionsCache.forEach(s => { if (s.acctId) subsByAcct[s.acctId] = s; });
+
+    const targets = allBrands.filter(b => b.status === '신규입점' || b.status === '운영중');
+    let done = 0, draft = 0, none = 0;
+    const rows = targets.map(b => {
+      const s = subsByAcct[b.acctId];
+      let state = 'none';
+      if (s && s.submittedAt) { state = 'done'; done++; }
+      else if (s) { state = 'draft'; draft++; }
+      else none++;
+      return { brand: b, sub: s, state };
+    });
+
+    document.getElementById('spsTotal').textContent = targets.length;
+    document.getElementById('spsDone').textContent = done;
+    document.getElementById('spsDraft').textContent = draft;
+    document.getElementById('spsNone').textContent = none;
+    const badge = document.getElementById('sellerSubBadge');
+    if (badge) badge.textContent = done + '/' + targets.length;
+
+    const filtered = rows.filter(r => currentSellerSubFilter === 'all' ? true : r.state === currentSellerSubFilter);
+    const body = document.getElementById('sellerSubBody');
+    body.innerHTML = filtered.map(r => {
+      const b = r.brand, s = r.sub;
+      const stateBadge = {
+        'done':  '<span class="status-badge green" style="font-size:10px;padding:2px 8px"><span class="status-dot"></span> 제출 완료</span>',
+        'draft': '<span class="status-badge orange" style="font-size:10px;padding:2px 8px"><span class="status-dot"></span> 작성 중</span>',
+        'none':  '<span class="status-badge red" style="font-size:10px;padding:2px 8px"><span class="status-dot"></span> 미착수</span>'
+      }[r.state];
+      const ck = s && s.contract ? (s.contract.agreed1 && s.contract.agreed2 && s.contract.agreed3 ? '&check;' : '-') : '-';
+      const logoChk = s && s.logo ? '&check;' : '-';
+      const shotsChk = s && s.shots ? s.shots.length : '0';
+      const faqChk = s && s.faq ? s.faq.filter(f => f.q).length : '0';
+      const submitted = s && s.submittedAt ? new Date(s.submittedAt).toLocaleDateString('ko-KR') : '-';
+      return `<tr>
+        <td><strong>${b.name}</strong></td>
+        <td style="font-size:11px;font-family:monospace;color:var(--text-secondary)">${b.acctId || '-'}</td>
+        <td style="font-size:12px">${b.mgr || '-'}</td>
+        <td>${stateBadge}</td>
+        <td style="text-align:center;color:${ck === '&check;' ? 'var(--accent-green)' : 'var(--text-tertiary)'};font-weight:700">${ck}</td>
+        <td style="text-align:center;color:${logoChk === '&check;' ? 'var(--accent-green)' : 'var(--text-tertiary)'};font-weight:700">${logoChk}</td>
+        <td style="text-align:center;font-family:monospace">${shotsChk}</td>
+        <td style="text-align:center;font-family:monospace">${faqChk}</td>
+        <td style="font-size:11px;color:var(--text-secondary)">${submitted}</td>
+        <td style="text-align:center"><button onclick='event.stopPropagation();copySellerLink(${JSON.stringify(b).replace(/'/g, "&apos;")})' style="font-size:10px;padding:4px 8px;background:var(--accent-blue);color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:600">링크 복사</button></td>
+      </tr>`;
+    }).join('');
+    document.getElementById('sellerSubCount').textContent = `${filtered.length}개 / 전체 ${targets.length}개`;
+  }
+
+  function filterSellerSub(state, el) {
+    currentSellerSubFilter = state;
+    document.querySelectorAll('#spsFilters .filter-chip').forEach(c => c.classList.remove('active'));
+    if (el) el.classList.add('active');
+    renderSellerSubmissions();
+  }
+
+  function copySellerLink(b) {
+    const url = getSellerLink(b);
+    navigator.clipboard.writeText(url).then(() => showToast(`${b.name} 판매자 링크 복사됨`, 'ok'));
+    document.getElementById('sampleSellerLink').textContent = url;
+  }
+
+  function copyAllSellerLinks() {
+    const targets = allBrands.filter(b => b.status === '신규입점');
+    if (!targets.length) return showToast('신규입점 브랜드가 없습니다', 'warn');
+    const lines = targets.map(b => `${b.name}\t${getSellerLink(b)}`).join('\n');
+    navigator.clipboard.writeText(lines).then(() => showToast(`${targets.length}개 브랜드 링크 복사됨 (엑셀 붙여넣기 가능)`, 'ok'));
+  }
+
+  function exportSellerSubmissionsCSV() {
+    const header = ['브랜드명','계정ID','담당자','상태','계약동의','로고','연출컷','FAQ수','제출일'];
+    const targets = allBrands.filter(b => b.status === '신규입점' || b.status === '운영중');
+    const subsByAcct = {};
+    sellerSubmissionsCache.forEach(s => { if (s.acctId) subsByAcct[s.acctId] = s; });
+    const rows = targets.map(b => {
+      const s = subsByAcct[b.acctId];
+      const state = s && s.submittedAt ? '제출완료' : s ? '작성중' : '미착수';
+      return [
+        b.name, b.acctId || '', b.mgr || '', state,
+        s && s.contract && s.contract.agreed1 && s.contract.agreed2 && s.contract.agreed3 ? 'O' : '',
+        s && s.logo ? 'O' : '',
+        s && s.shots ? s.shots.length : 0,
+        s && s.faq ? s.faq.filter(f => f.q).length : 0,
+        s && s.submittedAt ? new Date(s.submittedAt).toLocaleString('ko-KR') : ''
+      ];
+    });
+    const csv = [header, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `판매자제출현황_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+  }
+
+  // ---------- 배너 관리 ----------
+  function loadBanners() {
+    try { return JSON.parse(localStorage.getItem(BANNER_STORAGE_KEY) || '[]'); }
+    catch (e) { return []; }
+  }
+  function saveBanners(list) { localStorage.setItem(BANNER_STORAGE_KEY, JSON.stringify(list)); }
+
+  function handleBannerUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return showToast('이미지 파일만 가능합니다', 'warn');
+    if (file.size > 10 * 1024 * 1024) return showToast('파일이 너무 큽니다 (최대 10MB)', 'warn');
+    const title = document.getElementById('bannerTitle').value.trim();
+    const desc = document.getElementById('bannerDesc').value.trim();
+    const month = document.getElementById('bannerMonth').value.trim() || new Date().toISOString().slice(0,7);
+    if (!title) return showToast('제목을 입력해 주세요', 'warn');
+
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const banners = loadBanners();
+      banners.unshift({
+        id: 'b-' + Date.now(),
+        title, desc, month,
+        filename: file.name,
+        size: (file.size / 1024).toFixed(0) + 'KB',
+        url: ev.target.result,  // base64 data URL
+        thumbUrl: ev.target.result,
+        uploadedAt: new Date().toISOString()
+      });
+      saveBanners(banners);
+      document.getElementById('bannerTitle').value = '';
+      document.getElementById('bannerDesc').value = '';
+      document.getElementById('bannerUploadStatus').innerHTML = `<span style="color:var(--accent-green)">&check; ${file.name} 업로드 완료</span>`;
+      renderBannerAdminList();
+      e.target.value = '';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function renderBannerAdminList() {
+    const banners = loadBanners();
+    document.getElementById('bannerCount').textContent = banners.length;
+    const list = document.getElementById('bannerAdminList');
+    if (!banners.length) {
+      list.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text-tertiary);font-size:12px;background:var(--bg-card);border-radius:var(--radius-md)">등록된 배너가 없습니다</div>';
+      return;
+    }
+    list.innerHTML = banners.map(b => `
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;align-items:center;gap:14px">
+        <div style="width:90px;height:56px;border-radius:6px;overflow:hidden;background:var(--bg-elevated);flex-shrink:0">
+          <img src="${b.thumbUrl || b.url}" style="width:100%;height:100%;object-fit:cover">
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600">${b.title}</div>
+          <div style="font-size:11px;color:var(--text-tertiary);margin-top:2px">${b.desc || ''} · ${b.month} · ${b.size}</div>
+        </div>
+        <a href="${b.url}" download="${b.filename}" style="padding:6px 12px;background:var(--accent-blue-dim);color:var(--accent-blue);border-radius:6px;font-size:11px;font-weight:600;text-decoration:none">미리보기</a>
+        <button onclick="deleteBanner('${b.id}')" style="padding:6px 12px;background:transparent;color:var(--accent-red);border:1px solid var(--accent-red);border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">삭제</button>
+      </div>`).join('');
+  }
+
+  function deleteBanner(id) {
+    if (!confirm('이 배너를 삭제하시겠습니까?')) return;
+    const banners = loadBanners().filter(b => b.id !== id);
+    saveBanners(banners);
+    renderBannerAdminList();
+    showToast('배너 삭제됨', 'ok');
+  }
+
+  // ---------- 문의함 ----------
+  async function fetchInquiries() {
+    if (APPS_SCRIPT_URL) {
+      try {
+        const r = await fetch(APPS_SCRIPT_URL + '?kind=inquiries');
+        const j = await r.json();
+        if (Array.isArray(j)) {
+          localStorage.setItem(INQUIRY_STORAGE_KEY, JSON.stringify(j));
+          return j;
+        }
+      } catch (e) {}
+    }
+    try { return JSON.parse(localStorage.getItem(INQUIRY_STORAGE_KEY) || '[]'); }
+    catch (e) { return []; }
+  }
+
+  let currentInqFilter = 'all';
+  let inquiriesCache = [];
+
+  async function renderInquiries() {
+    inquiriesCache = await fetchInquiries();
+    const pending = inquiriesCache.filter(q => q.status !== 'done').length;
+    const done = inquiriesCache.filter(q => q.status === 'done').length;
+    document.getElementById('inqStatPending').textContent = pending;
+    document.getElementById('inqStatDone').textContent = done;
+    document.getElementById('inqStatTotal').textContent = inquiriesCache.length;
+    const badge = document.getElementById('inquiryBadge');
+    if (badge) badge.textContent = pending;
+
+    const filtered = currentInqFilter === 'all' ? inquiriesCache : inquiriesCache.filter(q => (currentInqFilter === 'done' ? q.status === 'done' : q.status !== 'done'));
+    const list = document.getElementById('inquiryList');
+    if (!filtered.length) {
+      list.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text-tertiary);font-size:12px;background:var(--bg-card);border-radius:10px">문의 내역이 없습니다</div>';
+      return;
+    }
+    list.innerHTML = filtered.map(q => `
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="display:flex;gap:8px;align-items:center">
+            <span class="status-badge ${q.status === 'done' ? 'green' : 'orange'}" style="font-size:10px;padding:2px 8px"><span class="status-dot"></span>${q.status === 'done' ? '답변 완료' : '대기 중'}</span>
+            <span style="font-size:11px;color:var(--text-tertiary);font-weight:500">${q.type || '기타'}</span>
+          </div>
+          <span style="font-size:10px;color:var(--text-tertiary);font-family:monospace">${new Date(q.createdAt).toLocaleString('ko-KR')}</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-primary);font-weight:600;margin-bottom:4px">${q.brandName || q.acctId} <span style="color:var(--text-tertiary);font-weight:400;font-family:monospace">(${q.acctId})</span></div>
+        <div style="font-size:13px;color:var(--text-primary);margin-bottom:12px;padding:10px 12px;background:var(--bg-elevated);border-radius:6px;white-space:pre-wrap">${escapeInqHtml(q.msg)}</div>
+        ${q.answer ? `<div style="font-size:12px;color:var(--text-secondary);padding:10px 12px;background:var(--accent-green-dim);border-left:3px solid var(--accent-green);border-radius:6px"><strong style="color:var(--accent-green)">답변</strong><br>${escapeInqHtml(q.answer)}</div>` : `
+          <div style="display:flex;gap:8px">
+            <textarea id="ans-${q.id}" placeholder="답변 내용을 입력하세요..." style="flex:1;padding:8px 12px;background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-primary);border-radius:6px;font-family:inherit;font-size:12px;resize:vertical;min-height:60px"></textarea>
+            <button onclick="answerInquiry('${q.id}')" style="padding:8px 16px;background:var(--accent-green);color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:12px;white-space:nowrap">답변 전송</button>
+          </div>`}
+      </div>`).join('');
+  }
+
+  function escapeInqHtml(s) {
+    return String(s || '').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]);
+  }
+
+  function filterInquiries(state, el) {
+    currentInqFilter = state;
+    document.querySelectorAll('#admin-inquiries .filter-chip').forEach(c => c.classList.remove('active'));
+    if (el) el.classList.add('active');
+    renderInquiries();
+  }
+
+  async function answerInquiry(id) {
+    const ans = (document.getElementById('ans-' + id).value || '').trim();
+    if (!ans) return showToast('답변 내용을 입력하세요', 'warn');
+    const list = inquiriesCache.map(q => q.id === id ? { ...q, status: 'done', answer: ans, answeredAt: new Date().toISOString() } : q);
+    localStorage.setItem(INQUIRY_STORAGE_KEY, JSON.stringify(list));
+    if (APPS_SCRIPT_URL) {
+      try {
+        await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ kind: 'inquiry-answer', id, answer: ans })
+        });
+      } catch (e) {}
+    }
+    showToast('답변이 전송되었습니다', 'ok');
+    renderInquiries();
+  }
+
   function exportProgressCSV() {
     const brands = getProgressScopeBrands();
     const header = ['브랜드명','계정ID','담당자','상태'].concat(ONBOARDING_STEPS.map(s => `${s.key}. ${s.label}`)).concat(['완료/전체','메모','마지막수정']);
@@ -4906,6 +5331,14 @@ NAVER 키즈사업`
         ${b.url ? '<div style="grid-column:span 2"><span style="color:var(--text-tertiary);font-size:11px;display:block;margin-bottom:4px">스토어 URL</span><a href="'+b.url+'" target="_blank" style="color:var(--accent-blue);text-decoration:none;word-break:break-all">'+b.url+'</a></div>' : ''}
       </div>
       ${renderBrandChecklist(b)}
+      ${b.acctId ? `
+      <div style="margin-top:16px;padding:12px 14px;background:var(--bg-elevated);border-radius:8px;border-left:3px solid var(--accent-blue)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-size:12px;font-weight:600;color:var(--accent-blue)">&#128279; 판매자 전용 링크</div>
+          <button onclick='copySellerLink(${JSON.stringify({acctId:b.acctId,name:b.name,type:b.type,mgr:b.mgr,email:b.email}).replace(/"/g,"&quot;")})' style="font-size:10px;padding:4px 10px;background:var(--accent-blue);color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:600">복사</button>
+        </div>
+        <div style="font-size:11px;color:var(--text-secondary);font-family:monospace;word-break:break-all">${getSellerLink(b)}</div>
+      </div>` : ''}
     `;
     showModal(b.name + ' 상세 정보', html);
   }
@@ -5650,6 +6083,9 @@ NAVER 키즈사업`
   renderCalendar();
   renderStatusBoard('all');
   renderTemplateCards();
+  // badge 초기화 (비동기)
+  fetchSellerSubmissions().then(() => renderSellerSubmissions()).catch(() => {});
+  fetchInquiries().then(() => renderInquiries()).catch(() => {});
 </script>
 
 </body>

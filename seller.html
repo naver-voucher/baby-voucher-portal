@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>베이비바우처 판매자 포털</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #141414;
+    --bg-card: #1a1a1a;
+    --bg-card-hover: #222222;
+    --bg-elevated: #252525;
+    --border: #2a2a2a;
+    --border-light: #333333;
+    --text-primary: #f5f5f7;
+    --text-secondary: #a1a1a6;
+    --text-tertiary: #6e6e73;
+    --accent-green: #30d158;
+    --accent-green-dim: rgba(48, 209, 88, 0.12);
+    --accent-blue: #0a84ff;
+    --accent-blue-dim: rgba(10, 132, 255, 0.12);
+    --accent-orange: #ff9f0a;
+    --accent-orange-dim: rgba(255, 159, 10, 0.12);
+    --accent-red: #ff453a;
+    --accent-red-dim: rgba(255, 69, 58, 0.12);
+    --accent-purple: #bf5af2;
+    --accent-purple-dim: rgba(191, 90, 242, 0.12);
+    --accent-teal: #64d2ff;
+    --naver-green: #03c75a;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+  }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: var(--bg-primary); color: var(--text-primary);
+    line-height: 1.5; min-height: 100vh;
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 24px 20px 80px; }
+
+  /* Header */
+  .hero {
+    background: linear-gradient(135deg, rgba(3,199,90,0.12), rgba(10,132,255,0.08));
+    border: 1px solid rgba(3,199,90,0.3);
+    border-radius: var(--radius-lg);
+    padding: 28px 32px; margin-bottom: 24px;
+  }
+  .hero-badge {
+    display: inline-block; padding: 3px 10px; border-radius: 10px;
+    background: var(--naver-green); color: #fff;
+    font-size: 10px; font-weight: 700; margin-bottom: 10px;
+  }
+  .hero-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .hero-sub { font-size: 13px; color: var(--text-secondary); }
+  .hero-brand {
+    margin-top: 14px; padding-top: 14px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;
+  }
+  .hero-brand-item { font-size: 11px; }
+  .hero-brand-item label { color: var(--text-tertiary); display: block; margin-bottom: 2px; }
+  .hero-brand-item strong { color: var(--text-primary); font-size: 13px; }
+
+  /* Progress bar */
+  .progress-bar {
+    display: flex; gap: 4px; margin: 0 0 24px;
+  }
+  .progress-dot {
+    flex: 1; height: 4px; border-radius: 2px;
+    background: var(--bg-elevated); transition: background 0.3s;
+  }
+  .progress-dot.active { background: var(--accent-green); }
+
+  /* Section card */
+  .section {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px;
+  }
+  .section-title {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+  }
+  .section-num {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--accent-blue-dim); color: var(--accent-blue);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+  }
+  .section-num.done {
+    background: var(--accent-green-dim); color: var(--accent-green);
+  }
+  .section-title h2 { font-size: 16px; font-weight: 700; }
+  .section-desc {
+    font-size: 12px; color: var(--text-tertiary); margin-bottom: 16px;
+  }
+  .section-optional {
+    font-size: 10px; color: var(--text-tertiary);
+    padding: 2px 8px; border-radius: 4px;
+    background: var(--bg-elevated); margin-left: auto;
+  }
+
+  /* Form inputs */
+  .field { margin-bottom: 14px; }
+  .field label {
+    display: block; font-size: 11px; font-weight: 600;
+    color: var(--text-secondary); margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.3px;
+  }
+  .field label .req { color: var(--accent-red); margin-left: 3px; }
+  .field input[type="text"],
+  .field input[type="email"],
+  .field input[type="tel"],
+  .field input[type="url"],
+  .field textarea,
+  .field select {
+    width: 100%; padding: 11px 14px;
+    background: var(--bg-elevated); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); color: var(--text-primary);
+    font-family: inherit; font-size: 13px; transition: border 0.15s;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    outline: none; border-color: var(--accent-blue);
+  }
+  .field textarea { resize: vertical; min-height: 80px; }
+  .field-hint {
+    font-size: 10px; color: var(--text-tertiary); margin-top: 4px;
+  }
+  .field-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+
+  /* Contract agreement */
+  .contract-box {
+    background: var(--bg-elevated); border-radius: var(--radius-md);
+    padding: 16px; margin-bottom: 14px;
+    max-height: 220px; overflow-y: auto;
+    font-size: 12px; line-height: 1.7; color: var(--text-secondary);
+  }
+  .contract-box h4 {
+    font-size: 12px; color: var(--text-primary);
+    font-weight: 700; margin: 14px 0 6px;
+  }
+  .contract-box h4:first-child { margin-top: 0; }
+  .contract-box p { margin-bottom: 6px; }
+  .contract-box ul { padding-left: 18px; margin-bottom: 8px; }
+  .check-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 12px 14px; background: var(--bg-elevated);
+    border-radius: var(--radius-sm); margin-bottom: 8px;
+    cursor: pointer; user-select: none;
+    border: 1px solid transparent; transition: all 0.15s;
+  }
+  .check-row:hover { background: var(--bg-card-hover); }
+  .check-row.checked { border-color: var(--accent-green); }
+  .check-box {
+    width: 18px; height: 18px; border-radius: 5px;
+    border: 1.5px solid var(--border); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 900; font-size: 11px;
+  }
+  .check-row.checked .check-box {
+    background: var(--accent-green); border-color: var(--accent-green);
+  }
+  .check-row span.check-label { font-size: 13px; color: var(--text-primary); }
+  .check-row span.check-label em { color: var(--accent-red); font-style: normal; }
+
+  /* Image upload */
+  .upload-zone {
+    border: 2px dashed var(--border); border-radius: var(--radius-md);
+    padding: 28px; text-align: center; cursor: pointer;
+    transition: all 0.15s; background: var(--bg-elevated);
+  }
+  .upload-zone:hover {
+    border-color: var(--accent-blue); background: var(--accent-blue-dim);
+  }
+  .upload-zone.drag-over {
+    border-color: var(--accent-green); background: var(--accent-green-dim);
+  }
+  .upload-icon { font-size: 28px; margin-bottom: 8px; }
+  .upload-text { font-size: 13px; color: var(--text-primary); font-weight: 600; }
+  .upload-hint { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; }
+  .preview-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px; margin-top: 14px;
+  }
+  .preview-item {
+    position: relative; aspect-ratio: 1;
+    border-radius: var(--radius-sm); overflow: hidden;
+    background: var(--bg-elevated);
+  }
+  .preview-item img {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .preview-remove {
+    position: absolute; top: 4px; right: 4px;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(0,0,0,0.7); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 14px; border: none;
+  }
+  .preview-item .preview-name {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 4px 8px; background: rgba(0,0,0,0.6);
+    color: #fff; font-size: 9px; white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* FAQ items */
+  .faq-item {
+    background: var(--bg-elevated); border-radius: var(--radius-sm);
+    padding: 12px 14px; margin-bottom: 8px;
+    display: grid; grid-template-columns: 1fr 1fr 28px; gap: 8px; align-items: center;
+  }
+  .faq-item input { background: var(--bg-card) !important; }
+  .btn-icon {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    color: var(--text-secondary); cursor: pointer;
+    font-size: 14px; display: inline-flex; align-items: center; justify-content: center;
+  }
+  .btn-icon:hover { color: var(--accent-red); border-color: var(--accent-red); }
+  .btn-add {
+    width: 100%; padding: 10px; background: transparent;
+    border: 1px dashed var(--border); border-radius: var(--radius-sm);
+    color: var(--text-secondary); cursor: pointer; font-size: 12px;
+    font-family: inherit; transition: all 0.15s;
+  }
+  .btn-add:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+
+  /* Banner download */
+  .banner-card {
+    background: var(--bg-elevated); border-radius: var(--radius-md);
+    padding: 16px; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .banner-thumb {
+    width: 100px; height: 60px; border-radius: 6px;
+    background: linear-gradient(135deg, var(--accent-blue-dim), var(--accent-purple-dim));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0; overflow: hidden;
+  }
+  .banner-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .banner-info { flex: 1; min-width: 0; }
+  .banner-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .banner-meta { font-size: 10px; color: var(--text-tertiary); }
+  .banner-download {
+    padding: 8px 16px; background: var(--accent-blue);
+    color: #fff; border-radius: 6px; font-size: 11px; font-weight: 600;
+    border: none; cursor: pointer; white-space: nowrap;
+    text-decoration: none; display: inline-block;
+  }
+  .banner-download:hover { background: #1a94ff; }
+
+  /* Inquiry list */
+  .inquiry-thread {
+    background: var(--bg-elevated); border-radius: var(--radius-sm);
+    padding: 12px 14px; margin-bottom: 8px; font-size: 12px;
+  }
+  .inquiry-head {
+    display: flex; justify-content: space-between; margin-bottom: 6px;
+  }
+  .inquiry-badge {
+    padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;
+  }
+  .inquiry-badge.pending { background: var(--accent-orange-dim); color: var(--accent-orange); }
+  .inquiry-badge.done    { background: var(--accent-green-dim); color: var(--accent-green); }
+  .inquiry-q { color: var(--text-primary); margin-bottom: 6px; }
+  .inquiry-a {
+    background: var(--bg-card); padding: 8px 10px; border-radius: 6px;
+    color: var(--text-secondary); font-size: 11px; line-height: 1.6;
+  }
+  .inquiry-meta { font-size: 10px; color: var(--text-tertiary); }
+
+  /* Buttons */
+  .btn {
+    padding: 12px 24px; border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    border: none; font-family: inherit; transition: all 0.15s;
+  }
+  .btn-primary {
+    background: var(--naver-green); color: #fff;
+    width: 100%; padding: 16px; font-size: 15px;
+  }
+  .btn-primary:hover { background: #029e48; }
+  .btn-primary:disabled { background: var(--bg-elevated); color: var(--text-tertiary); cursor: not-allowed; }
+  .btn-secondary {
+    background: var(--bg-elevated); color: var(--text-primary);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: var(--bg-card-hover); }
+
+  /* Footer submit */
+  .submit-box {
+    background: linear-gradient(135deg, rgba(3,199,90,0.08), rgba(10,132,255,0.05));
+    border: 1px solid var(--naver-green);
+    border-radius: var(--radius-lg); padding: 24px;
+    margin-top: 24px; text-align: center;
+  }
+  .submit-box h3 { font-size: 15px; margin-bottom: 8px; }
+  .submit-box p { font-size: 12px; color: var(--text-secondary); margin-bottom: 16px; }
+  .save-indicator {
+    font-size: 11px; color: var(--text-tertiary);
+    text-align: right; margin-top: 4px;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: var(--bg-card); color: var(--text-primary);
+    padding: 12px 20px; border-radius: var(--radius-sm);
+    font-size: 13px; border: 1px solid var(--border);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    z-index: 1000; opacity: 0; pointer-events: none;
+    transition: all 0.3s;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(-8px); }
+  .toast.ok { border-color: var(--accent-green); }
+  .toast.err { border-color: var(--accent-red); }
+
+  /* Completed state */
+  .completion {
+    text-align: center; padding: 60px 20px;
+  }
+  .completion-icon {
+    font-size: 64px; margin-bottom: 16px;
+  }
+  .completion h1 { font-size: 24px; margin-bottom: 8px; }
+  .completion p { color: var(--text-secondary); margin-bottom: 24px; }
+
+  /* Error state */
+  .error-state {
+    text-align: center; padding: 80px 20px;
+  }
+  .error-state h1 { font-size: 20px; margin: 16px 0 8px; }
+  .error-state p { color: var(--text-secondary); font-size: 13px; }
+
+  @media (max-width: 600px) {
+    .field-row { grid-template-columns: 1fr; }
+    .hero { padding: 20px; }
+    .section { padding: 18px; }
+    .faq-item { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container" id="app">
+  <!-- Loading state (shown by default) -->
+  <div id="loadingState" style="text-align:center;padding:100px 20px;color:var(--text-tertiary)">
+    <div style="font-size:40px;margin-bottom:12px">⏳</div>
+    <div style="font-size:13px">브랜드 정보를 불러오는 중...</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =======================================================
+   베이비바우처 판매자 포털 (seller.html)
+   URL: seller.html?b=ACCTID
+   저장: localStorage + Apps Script endpoint (optional)
+   ======================================================= */
+
+// ---------- Configuration ----------
+// TODO: Apps Script 배포 완료 후 URL 교체
+const APPS_SCRIPT_URL = ''; // 예: 'https://script.google.com/macros/s/.../exec'
+const BANNER_GIST_URL = ''; // 예: 'https://gist.githubusercontent.com/.../raw/banners.json'
+
+// ---------- State ----------
+const params = new URLSearchParams(location.search);
+const ACCT_ID = (params.get('b') || '').trim();
+const STORAGE_KEY = 'bv_seller_' + ACCT_ID;
+
+let brandInfo = null;  // 어드민이 사전 입력한 브랜드 정보
+let formData = loadDraft();
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return {
+    contract: { agreed1: false, agreed2: false, agreed3: false, signName: '', signDate: '' },
+    info: { desc: '', manager: '', phone: '', email: '', address: '', storeUrl: '' },
+    faq: [{ q: '', a: '' }],
+    logo: null,       // { name, dataUrl, size }
+    shots: [],        // [{ name, dataUrl, size }]
+    submittedAt: null
+  };
+}
+
+function saveDraft() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+    const el = document.getElementById('saveIndicator');
+    if (el) {
+      el.textContent = '자동 저장됨 · ' + new Date().toLocaleTimeString('ko-KR');
+      el.style.color = 'var(--accent-green)';
+      setTimeout(() => { el.style.color = ''; }, 1500);
+    }
+  } catch (e) {
+    toast('저장 공간 초과 (이미지 크기 확인)', 'err');
+  }
+}
+
+function toast(msg, kind) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + (kind || '');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+// ---------- Brand lookup ----------
+async function fetchBrandInfo() {
+  // 1순위: admin 포털과 동일 Gist에서 조회 (auto-sync URL)
+  // 여기서는 admin.html과 같은 localStorage 캐시 공유가 불가능하므로,
+  // URL 쿼리에 브랜드명 힌트(?n=...) 가 있으면 사용, 없으면 ACCTID만 표시
+  return {
+    acctId: ACCT_ID,
+    name: params.get('n') || ACCT_ID,
+    type: params.get('t') || '',
+    mgr: params.get('m') || '',
+    email: params.get('e') || ''
+  };
+}
+
+// ---------- Rendering ----------
+function renderApp() {
+  const app = document.getElementById('app');
+  if (!ACCT_ID) {
+    app.innerHTML = `
+      <div class="error-state">
+        <div style="font-size:56px">&#128273;</div>
+        <h1>접근 링크가 올바르지 않습니다</h1>
+        <p>사업담당자에게 전용 접속 링크를 받아주세요.</p>
+      </div>`;
+    return;
+  }
+
+  if (formData.submittedAt) {
+    renderCompletion();
+    return;
+  }
+
+  app.innerHTML = `
+    ${renderHero()}
+    ${renderProgress()}
+    ${renderContract()}
+    ${renderInfo()}
+    ${renderFaq()}
+    ${renderAssets()}
+    ${renderBanners()}
+    ${renderInquiry()}
+    ${renderSubmit()}
+    <div class="save-indicator" id="saveIndicator">자동 저장 대기</div>
+  `;
+  hookHandlers();
+  refreshProgress();
+  loadBanners();
+}
+
+function renderHero() {
+  return `
+    <div class="hero">
+      <span class="hero-badge">NAVER PLUS MEMBERSHIP</span>
+      <div class="hero-title">베이비바우처 판매자 포털 👶</div>
+      <div class="hero-sub">안녕하세요 ${brandInfo.name} 담당자님! 아래 내용을 입력해 주시면 입점 절차가 마무리됩니다.</div>
+      <div class="hero-brand">
+        <div class="hero-brand-item"><label>브랜드</label><strong>${brandInfo.name}</strong></div>
+        <div class="hero-brand-item"><label>계정 ID</label><strong style="font-family:monospace">${brandInfo.acctId}</strong></div>
+        ${brandInfo.type ? `<div class="hero-brand-item"><label>혜택구분</label><strong>${brandInfo.type}</strong></div>` : ''}
+        ${brandInfo.mgr ? `<div class="hero-brand-item"><label>네이버 담당자</label><strong>${brandInfo.mgr}</strong></div>` : ''}
+      </div>
+    </div>`;
+}
+
+function renderProgress() {
+  return `
+    <div class="progress-bar">
+      <div class="progress-dot" data-step="contract"></div>
+      <div class="progress-dot" data-step="info"></div>
+      <div class="progress-dot" data-step="faq"></div>
+      <div class="progress-dot" data-step="logo"></div>
+      <div class="progress-dot" data-step="shots"></div>
+    </div>`;
+}
+
+function renderContract() {
+  const c = formData.contract;
+  return `
+    <div class="section" data-step="contract">
+      <div class="section-title">
+        <span class="section-num" id="num-contract">1</span>
+        <h2>계약 동의</h2>
+      </div>
+      <div class="section-desc">베이비바우처 참여에 필요한 약관 및 정책에 동의해 주세요.</div>
+
+      <div class="contract-box">
+        <h4>1. 베이비바우처 서비스 개요</h4>
+        <p>네이버플러스 멤버십 회원 중 출산·육아 가구를 대상으로 월 20만원 한도 내에서 참여사 상품 구매 시 추가 적립 혜택을 제공하는 프로그램입니다.</p>
+        <h4>2. 참여사 의무사항</h4>
+        <ul>
+          <li>지정 기간 내 쿠폰/적립 동의 완료</li>
+          <li>로고·연출컷 등 노출 소재 제공</li>
+          <li>계정ID·채널번호 정합성 유지</li>
+          <li>문의 발생 시 2영업일 내 회신</li>
+        </ul>
+        <h4>3. 정산 및 수수료</h4>
+        <p>쿠폰/적립은 참여사 비용으로 집행되며, 집행 내역은 월 단위로 정산됩니다. 상세 정산 정책은 별도 안내드립니다.</p>
+        <h4>4. 개인정보 처리</h4>
+        <p>본 폼에서 수집하는 정보는 입점 운영 목적 외 사용되지 않으며, 제출된 이미지는 네이버 서비스 면 노출 외 목적으로 사용되지 않습니다.</p>
+      </div>
+
+      <div class="check-row ${c.agreed1 ? 'checked' : ''}" data-check="agreed1">
+        <span class="check-box">${c.agreed1 ? '&check;' : ''}</span>
+        <span class="check-label">베이비바우처 <strong>운영 정책</strong>에 동의합니다 <em>*</em></span>
+      </div>
+      <div class="check-row ${c.agreed2 ? 'checked' : ''}" data-check="agreed2">
+        <span class="check-box">${c.agreed2 ? '&check;' : ''}</span>
+        <span class="check-label"><strong>이미지/소재 사용</strong>에 동의합니다 (서비스 면 노출 목적) <em>*</em></span>
+      </div>
+      <div class="check-row ${c.agreed3 ? 'checked' : ''}" data-check="agreed3">
+        <span class="check-box">${c.agreed3 ? '&check;' : ''}</span>
+        <span class="check-label">제출한 내용이 사실과 일치함을 확인합니다 <em>*</em></span>
+      </div>
+
+      <div class="field-row" style="margin-top:14px">
+        <div class="field">
+          <label>서명 (담당자 성함) <span class="req">*</span></label>
+          <input type="text" data-field="contract.signName" value="${c.signName || ''}" placeholder="홍길동">
+        </div>
+        <div class="field">
+          <label>서명 일자</label>
+          <input type="text" data-field="contract.signDate" value="${c.signDate || ''}" placeholder="YYYY-MM-DD">
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderInfo() {
+  const i = formData.info;
+  return `
+    <div class="section" data-step="info">
+      <div class="section-title">
+        <span class="section-num" id="num-info">2</span>
+        <h2>브랜드 정보</h2>
+      </div>
+      <div class="section-desc">판매자 연락처와 브랜드 설명을 입력해 주세요. 입력 내용은 네이버 내부 관리 목적으로 활용됩니다.</div>
+
+      <div class="field">
+        <label>브랜드 소개 (30자 이내 권장) <span class="req">*</span></label>
+        <textarea data-field="info.desc" maxlength="200" placeholder="예: 친환경 원료만 사용하는 프리미엄 유아 스킨케어 브랜드">${i.desc || ''}</textarea>
+        <div class="field-hint">판매자 노출 면에 사용될 수 있는 짧은 설명</div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>담당자 이름 <span class="req">*</span></label>
+          <input type="text" data-field="info.manager" value="${i.manager || ''}">
+        </div>
+        <div class="field">
+          <label>연락처 <span class="req">*</span></label>
+          <input type="tel" data-field="info.phone" value="${i.phone || ''}" placeholder="010-0000-0000">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>이메일 <span class="req">*</span></label>
+          <input type="email" data-field="info.email" value="${i.email || ''}" placeholder="manager@brand.com">
+        </div>
+        <div class="field">
+          <label>스토어 URL</label>
+          <input type="url" data-field="info.storeUrl" value="${i.storeUrl || ''}" placeholder="https://smartstore.naver.com/...">
+        </div>
+      </div>
+      <div class="field">
+        <label>회사 주소</label>
+        <input type="text" data-field="info.address" value="${i.address || ''}">
+      </div>
+    </div>`;
+}
+
+function renderFaq() {
+  return `
+    <div class="section" data-step="faq">
+      <div class="section-title">
+        <span class="section-num" id="num-faq">3</span>
+        <h2>자주 묻는 질문 (FAQ)</h2>
+        <span class="section-optional">선택</span>
+      </div>
+      <div class="section-desc">고객 응대에 활용될 FAQ를 미리 전달해 주시면 운영에 큰 도움이 됩니다.</div>
+      <div id="faqList">${renderFaqItems()}</div>
+      <button class="btn-add" onclick="addFaq()">+ FAQ 추가</button>
+    </div>`;
+}
+
+function renderFaqItems() {
+  return formData.faq.map((f, idx) => `
+    <div class="faq-item">
+      <input type="text" data-faq-idx="${idx}" data-faq-key="q" value="${escapeHtml(f.q)}" placeholder="질문 (예: 반품 정책)">
+      <input type="text" data-faq-idx="${idx}" data-faq-key="a" value="${escapeHtml(f.a)}" placeholder="답변">
+      <button class="btn-icon" onclick="removeFaq(${idx})">&times;</button>
+    </div>`).join('');
+}
+
+function renderAssets() {
+  return `
+    <div class="section" data-step="logo">
+      <div class="section-title">
+        <span class="section-num" id="num-logo">4</span>
+        <h2>로고 업로드</h2>
+      </div>
+      <div class="section-desc">PNG 투명배경 권장 · 정사각형 · 최대 5MB · 1장</div>
+      <div class="upload-zone" id="logoZone" onclick="document.getElementById('logoInput').click()">
+        <div class="upload-icon">🏷️</div>
+        <div class="upload-text">로고 파일 선택 또는 드래그</div>
+        <div class="upload-hint">PNG · JPG · WebP · 권장 512×512</div>
+      </div>
+      <input type="file" id="logoInput" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
+      <div id="logoPreview" class="preview-grid"></div>
+    </div>
+
+    <div class="section" data-step="shots">
+      <div class="section-title">
+        <span class="section-num" id="num-shots">5</span>
+        <h2>연출컷 업로드</h2>
+      </div>
+      <div class="section-desc">상품 사용·연출 이미지 · 최대 6장 · 각 5MB 이하</div>
+      <div class="upload-zone" id="shotsZone" onclick="document.getElementById('shotsInput').click()">
+        <div class="upload-icon">📸</div>
+        <div class="upload-text">연출컷 선택 또는 드래그 (여러장)</div>
+        <div class="upload-hint">PNG · JPG · WebP · 권장 1200×1200</div>
+      </div>
+      <input type="file" id="shotsInput" accept="image/*" multiple style="display:none" onchange="handleShotsUpload(event)">
+      <div id="shotsPreview" class="preview-grid"></div>
+    </div>`;
+}
+
+function renderBanners() {
+  return `
+    <div class="section">
+      <div class="section-title">
+        <span class="section-num" style="background:var(--accent-purple-dim);color:var(--accent-purple)">🎨</span>
+        <h2>이번 달 홍보 배너 다운로드</h2>
+      </div>
+      <div class="section-desc">자체 SNS·쇼핑 채널에서 자유롭게 활용하실 수 있는 공식 배너입니다.</div>
+      <div id="bannerList">
+        <div style="padding:16px;text-align:center;color:var(--text-tertiary);font-size:12px">
+          배너 목록을 불러오는 중...
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderInquiry() {
+  return `
+    <div class="section">
+      <div class="section-title">
+        <span class="section-num" style="background:var(--accent-orange-dim);color:var(--accent-orange)">💬</span>
+        <h2>문의하기</h2>
+      </div>
+      <div class="section-desc">베이비바우처 운영 관련 문의사항을 직접 남겨주세요. 네이버 담당자가 확인 후 회신드립니다.</div>
+
+      <div class="field">
+        <label>문의 유형</label>
+        <select id="inquiryType">
+          <option value="계약·정산">계약·정산</option>
+          <option value="쿠폰·MEM">쿠폰·MEM</option>
+          <option value="소재·배너">소재·배너</option>
+          <option value="기타">기타</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>문의 내용</label>
+        <textarea id="inquiryMsg" placeholder="문의 내용을 자세히 작성해 주세요." rows="4"></textarea>
+      </div>
+      <button class="btn btn-secondary" onclick="submitInquiry()" style="width:100%">문의 남기기</button>
+
+      <div id="inquiryHistory" style="margin-top:18px"></div>
+    </div>`;
+}
+
+function renderSubmit() {
+  return `
+    <div class="submit-box">
+      <h3>🎉 모든 항목을 확인하셨나요?</h3>
+      <p>제출 후에도 담당자가 요청하면 재편집 링크를 받으실 수 있습니다.</p>
+      <button class="btn btn-primary" id="submitBtn" onclick="handleSubmit()">입점 정보 제출하기</button>
+    </div>`;
+}
+
+function renderCompletion() {
+  const d = new Date(formData.submittedAt);
+  document.getElementById('app').innerHTML = `
+    <div class="completion">
+      <div class="completion-icon">🎉</div>
+      <h1>제출이 완료되었습니다!</h1>
+      <p>${brandInfo.name} 판매자님, 베이비바우처 참여를 환영합니다.<br>
+      제출 일시: ${d.toLocaleString('ko-KR')}</p>
+      <button class="btn btn-secondary" onclick="reopenForm()">수정하기</button>
+    </div>
+    ${renderBanners()}
+    ${renderInquiry()}
+  `;
+  loadBanners();
+}
+
+function reopenForm() {
+  formData.submittedAt = null;
+  saveDraft();
+  renderApp();
+}
+
+// ---------- Event handlers ----------
+function hookHandlers() {
+  // Text inputs
+  document.querySelectorAll('[data-field]').forEach(el => {
+    el.addEventListener('input', e => {
+      const path = e.target.dataset.field.split('.');
+      let ref = formData;
+      for (let i = 0; i < path.length - 1; i++) ref = ref[path[i]];
+      ref[path[path.length - 1]] = e.target.value;
+      saveDraft();
+      refreshProgress();
+    });
+  });
+
+  // Contract checkboxes
+  document.querySelectorAll('[data-check]').forEach(el => {
+    el.addEventListener('click', () => {
+      const k = el.dataset.check;
+      formData.contract[k] = !formData.contract[k];
+      el.classList.toggle('checked', formData.contract[k]);
+      el.querySelector('.check-box').innerHTML = formData.contract[k] ? '&check;' : '';
+      saveDraft();
+      refreshProgress();
+    });
+  });
+
+  // FAQ inputs
+  document.getElementById('faqList').addEventListener('input', e => {
+    if (!e.target.dataset.faqIdx) return;
+    const idx = parseInt(e.target.dataset.faqIdx);
+    const key = e.target.dataset.faqKey;
+    formData.faq[idx][key] = e.target.value;
+    saveDraft();
+    refreshProgress();
+  });
+
+  // Drag & drop for image zones
+  setupDragDrop('logoZone', files => handleLogoFiles(files));
+  setupDragDrop('shotsZone', files => handleShotsFiles(files));
+
+  // Render existing previews
+  renderLogoPreview();
+  renderShotsPreview();
+  renderInquiryHistory();
+}
+
+function setupDragDrop(zoneId, cb) {
+  const z = document.getElementById(zoneId);
+  if (!z) return;
+  z.addEventListener('dragover', e => { e.preventDefault(); z.classList.add('drag-over'); });
+  z.addEventListener('dragleave', () => z.classList.remove('drag-over'));
+  z.addEventListener('drop', e => {
+    e.preventDefault();
+    z.classList.remove('drag-over');
+    cb(e.dataTransfer.files);
+  });
+}
+
+function refreshProgress() {
+  const done = {
+    contract: formData.contract.agreed1 && formData.contract.agreed2 && formData.contract.agreed3 && formData.contract.signName,
+    info: formData.info.desc && formData.info.manager && formData.info.phone && formData.info.email,
+    faq: formData.faq.some(f => f.q && f.a),
+    logo: !!formData.logo,
+    shots: formData.shots.length > 0
+  };
+  Object.keys(done).forEach(k => {
+    const dot = document.querySelector(`.progress-dot[data-step="${k}"]`);
+    const num = document.getElementById('num-' + k);
+    if (dot) dot.classList.toggle('active', !!done[k]);
+    if (num) num.classList.toggle('done', !!done[k]);
+    if (num && done[k]) num.innerHTML = '&check;';
+  });
+  const requiredDone = done.contract && done.info && done.logo;
+  const btn = document.getElementById('submitBtn');
+  if (btn) btn.disabled = !requiredDone;
+}
+
+// ---------- FAQ management ----------
+function addFaq() {
+  formData.faq.push({ q: '', a: '' });
+  document.getElementById('faqList').innerHTML = renderFaqItems();
+  saveDraft();
+  refreshProgress();
+}
+function removeFaq(idx) {
+  formData.faq.splice(idx, 1);
+  if (formData.faq.length === 0) formData.faq.push({ q: '', a: '' });
+  document.getElementById('faqList').innerHTML = renderFaqItems();
+  saveDraft();
+  refreshProgress();
+}
+
+// ---------- Image upload ----------
+const MAX_IMG_SIZE = 5 * 1024 * 1024;
+const MAX_SHOTS = 6;
+
+function handleLogoUpload(e) { handleLogoFiles(e.target.files); e.target.value = ''; }
+function handleShotsUpload(e) { handleShotsFiles(e.target.files); e.target.value = ''; }
+
+function handleLogoFiles(files) {
+  if (!files || !files[0]) return;
+  const f = files[0];
+  if (!f.type.startsWith('image/')) return toast('이미지 파일만 업로드 가능합니다', 'err');
+  if (f.size > MAX_IMG_SIZE) return toast('파일이 너무 큽니다 (최대 5MB)', 'err');
+  readAsDataURL(f).then(dataUrl => {
+    formData.logo = { name: f.name, dataUrl, size: f.size };
+    renderLogoPreview();
+    saveDraft();
+    refreshProgress();
+  });
+}
+
+function handleShotsFiles(files) {
+  if (!files) return;
+  const arr = Array.from(files).filter(f => f.type.startsWith('image/'));
+  if (formData.shots.length + arr.length > MAX_SHOTS) {
+    return toast(`연출컷은 최대 ${MAX_SHOTS}장까지 가능합니다`, 'err');
+  }
+  Promise.all(arr.map(f => {
+    if (f.size > MAX_IMG_SIZE) { toast(`${f.name} 용량 초과 (5MB)`, 'err'); return null; }
+    return readAsDataURL(f).then(dataUrl => ({ name: f.name, dataUrl, size: f.size }));
+  })).then(results => {
+    results.filter(Boolean).forEach(r => formData.shots.push(r));
+    renderShotsPreview();
+    saveDraft();
+    refreshProgress();
+  });
+}
+
+function readAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function removeLogo() {
+  formData.logo = null;
+  renderLogoPreview();
+  saveDraft();
+  refreshProgress();
+}
+function removeShot(idx) {
+  formData.shots.splice(idx, 1);
+  renderShotsPreview();
+  saveDraft();
+  refreshProgress();
+}
+
+function renderLogoPreview() {
+  const el = document.getElementById('logoPreview');
+  if (!el) return;
+  if (!formData.logo) { el.innerHTML = ''; return; }
+  el.innerHTML = `
+    <div class="preview-item">
+      <img src="${formData.logo.dataUrl}" alt="logo">
+      <button class="preview-remove" onclick="removeLogo()">&times;</button>
+      <div class="preview-name">${escapeHtml(formData.logo.name)}</div>
+    </div>`;
+}
+
+function renderShotsPreview() {
+  const el = document.getElementById('shotsPreview');
+  if (!el) return;
+  el.innerHTML = formData.shots.map((s, idx) => `
+    <div class="preview-item">
+      <img src="${s.dataUrl}" alt="">
+      <button class="preview-remove" onclick="removeShot(${idx})">&times;</button>
+      <div class="preview-name">${escapeHtml(s.name)}</div>
+    </div>`).join('');
+}
+
+// ---------- Banners ----------
+async function loadBanners() {
+  const container = document.getElementById('bannerList');
+  if (!container) return;
+  try {
+    let banners = [];
+    if (BANNER_GIST_URL) {
+      const r = await fetch(BANNER_GIST_URL + '?t=' + Date.now());
+      banners = await r.json();
+    } else {
+      // 데모 데이터
+      const thisMonth = new Date().toISOString().slice(0, 7);
+      banners = [
+        { id: 'b-' + thisMonth + '-hero', title: thisMonth + ' 메인 배너', desc: '1920×1080 · 웹 상단용', url: '#', size: '1.2MB', month: thisMonth },
+        { id: 'b-' + thisMonth + '-sns',  title: thisMonth + ' SNS 정사각 배너', desc: '1080×1080 · 인스타그램용', url: '#', size: '850KB', month: thisMonth },
+        { id: 'b-' + thisMonth + '-story',title: thisMonth + ' 스토리 배너', desc: '1080×1920 · 세로형', url: '#', size: '720KB', month: thisMonth }
+      ];
+    }
+    if (!banners.length) {
+      container.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-tertiary);font-size:12px">이번 달 배너가 아직 등록되지 않았습니다</div>';
+      return;
+    }
+    container.innerHTML = banners.map(b => `
+      <div class="banner-card">
+        <div class="banner-thumb">${b.thumbUrl ? `<img src="${b.thumbUrl}">` : '🎨'}</div>
+        <div class="banner-info">
+          <div class="banner-title">${escapeHtml(b.title)}</div>
+          <div class="banner-meta">${escapeHtml(b.desc || '')} · ${b.size || ''}</div>
+        </div>
+        <a class="banner-download" href="${b.url}" download="${b.filename || b.title + '.png'}" target="_blank" onclick="recordBannerDownload('${b.id}')">⬇ 다운로드</a>
+      </div>`).join('');
+  } catch (e) {
+    container.innerHTML = '<div style="padding:16px;text-align:center;color:var(--accent-red);font-size:12px">배너를 불러올 수 없습니다</div>';
+  }
+}
+
+function recordBannerDownload(id) {
+  // Apps Script endpoint이 있으면 로그 전송 (없으면 무시)
+  if (!APPS_SCRIPT_URL) return;
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify({ kind: 'banner-download', acctId: ACCT_ID, bannerId: id, at: new Date().toISOString() })
+  }).catch(() => {});
+}
+
+// ---------- Inquiry ----------
+const INQUIRY_KEY = 'bv_inquiry_' + ACCT_ID;
+
+function loadInquiries() {
+  try { return JSON.parse(localStorage.getItem(INQUIRY_KEY) || '[]'); }
+  catch (e) { return []; }
+}
+function saveInquiries(list) {
+  localStorage.setItem(INQUIRY_KEY, JSON.stringify(list));
+}
+
+async function submitInquiry() {
+  const type = document.getElementById('inquiryType').value;
+  const msg = document.getElementById('inquiryMsg').value.trim();
+  if (!msg) return toast('문의 내용을 입력해 주세요', 'err');
+
+  const entry = {
+    id: 'q-' + Date.now(),
+    acctId: ACCT_ID,
+    brandName: brandInfo.name,
+    type, msg,
+    status: 'pending',
+    createdAt: new Date().toISOString(),
+    answer: null,
+    answeredAt: null
+  };
+  const list = loadInquiries();
+  list.unshift(entry);
+  saveInquiries(list);
+
+  // Apps Script로 전송 (있을 때만)
+  if (APPS_SCRIPT_URL) {
+    try {
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ kind: 'inquiry', ...entry })
+      });
+    } catch (e) {}
+  }
+
+  document.getElementById('inquiryMsg').value = '';
+  renderInquiryHistory();
+  toast('문의가 전달되었습니다', 'ok');
+}
+
+function renderInquiryHistory() {
+  const el = document.getElementById('inquiryHistory');
+  if (!el) return;
+  const list = loadInquiries();
+  if (!list.length) { el.innerHTML = ''; return; }
+  el.innerHTML = '<div style="font-size:11px;color:var(--text-tertiary);margin-bottom:8px">이전 문의 내역</div>' +
+    list.map(q => `
+      <div class="inquiry-thread">
+        <div class="inquiry-head">
+          <span class="inquiry-badge ${q.status === 'done' ? 'done' : 'pending'}">${q.status === 'done' ? '답변 완료' : '확인 중'} · ${escapeHtml(q.type)}</span>
+          <span class="inquiry-meta">${new Date(q.createdAt).toLocaleString('ko-KR')}</span>
+        </div>
+        <div class="inquiry-q">${escapeHtml(q.msg)}</div>
+        ${q.answer ? `<div class="inquiry-a"><strong>[답변]</strong> ${escapeHtml(q.answer)}</div>` : ''}
+      </div>`).join('');
+}
+
+// ---------- Submit ----------
+async function handleSubmit() {
+  const c = formData.contract;
+  if (!c.agreed1 || !c.agreed2 || !c.agreed3) return toast('모든 약관에 동의해 주세요', 'err');
+  if (!c.signName) return toast('담당자 서명을 입력해 주세요', 'err');
+  if (!formData.info.desc || !formData.info.manager || !formData.info.phone || !formData.info.email) return toast('브랜드 정보 필수 항목을 입력해 주세요', 'err');
+  if (!formData.logo) return toast('로고 이미지를 업로드해 주세요', 'err');
+
+  const payload = {
+    kind: 'submission',
+    acctId: ACCT_ID,
+    brandName: brandInfo.name,
+    submittedAt: new Date().toISOString(),
+    contract: formData.contract,
+    info: formData.info,
+    faq: formData.faq.filter(f => f.q || f.a),
+    logo: formData.logo,
+    shots: formData.shots
+  };
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '제출 중...';
+
+  try {
+    if (APPS_SCRIPT_URL) {
+      const r = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      if (!r.ok) throw new Error('Server error');
+    }
+    formData.submittedAt = payload.submittedAt;
+    saveDraft();
+    toast('제출이 완료되었습니다!', 'ok');
+    setTimeout(renderApp, 400);
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = '입점 정보 제출하기';
+    toast('제출 실패 · 다시 시도해 주세요', 'err');
+  }
+}
+
+// ---------- Utils ----------
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]);
+}
+
+// ---------- Boot ----------
+(async function init() {
+  brandInfo = await fetchBrandInfo();
+  renderApp();
+})();
+</script>
+
+</body>
+</html>
