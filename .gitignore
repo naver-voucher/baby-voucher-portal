@@ -1,0 +1,7 @@
+# 관리자 포털은 PII 포함 → public repo에 절대 올리지 않음
+admin.html
+
+# 내부 작업 메모 (담당자 이메일 포함)
+CLAUDE.md
+
+.DS_Store
