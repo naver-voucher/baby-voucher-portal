@@ -1,5 +1,6 @@
-# 관리자 포털은 PII 포함 → public repo에 절대 올리지 않음
-admin.html
+# 관리자 포털: 임시로 공개 배포 중 (PII 포함)
+# TODO: 사내 HTTPS 서버 배정되면 이관 후 다시 gitignore
+# admin.html
 
 # 내부 작업 메모 (담당자 이메일 포함)
 CLAUDE.md
