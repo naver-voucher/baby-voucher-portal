@@ -890,7 +890,7 @@ function render() {
   const app = document.getElementById('app');
 
   // 계정ID 없으면 랜딩 폼 (계정 ID 한 필드만)
-  if (!BRAND.acctId || !BRAND.brandName) {
+  if (!BRAND.acctId) {
     app.innerHTML = `
       <div class="denied" style="max-width:520px;">
         <h1>🏷 베이비바우처 판매자 포털</h1>
@@ -925,18 +925,13 @@ function render() {
         err.style.color = 'var(--accent-red, #ff453a)';
         return;
       }
-      err.textContent = '조회 중…';
-      err.style.color = 'var(--text-secondary)';
-      // 서버 → 클라이언트 순서로 자동 조회
-      let r = APPS_SCRIPT_URL ? hydrateBrandFromServer_(acct) : { ok:false };
-      if (!r || !r.ok) r = hydrateBrandFromClient_(acct);
-      if (r && r.ok && BRAND.brandName) {
-        sessionStorage.setItem('bv_acctId', acct);
-        location.reload();
-      } else {
-        err.textContent = '❌ 등록되지 않은 계정 ID 입니다. 베이비바우처 담당자에게 확인해 주세요.';
-        err.style.color = 'var(--accent-red, #ff453a)';
-      }
+      // 서버/클라이언트 map 조회는 시도하되, 없어도 그냥 진입시킴
+      // (브랜드명/담당자 등은 포털 내 정보 입력 단계에서 사용자가 채움)
+      if (APPS_SCRIPT_URL) { try { hydrateBrandFromServer_(acct); } catch(_) {} }
+      try { hydrateBrandFromClient_(acct); } catch(_) {}
+      BRAND.acctId = acct;
+      sessionStorage.setItem('bv_acctId', acct);
+      location.reload();
     });
     setTimeout(() => { if (inp) inp.focus(); }, 50);
     return;
