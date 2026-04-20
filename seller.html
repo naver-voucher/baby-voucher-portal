@@ -1053,6 +1053,7 @@ const defaultState = () => ({
   brandDesc:'',             // 12자 이내
   logo:null,                // {dataUrl, name, w, h, sizeKB}
   shot:null,                // {dataUrl, name, w, h, sizeKB}
+  eventProductSubmitted:false,  // Step 4: 상시행사장 대표 상품 제출 완료 체크
   info: {
     manager:BRAND.manager, phone:BRAND.phone, email:BRAND.email,
     storeUrl:'', address:''
@@ -1097,6 +1098,7 @@ function computeProgress() {
     { key:'solution', done: state.solutionAdded, label:'바우처 계약' },
     { key:'benefit',  done: state.benefit1 && state.benefit2 && state.benefit3, label:'혜택 동의' },
     { key:'material', done: !!state.logo && !!state.shot && !!state.brandDesc && state.brandDesc.length<=12, label:'소재 제출' },
+    { key:'eventProduct', done: !!state.eventProductSubmitted, label:'대표상품 제출' },
     { key:'info',     done: !!state.info.storeUrl && !!state.info.manager && !!state.info.email, label:'정보 입력' }
   ];
   const done = steps.filter(s=>s.done).length;
@@ -1165,7 +1167,8 @@ function render() {
       <div id="nav-step1">${renderSection(1, '바우처 계약', '커머스솔루션 마켓에서 바우처 솔루션을 추가하면 계약이 체결됩니다 (커머스솔루션 추가)', p.steps[0].done, renderSolutionSection())}</div>
       <div id="nav-step2">${renderSection(2, '혜택 적용 동의', '판매자센터에서 3종 혜택 적용에 동의합니다', p.steps[1].done, renderBenefitSection())}</div>
       <div id="nav-step3">${renderSection(3, '브랜드 소재 제출', '로고·연출컷·브랜드 설명 문구를 제출합니다', p.steps[2].done, renderMaterialSection())}</div>
-      <div id="nav-step4">${renderSection(4, '담당자 정보 확인', '연락 가능한 담당자 정보를 최신 상태로 유지합니다', p.steps[3].done, renderInfoSection())}</div>
+      <div id="nav-step4">${renderSection(4, '상시행사장 대표 상품 제출', '신규입점 브랜드사는 상시행사장에 노출될 대표 상품을 제출해 주세요', p.steps[3].done, renderEventProductSection())}</div>
+      <div id="nav-step5">${renderSection(5, '담당자 정보 확인', '연락 가능한 담당자 정보를 최신 상태로 유지합니다', p.steps[4].done, renderInfoSection())}</div>
       <div id="nav-assets">${renderAssetSection()}</div>
       <div id="nav-extra">${renderExtraSubmitSection()}</div>
       <div id="nav-inquiry">${renderInquirySection()}</div>
@@ -1218,8 +1221,8 @@ function renderHero() {
           <div class="label">담당자 이메일</div>
           <div class="hero-email">
             <span class="value" style="font-size:12px;">${escapeHtml(BRAND.email || '—')}</span>
-            <button class="btn-pill" id="req-change-manager" title="담당자 교체 공유">
-              <span>교체 공유</span>
+            <button class="btn-pill" id="req-change-manager" title="담당자 교체">
+              <span>담당자 교체</span>
             </button>
           </div>
         </div>
@@ -1532,15 +1535,28 @@ function renderInfoSection() {
   `;
 }
 
+function renderEventProductSection() {
+  const submitted = !!state.eventProductSubmitted;
+  return `
+    <div class="callout callout-info" style="margin-bottom:14px;">
+      <span class="callout-icon">🏷</span>
+      <div>
+        상시행사장(베이비바우처 홈)에 노출될 <b>대표 상품</b>을 아래 폼으로 제출해 주세요.
+        <div style="margin-top:4px;font-size:12px;color:var(--text-tertiary);">※ 신규입점 브랜드사 대상 · <b>회신 마감 동일 (4/24 금 오후 2시)</b></div>
+      </div>
+    </div>
+    <a class="btn btn-primary" href="https://naver.me/xMnceuCf" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none;margin-bottom:12px;">
+      대표 상품 제출 폼 열기 ↗
+    </a>
+    <label class="check-item ${submitted?'checked':''}" data-check="eventProductSubmitted" style="cursor:pointer;">
+      <input type="checkbox" ${submitted?'checked':''}>
+      <span>제출 완료 (폼 작성 후 체크)</span>
+    </label>
+  `;
+}
+
 function renderExtraSubmitSection() {
   const items = [
-    {
-      tag:'신규입점',
-      tagColor:'var(--accent-green, #32d74b)',
-      title:'상시행사장 대표 상품 취합',
-      desc:'상시행사장에 노출할 대표 상품을 제출해 주세요. (신규입점 브랜드사 대상)',
-      url:'https://naver.me/xMnceuCf'
-    },
     {
       tag:'매월',
       tagColor:'var(--accent-blue, #0a84ff)',
@@ -1745,7 +1761,7 @@ function renderInquirySection() {
           </div>
           <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);margin:6px 0 10px;cursor:pointer;">
             <input type="checkbox" id="ho-replace-info" style="width:14px;height:14px;accent-color:var(--naver-green);">
-            4번 "담당자 정보" 섹션도 이 정보로 함께 업데이트
+            5번 "담당자 정보" 섹션도 이 정보로 함께 업데이트
           </label>
         </div>
 
@@ -1832,14 +1848,15 @@ function renderFaqSection() {
 }
 
 function renderVNav(p) {
-  const doneCount = [p.steps[0].done, p.steps[1].done, p.steps[2].done].filter(Boolean).length;
+  const doneCount = [p.steps[0].done, p.steps[1].done, p.steps[2].done, p.steps[3].done].filter(Boolean).length;
   const prepItems = [
     { id:'nav-step1', num:'1', label:'바우처 계약', done:p.steps[0].done, track:true },
     { id:'nav-step2', num:'2', label:'혜택 동의',   done:p.steps[1].done, track:true },
-    { id:'nav-step3', num:'3', label:'소재 제출',   done:p.steps[2].done, track:true }
+    { id:'nav-step3', num:'3', label:'소재 제출',   done:p.steps[2].done, track:true },
+    { id:'nav-step4', num:'4', label:'대표상품',    done:p.steps[3].done, track:true }
   ];
   const infoItems = [
-    { id:'nav-step4',  icon:'👤', label:'담당자 정보' },
+    { id:'nav-step5',  icon:'👤', label:'담당자 정보' },
     { id:'nav-assets', icon:'📥', label:'이번달 에셋' },
     { id:'nav-extra',  icon:'📝', label:'추가 취합' },
     { id:'nav-inquiry',icon:'💬', label:'문의하기' },
@@ -1854,7 +1871,7 @@ function renderVNav(p) {
     <nav class="vnav" aria-label="섹션 바로가기">
       <div class="vnav-summary">
         <span>입점 준비</span>
-        <span><b>${doneCount}</b> / 3 완료</span>
+        <span><b>${doneCount}</b> / 4 완료</span>
       </div>
 
       <div class="vnav-title">개요</div>
@@ -2213,6 +2230,7 @@ function handleSubmit() {
     solutionAdded: state.solutionAdded,
     benefit: { b1:state.benefit1, b2:state.benefit2, b3:state.benefit3 },
     brandDesc: state.brandDesc,
+    eventProductSubmitted: state.eventProductSubmitted,
     info: state.info,
     logo: state.logo,
     shot: state.shot
