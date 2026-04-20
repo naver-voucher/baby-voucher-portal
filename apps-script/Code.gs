@@ -84,6 +84,8 @@ function setUp() {
   ]);
   ensureSheet_(ss, 'BannerLogs', ['at','acctId','bannerId']);
   ensureSheet_(ss, 'Exports',    ['exportedAt','ym','count','zipUrl','by']);
+  // brandId 기준 브랜드 정보 (담당자 변경 시 URL 바꾸지 않기 위해 서버에 저장)
+  ensureSheet_(ss, 'Brands', ['brandId','brandName','subvertical','managerName','managerEmail','updatedAt','memo']);
 
   Logger.log('Setup complete. Folder: ' + folder.getUrl() + ' | Sheet: ' + ss.getUrl());
   return {
@@ -116,6 +118,7 @@ function doPost(e) {
       case 'inquiry':          result = handleInquiry_(body); break;
       case 'inquiry-answer':   result = handleInquiryAnswer_(body); break;
       case 'banner-download':  result = handleBannerLog_(body); break;
+      case 'brand-upsert':     result = handleBrandUpsert_(body); break;
       default: result = { ok: false, error: 'unknown kind: ' + body.kind };
     }
     return jsonResponse_(result);
@@ -137,6 +140,12 @@ function doGet(e) {
       return jsonResponse_(exportMonthZip_(ym, by));
     }
     if (kind === 'ping')        return jsonResponse_({ ok: true, ts: new Date().toISOString() });
+    if (kind === 'brand') {
+      const b = (e.parameter.b || '').trim();
+      if (!b) return jsonResponse_({ ok: false, error: 'b (brandId) required' });
+      return jsonResponse_(readBrand_(b));
+    }
+    if (kind === 'brands')      return jsonResponse_(readSheet_('Brands'));
     return jsonResponse_({ ok: false, error: 'unknown kind' });
   } catch (err) {
     return jsonResponse_({ ok: false, error: String(err) });
@@ -408,6 +417,43 @@ function upsertRow_(sh, keyColIdx, keyVal, row) {
     }
   }
   sh.appendRow(row);
+}
+
+// ==================== BRANDS ====================
+/** brandId 기준 Brands 시트에서 단일 row 조회. 없으면 {ok:false}. */
+function readBrand_(brandId) {
+  const ss = SpreadsheetApp.openById(props().getProperty('SHEET_ID'));
+  const sh = ss.getSheetByName('Brands');
+  if (!sh || sh.getLastRow() < 2) return { ok:false, error:'no brand data' };
+  const data = sh.getDataRange().getValues();
+  const headers = data[0];
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0]).trim() === String(brandId).trim()) {
+      const obj = { ok:true };
+      headers.forEach((h, idx) => obj[h] = data[i][idx]);
+      return obj;
+    }
+  }
+  return { ok:false, error:'brand not found: ' + brandId };
+}
+
+/** admin 에서 브랜드 추가/수정. body: {brandId, brandName, subvertical, managerName, managerEmail, memo?} */
+function handleBrandUpsert_(body) {
+  if (!body.brandId) return { ok:false, error:'brandId required' };
+  const ss = SpreadsheetApp.openById(props().getProperty('SHEET_ID'));
+  const sh = ss.getSheetByName('Brands');
+  if (!sh) return { ok:false, error:'Brands sheet missing — run setUp()' };
+  const row = [
+    body.brandId,
+    body.brandName || '',
+    body.subvertical || '',
+    body.managerName || '',
+    body.managerEmail || '',
+    new Date().toISOString(),
+    body.memo || ''
+  ];
+  upsertRow_(sh, 0, body.brandId, row);
+  return { ok:true, brandId: body.brandId };
 }
 
 function sanitize_(name) {
