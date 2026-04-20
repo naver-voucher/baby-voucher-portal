@@ -508,6 +508,28 @@
     border-left:2px solid var(--accent-green);
   }
 
+  /* Extra submit cards */
+  .extra-list { display:flex; flex-direction:column; gap:10px; }
+  .extra-card {
+    display:block; padding:14px 16px; border-radius:10px;
+    background:rgba(255,255,255,.03); border:1px solid var(--border);
+    text-decoration:none; color:inherit; transition:background .15s, border-color .15s;
+  }
+  .extra-card:hover { background:rgba(255,255,255,.06); border-color:rgba(255,159,10,.4); }
+  .extra-card-head { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  .extra-tag {
+    font-size:10px; font-weight:700; letter-spacing:.04em;
+    padding:2px 8px; border:1px solid; border-radius:999px;
+    text-transform:uppercase;
+  }
+  .extra-card-title { font-size:14px; font-weight:600; color:var(--text-primary); }
+  .extra-card-desc { font-size:12px; color:var(--text-secondary); line-height:1.5; margin-bottom:8px; }
+  .extra-card-link {
+    font-size:11px; color:var(--accent-blue,#0a84ff);
+    font-family:'SF Mono', Menlo, monospace;
+    word-break:break-all;
+  }
+
   /* FAQ */
   .faq-group + .faq-group { margin-top:20px; }
   .faq-group-title {
@@ -1145,6 +1167,7 @@ function render() {
       <div id="nav-step3">${renderSection(3, '브랜드 소재 제출', '로고·연출컷·브랜드 설명 문구를 제출합니다', p.steps[2].done, renderMaterialSection())}</div>
       <div id="nav-step4">${renderSection(4, '담당자 정보 확인', '연락 가능한 담당자 정보를 최신 상태로 유지합니다', p.steps[3].done, renderInfoSection())}</div>
       <div id="nav-assets">${renderAssetSection()}</div>
+      <div id="nav-extra">${renderExtraSubmitSection()}</div>
       <div id="nav-inquiry">${renderInquirySection()}</div>
       <div id="nav-faq">${renderFaqSection()}</div>
     </div>
@@ -1509,6 +1532,51 @@ function renderInfoSection() {
   `;
 }
 
+function renderExtraSubmitSection() {
+  const items = [
+    {
+      tag:'신규입점',
+      tagColor:'var(--accent-green, #32d74b)',
+      title:'상시행사장 대표 상품 취합',
+      desc:'상시행사장에 노출할 대표 상품을 제출해 주세요. (신규입점 브랜드사 대상)',
+      url:'https://naver.me/xMnceuCf'
+    },
+    {
+      tag:'매월',
+      tagColor:'var(--accent-blue, #0a84ff)',
+      title:'베이비바우처 라이브 진입점 노출 · 라이브ID 취합',
+      desc:'베이비바우처 홈 라이브 영역에 노출될 라이브 ID를 매월 제출해 주세요. (신규+기존 운영사 모두 해당)',
+      url:'https://naver.me/GresHlI0'
+    }
+  ];
+  return `
+    <div class="section" data-sec="extra">
+      <div class="sec-head" data-toggle="extra">
+        <div class="sec-num" style="background:var(--accent-orange-dim,rgba(255,159,10,.12));color:var(--accent-orange,#ff9f0a);border-color:rgba(255,159,10,.3);">📝</div>
+        <div class="sec-title-wrap">
+          <div class="sec-title">추가 취합 항목</div>
+          <div class="sec-desc">상시행사장 상품 · 라이브ID 등 별도 제출 링크</div>
+        </div>
+        <svg class="sec-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sec-body">
+        <div class="extra-list">
+          ${items.map(it=>`
+            <a class="extra-card" href="${it.url}" target="_blank" rel="noopener">
+              <div class="extra-card-head">
+                <span class="extra-tag" style="color:${it.tagColor};border-color:${it.tagColor};">${it.tag}</span>
+                <span class="extra-card-title">${escapeHtml(it.title)}</span>
+              </div>
+              <div class="extra-card-desc">${escapeHtml(it.desc)}</div>
+              <div class="extra-card-link">${it.url} ↗</div>
+            </a>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function renderAssetSection() {
   const isKookmin = CT && CT.key === 'point';
   const label = isKookmin ? '국민템 브랜드사 에셋' : '일반 브랜드사 에셋';
@@ -1773,6 +1841,7 @@ function renderVNav(p) {
   const infoItems = [
     { id:'nav-step4',  icon:'👤', label:'담당자 정보' },
     { id:'nav-assets', icon:'📥', label:'이번달 에셋' },
+    { id:'nav-extra',  icon:'📝', label:'추가 취합' },
     { id:'nav-inquiry',icon:'💬', label:'문의하기' },
     { id:'nav-faq',    icon:'❓', label:'FAQ' }
   ];
