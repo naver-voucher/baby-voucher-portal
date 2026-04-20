@@ -889,42 +889,20 @@ function computeProgress() {
 function render() {
   const app = document.getElementById('app');
 
-  // 계정ID 또는 브랜드명이 없으면 랜딩 폼
+  // 계정ID 없으면 랜딩 폼 (계정 ID 한 필드만)
   if (!BRAND.acctId || !BRAND.brandName) {
-    const subOptions = [
-      {v:'BABY_YUKAH',label:'육아 생필품 (웰컴할인적립형)'},
-      {v:'BABY_TOYEDU',label:'장난감·교육 (웰컴할인적립형)'},
-      {v:'BABY_LIVING',label:'주방·리빙용품 (웰컴할인적립형)'},
-      {v:'BABY_KIDSFASHION',label:'키즈 패션 (상시할인적립형)'},
-      {v:'BABY_KOOKMIN',label:'국민육아템 (적립형)'},
-      {v:'BABY_YUAKH_JONGHAP',label:'육아 생필품 종합몰 (종합몰형)'}
-    ].map(o => `<option value="${o.v}">${o.label}</option>`).join('');
-
     app.innerHTML = `
-      <div class="denied" style="max-width:560px;">
+      <div class="denied" style="max-width:520px;">
         <h1>🏷 베이비바우처 판매자 포털</h1>
-        <p style="margin-bottom:24px;">브랜드사별 고유한 <b>계정 ID</b>를 입력해 주세요. (스마트스토어센터에서 확인 가능)</p>
-        <form id="acctLoginForm" style="display:flex;flex-direction:column;gap:12px;">
+        <p style="margin-bottom:24px;">브랜드사별 고유한 <b>계정 ID</b>를 입력해 주세요.</p>
+        <form id="acctLoginForm" style="display:flex;flex-direction:column;gap:10px;">
           <label style="font-size:13px;color:var(--text-secondary);">계정 ID <span style="color:var(--accent-red);">*</span></label>
           <input id="acctLoginInput" type="text" autocomplete="off" placeholder="ncp_xxxxxx_xx" required
             style="padding:14px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-primary);font-size:15px;"
             value="${escapeHtml(BRAND.acctId || '')}" />
-
-          <label style="font-size:13px;color:var(--text-secondary);margin-top:8px;">브랜드명 <span style="color:var(--accent-red);">*</span></label>
-          <input id="brandNameInput" type="text" autocomplete="off" placeholder="예: 팸퍼스" required
-            style="padding:14px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-primary);font-size:15px;"
-            value="${escapeHtml(BRAND.brandName || '')}" />
-
-          <label style="font-size:13px;color:var(--text-secondary);margin-top:8px;">서브버티컬 <span style="color:var(--accent-red);">*</span></label>
-          <select id="subVInput" required
-            style="padding:14px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-primary);font-size:15px;">
-            <option value="">선택해 주세요</option>
-            ${subOptions}
-          </select>
-
-          <button type="submit" style="margin-top:12px;padding:14px 22px;border-radius:10px;border:0;background:var(--naver-green,#03c75a);color:#fff;font-weight:600;cursor:pointer;font-size:15px;">입점 준비 시작</button>
+          <button type="submit" style="margin-top:8px;padding:14px 22px;border-radius:10px;border:0;background:var(--naver-green,#03c75a);color:#fff;font-weight:600;cursor:pointer;font-size:15px;">입점 준비 시작</button>
         </form>
-        <div id="acctLoginErr" style="margin-top:12px;color:var(--accent-red,#ff453a);font-size:13px;min-height:18px;"></div>
+        <div id="acctLoginErr" style="margin-top:12px;font-size:13px;min-height:18px;"></div>
         <div style="margin-top:24px;padding:16px;background:var(--bg-elevated,#242424);border:1px solid var(--border);border-radius:10px;">
           <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">💡 계정 ID 확인 방법</div>
           <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">계정 ID는 브랜드사별 <b>고유 번호</b>입니다. 아래 경로에서 확인하세요:</div>
@@ -937,61 +915,28 @@ function render() {
 
     const f   = document.getElementById('acctLoginForm');
     const inp = document.getElementById('acctLoginInput');
-    const bnm = document.getElementById('brandNameInput');
-    const sv  = document.getElementById('subVInput');
     const err = document.getElementById('acctLoginErr');
-
-    // 계정 ID 입력 후 blur 시 자동 조회 → 필드 자동 채움
-    if (inp) inp.addEventListener('blur', function(){
-      const v = (inp.value||'').trim();
-      if (!v) return;
-      err.textContent = '조회 중…';
-      let r = APPS_SCRIPT_URL ? hydrateBrandFromServer_(v) : { ok:false };
-      if (!r || !r.ok) r = hydrateBrandFromClient_(v);
-      if (r && r.ok) {
-        if (BRAND.brandName) bnm.value = BRAND.brandName;
-        if (BRAND.subvertical) {
-          const opt = Array.from(sv.options).find(o => o.value.toUpperCase() === BRAND.subvertical.toUpperCase());
-          if (opt) sv.value = opt.value;
-        }
-        err.textContent = '✓ 등록된 브랜드 정보를 불러왔습니다';
-        err.style.color = 'var(--accent-green, #30d158)';
-      } else {
-        err.textContent = '미등록 브랜드입니다. 아래 정보를 직접 입력해 주세요.';
-        err.style.color = 'var(--text-secondary)';
-      }
-    });
 
     if (f) f.addEventListener('submit', function(ev){
       ev.preventDefault();
       const acct = (inp.value||'').trim();
-      // 제출 직전에도 한 번 더 자동 조회 (blur 안 거친 경우 대비)
-      if (acct && (!bnm.value || !sv.value)) {
-        let r = APPS_SCRIPT_URL ? hydrateBrandFromServer_(acct) : { ok:false };
-        if (!r || !r.ok) r = hydrateBrandFromClient_(acct);
-        if (r && r.ok) {
-          if (!bnm.value && BRAND.brandName) bnm.value = BRAND.brandName;
-          if (!sv.value && BRAND.subvertical) {
-            const opt = Array.from(sv.options).find(o => o.value.toUpperCase() === String(BRAND.subvertical).toUpperCase());
-            if (opt) sv.value = opt.value;
-          }
-        }
-      }
-      const name = (bnm.value||'').trim();
-      const subv = (sv.value||'').trim();
-      if (!acct || !name || !subv) {
-        err.textContent = '모든 필드를 입력해 주세요.';
-        err.style.color = 'var(--accent-red)';
+      if (!acct) {
+        err.textContent = '계정 ID 를 입력해 주세요.';
+        err.style.color = 'var(--accent-red, #ff453a)';
         return;
       }
-      // 세션에 저장 + BRAND 업데이트 → 바로 포털 진입
-      BRAND.acctId = acct;
-      BRAND.brandName = name;
-      BRAND.subvertical = subv;
-      sessionStorage.setItem('bv_acctId', acct);
-      sessionStorage.setItem('bv_brandName', name);
-      sessionStorage.setItem('bv_subvertical', subv);
-      location.reload();
+      err.textContent = '조회 중…';
+      err.style.color = 'var(--text-secondary)';
+      // 서버 → 클라이언트 순서로 자동 조회
+      let r = APPS_SCRIPT_URL ? hydrateBrandFromServer_(acct) : { ok:false };
+      if (!r || !r.ok) r = hydrateBrandFromClient_(acct);
+      if (r && r.ok && BRAND.brandName) {
+        sessionStorage.setItem('bv_acctId', acct);
+        location.reload();
+      } else {
+        err.textContent = '❌ 등록되지 않은 계정 ID 입니다. 베이비바우처 담당자에게 확인해 주세요.';
+        err.style.color = 'var(--accent-red, #ff453a)';
+      }
     });
     setTimeout(() => { if (inp) inp.focus(); }, 50);
     return;
