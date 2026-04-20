@@ -739,6 +739,26 @@ const BRAND = {
   phone:      params.get('p') || '',
   deadline:   params.get('d') || ''
 };
+// Apps Script 미배포 상태에서도 데모 가능하도록 클라이언트 fallback 매핑
+// (서버 조회 실패 시에만 사용, 서버에 Brands 시트가 생기면 자동으로 서버값 우선)
+const KNOWN_BRANDS = {
+  'ncp_1ntdhz_01': { brandName:'팸퍼스', subvertical:'BABY_YUKAH', managerName:'정서현', managerEmail:'chung.s.9@pg.com' },
+  'ncp_1ocyrl_01': { brandName:'베베룬', subvertical:'BABY_KIDSFASHION', managerName:'고연수', managerEmail:'hmpark@themanners.co.kr' },
+  'ncp_1obqel_01': { brandName:'리포소 홈', subvertical:'BABY_KOOKMIN', managerName:'이민호', managerEmail:'sorceress5@naver.com' }
+};
+function hydrateBrandFromClient_(brandId) {
+  const key = String(brandId||'').trim();
+  const rec = KNOWN_BRANDS[key];
+  if (!rec) return { ok:false, error:'not in client map' };
+  BRAND.acctId = key;
+  BRAND.brandName = rec.brandName;
+  BRAND.subvertical = rec.subvertical;
+  BRAND.manager = rec.managerName || '';
+  BRAND.email = rec.managerEmail || '';
+  sessionStorage.setItem('bv_acctId', key);
+  return { ok:true, source:'client' };
+}
+
 // 서버에서 브랜드 정보 조회. acctId 있을 때만.
 function hydrateBrandFromServer_(brandId) {
   if (!APPS_SCRIPT_URL || !brandId) return { ok:false, error:'no server or no id' };
@@ -760,7 +780,10 @@ function hydrateBrandFromServer_(brandId) {
     return r;
   } catch(e) { return { ok:false, error:String(e) }; }
 }
-if (BRAND.acctId) hydrateBrandFromServer_(BRAND.acctId);
+if (BRAND.acctId) {
+  const sr = hydrateBrandFromServer_(BRAND.acctId);
+  if (!sr || !sr.ok) hydrateBrandFromClient_(BRAND.acctId); // 서버 실패 시 클라이언트 map fallback
+}
 const CT = resolveContractType(BRAND.subvertical);
 
 // 해당 연·월의 "마지막 영업일(월~금) 18:00" 반환
@@ -880,7 +903,7 @@ function render() {
     app.innerHTML = `
       <div class="denied" style="max-width:560px;">
         <h1>🏷 베이비바우처 판매자 포털</h1>
-        <p style="margin-bottom:24px;">담당자로부터 안내받은 <b>스토어 계정 ID</b>와 <b>브랜드명</b>을 입력해 주세요.</p>
+        <p style="margin-bottom:24px;">담당자로부터 안내받은 <b>계정 ID</b>를 입력해 주세요.</p>
         <form id="acctLoginForm" style="display:flex;flex-direction:column;gap:12px;">
           <label style="font-size:13px;color:var(--text-secondary);">계정 ID <span style="color:var(--accent-red);">*</span></label>
           <input id="acctLoginInput" type="text" autocomplete="off" placeholder="ncp_xxxxxx_xx" required
@@ -914,9 +937,10 @@ function render() {
     // 계정 ID 입력 후 blur 시 자동 조회 → 필드 자동 채움
     if (inp) inp.addEventListener('blur', function(){
       const v = (inp.value||'').trim();
-      if (!v || !APPS_SCRIPT_URL) return;
-      err.textContent = '서버 조회 중…';
-      const r = hydrateBrandFromServer_(v);
+      if (!v) return;
+      err.textContent = '조회 중…';
+      let r = APPS_SCRIPT_URL ? hydrateBrandFromServer_(v) : { ok:false };
+      if (!r || !r.ok) r = hydrateBrandFromClient_(v);
       if (r && r.ok) {
         if (BRAND.brandName) bnm.value = BRAND.brandName;
         if (BRAND.subvertical) {
