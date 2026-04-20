@@ -1417,9 +1417,7 @@ function renderFaqSection() {
   const faqs = [
     { q:'계약은 어떻게 진행되나요?', a:'베이비바우처 계약은 <b>커머스솔루션 마켓</b>에서 전자계약으로 진행됩니다. 우리 포털에서는 완료 여부만 체크하며, 이 포털 자체로는 계약이 체결되지 않습니다.' },
     { q:'계약 기간과 갱신은?', a:'기본 1년, 6개월마다 자동 갱신됩니다. 갱신하지 않을 경우 만료일 기준으로 퇴점 처리됩니다.' },
-    { q:'정산은 어떻게 되나요?', a:'할인과 적립 모두 대금 지급 시 <b>상계 처리</b> 방식으로 진행됩니다. 월간 정산 내역은 별도 메일로 발송됩니다.' },
-    { q:'왜 매달 에셋을 교체하나요?', a:'현대카드 심의로 인해 매월 에셋 교체가 필요합니다. 매월 D-1주에 새 에셋이 드라이브에 업로드됩니다.' },
-    { q:'담당자가 바뀌었어요', a:'4번 섹션(담당자 정보 확인)에서 수정 후 제출해 주세요. 또는 문의하기로 연락 주셔도 됩니다.' }
+    { q:'정산은 어떻게 되나요?', a:'할인과 적립 모두 대금 지급 시 <b>상계 처리</b> 방식으로 진행됩니다. 월간 정산 내역은 별도 메일로 발송됩니다.' }
   ];
   return `
     <div class="section" data-sec="faq">
@@ -1427,7 +1425,7 @@ function renderFaqSection() {
         <div class="sec-num" style="background:var(--bg-elevated);">FAQ</div>
         <div class="sec-title-wrap">
           <div class="sec-title">자주 묻는 질문</div>
-          <div class="sec-desc">계약·정산·에셋·퇴점 관련 안내</div>
+          <div class="sec-desc">계약·정산 관련 안내</div>
         </div>
         <svg class="sec-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
