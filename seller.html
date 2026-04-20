@@ -674,40 +674,41 @@ const BENEFIT_ADMIN_URL = 'https://sell.smartstore.naver.com/';
 const CONTRACT_TYPES = {
   welcome:   {
     name:'웰컴할인적립형', icon:'🎁',
-    solutionName:'2025 베이비바우처 (1) 웰컴할인적립형',
     desc:'최대 50% 웰컴 할인 + 10% 적립',
     subverticals:['BABY_YUKAH','BABY_TOYEDU','BABY_LIVING'],
-    subVertNames:{BABY_YUKAH:'육아 생필품', BABY_TOYEDU:'장난감·교육', BABY_LIVING:'주방·리빙용품'},
+    // subvertical별 실제 커머스솔루션 마켓 노출명
+    subVertNames:{
+      BABY_YUKAH:'베이비바우처 육아생필품',
+      BABY_TOYEDU:'베이비바우처 장난감교육(도서)',
+      BABY_LIVING:'베이비바우처 리빙'
+    },
     scope:'스토어 전체 상품',
     hasCoupon:true,
     termsUrl:'https://nid.naver.com/user2/common/terms/terms2?t=MEM_voucher_baby_type1&v=1'
   },
   standing: {
     name:'상시할인적립형', icon:'🛍',
-    solutionName:'2025 베이비바우처 (2) 상시할인적립형',
     desc:'매월 10% 할인 3장 + 10% 적립',
     subverticals:['BABY_KIDSFASHION'],
-    subVertNames:{BABY_KIDSFASHION:'키즈 패션'},
+    subVertNames:{BABY_KIDSFASHION:'베이비바우처 키즈패션'},
     scope:'출산/육아 카테고리',
     hasCoupon:true,
     termsUrl:'https://nid.naver.com/user2/common/terms/terms2?t=MEM_voucher_baby_type2&v=1'
   },
   point: {
     name:'적립형', icon:'⭐',
-    solutionName:'2025 베이비바우처 (3) 적립형',
     desc:'상시 10% 추가 적립 (쿠폰 없음)',
     subverticals:['BABY_KOOKMIN'],
-    subVertNames:{BABY_KOOKMIN:'국민육아템'},
+    subVertNames:{BABY_KOOKMIN:'베이비바우처 국민육아템'},
     scope:'전 상품',
     hasCoupon:false,
     termsUrl:'https://nid.naver.com/user2/common/terms/terms2?t=MEM_voucher_baby_type3&v=1'
   },
   mall: {
     name:'종합몰형', icon:'🏬',
-    solutionName:'2025 베이비바우처 (4) 종합몰형',
     desc:'최대 50% 웰컴 할인 + 10% 적립',
     subverticals:['BABY_YUAKH_JONGHAP'],
-    subVertNames:{BABY_YUAKH_JONGHAP:'육아 생필품 (종합몰)'},
+    subVertNames:{BABY_YUAKH_JONGHAP:'베이비바우처 국민육아템 종합몰'},
     scope:'출산/육아 카테고리 한정',
     hasCoupon:true,
     termsUrl:'https://nid.naver.com/user2/common/terms/terms2?t=MEM_voucher_baby_type4&v=1'
@@ -1257,7 +1258,7 @@ function renderSection(num, title, desc, done, body) {
 
 function renderSolutionSection() {
   if (!CT) return `<div class="callout callout-warn">서브버티컬이 확인되지 않아 해당 솔루션 유형을 안내할 수 없습니다.</div>`;
-  const solutionLabel = CT.solutionName || `베이비바우처 ${Object.values(CT.subVertNames)[0]}`;
+  const solutionLabel = (CT.subVertNames && CT.subVertNames[CT.matchedSubvertical]) || Object.values(CT.subVertNames)[0];
   const steps = [
     {
       t:'커머스솔루션 마켓 접속',
