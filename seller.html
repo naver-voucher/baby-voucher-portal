@@ -1556,38 +1556,30 @@ function renderEventProductSection() {
 }
 
 function renderExtraSubmitSection() {
-  const items = [
-    {
-      tag:'매월',
-      tagColor:'var(--accent-blue, #0a84ff)',
-      title:'베이비바우처 라이브 진입점 노출 · 라이브ID 취합',
-      desc:'베이비바우처 홈 라이브 영역에 노출될 라이브 ID를 매월 제출해 주세요. (신규+기존 운영사 모두 해당)',
-      url:'https://naver.me/GresHlI0'
-    }
-  ];
+  const url = 'https://naver.me/GresHlI0';
   return `
     <div class="section" data-sec="extra">
       <div class="sec-head" data-toggle="extra">
-        <div class="sec-num" style="background:var(--accent-orange-dim,rgba(255,159,10,.12));color:var(--accent-orange,#ff9f0a);border-color:rgba(255,159,10,.3);">📝</div>
+        <div class="sec-num" style="background:var(--accent-orange-dim,rgba(255,159,10,.12));color:var(--accent-orange,#ff9f0a);border-color:rgba(255,159,10,.3);">🎥</div>
         <div class="sec-title-wrap">
-          <div class="sec-title">추가 취합 항목</div>
-          <div class="sec-desc">상시행사장 상품 · 라이브ID 등 별도 제출 링크</div>
+          <div class="sec-title">(매 달) 라이브ID 취합</div>
+          <div class="sec-desc">라이브 진행 시 베이비바우처 진입점 노출을 위해 ID 전달이 필요합니다</div>
         </div>
         <svg class="sec-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
       <div class="sec-body">
-        <div class="extra-list">
-          ${items.map(it=>`
-            <a class="extra-card" href="${it.url}" target="_blank" rel="noopener">
-              <div class="extra-card-head">
-                <span class="extra-tag" style="color:${it.tagColor};border-color:${it.tagColor};">${it.tag}</span>
-                <span class="extra-card-title">${escapeHtml(it.title)}</span>
-              </div>
-              <div class="extra-card-desc">${escapeHtml(it.desc)}</div>
-              <div class="extra-card-link">${it.url} ↗</div>
-            </a>
-          `).join('')}
+        <div class="callout callout-info" style="margin-bottom:14px;">
+          <span class="callout-icon">📺</span>
+          <div>
+            베이비바우처 참여사 라이브 진행 시, 시청자가 <b>바우처 가입 / 쿠폰 다운로드</b>로 쉽게 이동할 수 있도록
+            라이브 화면 내 <b>바우처 진입점</b>이 노출됩니다.
+            <div style="margin-top:6px;font-size:12px;color:var(--text-tertiary);">※ 참여사 <b>라이브 일정</b>과 <b>라이브ID</b>를 매월 전달해 주세요.</div>
+          </div>
         </div>
+        <a class="btn btn-primary" href="${url}" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none;">
+          라이브ID 제출 폼 열기 ↗
+        </a>
+        <div style="margin-top:10px;font-size:11px;color:var(--accent-blue,#0a84ff);font-family:'SF Mono',Menlo,monospace;word-break:break-all;">${url}</div>
       </div>
     </div>
   `;
@@ -1858,7 +1850,7 @@ function renderVNav(p) {
   const infoItems = [
     { id:'nav-step5',  icon:'👤', label:'담당자 정보' },
     { id:'nav-assets', icon:'📥', label:'이번달 에셋' },
-    { id:'nav-extra',  icon:'📝', label:'추가 취합' },
+    { id:'nav-extra',  icon:'🎥', label:'라이브ID 취합' },
     { id:'nav-inquiry',icon:'💬', label:'문의하기' },
     { id:'nav-faq',    icon:'❓', label:'FAQ' }
   ];
