@@ -866,37 +866,89 @@ function computeProgress() {
 function render() {
   const app = document.getElementById('app');
 
-  // 계정ID 없으면 랜딩 폼
+  // 계정ID 또는 브랜드명이 없으면 랜딩 폼
   if (!BRAND.acctId || !BRAND.brandName) {
+    const subOptions = [
+      {v:'BABY_YUKAH',label:'육아 생필품 (웰컴할인적립형)'},
+      {v:'BABY_TOYEDU',label:'장난감·교육 (웰컴할인적립형)'},
+      {v:'BABY_LIVING',label:'주방·리빙용품 (웰컴할인적립형)'},
+      {v:'BABY_KIDSFASHION',label:'키즈 패션 (상시할인적립형)'},
+      {v:'BABY_KOOKMIN',label:'국민육아템 (적립형)'},
+      {v:'BABY_YUAKH_JONGHAP',label:'육아 생필품 종합몰 (종합몰형)'}
+    ].map(o => `<option value="${o.v}">${o.label}</option>`).join('');
+
     app.innerHTML = `
-      <div class="denied" style="max-width:520px;">
-        <h1>🏷 계정 ID 를 입력하세요</h1>
-        <p style="margin-bottom:20px;">베이비바우처 담당자로부터 안내받은 <b>스토어 계정 ID</b>(예: <code>ncp_1ntdhz_01</code>)를 입력하면 입점 준비 화면이 열립니다.</p>
-        <form id="acctLoginForm" style="display:flex;gap:8px;flex-wrap:wrap;">
-          <input id="acctLoginInput" type="text" autocomplete="off" placeholder="ncp_xxxxxx_xx"
-            style="flex:1;min-width:200px;padding:14px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-primary);font-size:15px;"
+      <div class="denied" style="max-width:560px;">
+        <h1>🏷 베이비바우처 판매자 포털</h1>
+        <p style="margin-bottom:24px;">담당자로부터 안내받은 <b>스토어 계정 ID</b>와 <b>브랜드명</b>을 입력해 주세요.</p>
+        <form id="acctLoginForm" style="display:flex;flex-direction:column;gap:12px;">
+          <label style="font-size:13px;color:var(--text-secondary);">계정 ID <span style="color:var(--accent-red);">*</span></label>
+          <input id="acctLoginInput" type="text" autocomplete="off" placeholder="ncp_xxxxxx_xx" required
+            style="padding:14px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-primary);font-size:15px;"
             value="${escapeHtml(BRAND.acctId || '')}" />
-          <button type="submit" style="padding:14px 22px;border-radius:10px;border:0;background:var(--naver-green,#03c75a);color:#fff;font-weight:600;cursor:pointer;">확인</button>
+
+          <label style="font-size:13px;color:var(--text-secondary);margin-top:8px;">브랜드명 <span style="color:var(--accent-red);">*</span></label>
+          <input id="brandNameInput" type="text" autocomplete="off" placeholder="예: 팸퍼스" required
+            style="padding:14px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-primary);font-size:15px;"
+            value="${escapeHtml(BRAND.brandName || '')}" />
+
+          <label style="font-size:13px;color:var(--text-secondary);margin-top:8px;">서브버티컬 <span style="color:var(--accent-red);">*</span></label>
+          <select id="subVInput" required
+            style="padding:14px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-primary);font-size:15px;">
+            <option value="">선택해 주세요</option>
+            ${subOptions}
+          </select>
+
+          <button type="submit" style="margin-top:12px;padding:14px 22px;border-radius:10px;border:0;background:var(--naver-green,#03c75a);color:#fff;font-weight:600;cursor:pointer;font-size:15px;">입점 준비 시작</button>
         </form>
         <div id="acctLoginErr" style="margin-top:12px;color:var(--accent-red,#ff453a);font-size:13px;min-height:18px;"></div>
-        <p style="margin-top:28px;font-size:12px;color:var(--text-tertiary);">계정 ID 를 모르신다면 담당자 또는 운영팀에 문의해 주세요.</p>
+        <p style="margin-top:28px;font-size:12px;color:var(--text-tertiary);line-height:1.5;">· 담당자가 서버에 브랜드를 등록해 놓은 경우, 계정 ID 만 입력하면 나머지는 자동 조회됩니다.<br>· 미등록 상태여도 수기 입력으로 진행 가능합니다.</p>
       </div>`;
-    const f = document.getElementById('acctLoginForm');
+
+    const f   = document.getElementById('acctLoginForm');
     const inp = document.getElementById('acctLoginInput');
+    const bnm = document.getElementById('brandNameInput');
+    const sv  = document.getElementById('subVInput');
     const err = document.getElementById('acctLoginErr');
+
+    // 계정 ID 입력 후 blur 시 자동 조회 → 필드 자동 채움
+    if (inp) inp.addEventListener('blur', function(){
+      const v = (inp.value||'').trim();
+      if (!v || !APPS_SCRIPT_URL) return;
+      err.textContent = '서버 조회 중…';
+      const r = hydrateBrandFromServer_(v);
+      if (r && r.ok) {
+        if (BRAND.brandName) bnm.value = BRAND.brandName;
+        if (BRAND.subvertical) {
+          const opt = Array.from(sv.options).find(o => o.value.toUpperCase() === BRAND.subvertical.toUpperCase());
+          if (opt) sv.value = opt.value;
+        }
+        err.textContent = '✓ 등록된 브랜드 정보를 불러왔습니다';
+        err.style.color = 'var(--accent-green, #30d158)';
+      } else {
+        err.textContent = '미등록 브랜드입니다. 아래 정보를 직접 입력해 주세요.';
+        err.style.color = 'var(--text-secondary)';
+      }
+    });
+
     if (f) f.addEventListener('submit', function(ev){
       ev.preventDefault();
-      const v = (inp.value||'').trim();
-      if (!v) { err.textContent = '계정 ID 를 입력해 주세요.'; return; }
-      err.textContent = '조회 중…';
-      const r = hydrateBrandFromServer_(v);
-      if (r && r.ok && BRAND.brandName) {
-        // 성공: 세션에 저장하고 페이지 리로드하여 정상 플로우 진입
-        sessionStorage.setItem('bv_acctId', BRAND.acctId);
-        location.reload();
-      } else {
-        err.textContent = r && r.error ? '조회 실패: ' + r.error : '등록되지 않은 계정 ID 입니다. 담당자에게 문의해 주세요.';
+      const acct = (inp.value||'').trim();
+      const name = (bnm.value||'').trim();
+      const subv = (sv.value||'').trim();
+      if (!acct || !name || !subv) {
+        err.textContent = '모든 필드를 입력해 주세요.';
+        err.style.color = 'var(--accent-red)';
+        return;
       }
+      // 세션에 저장 + BRAND 업데이트 → 바로 포털 진입
+      BRAND.acctId = acct;
+      BRAND.brandName = name;
+      BRAND.subvertical = subv;
+      sessionStorage.setItem('bv_acctId', acct);
+      sessionStorage.setItem('bv_brandName', name);
+      sessionStorage.setItem('bv_subvertical', subv);
+      location.reload();
     });
     setTimeout(() => { if (inp) inp.focus(); }, 50);
     return;
