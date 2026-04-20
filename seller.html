@@ -752,9 +752,9 @@ function computeDeadline() {
     const d = new Date(BRAND.deadline);
     if (!isNaN(d)) return d;
   }
-  // 기본 회신 마감: 2026-04-20(금) 14:00
+  // 기본 회신 마감: 2026-04-24(금) 14:00
   // ※ 퇴점일(=월 마지막 영업일 18시)과는 다른 개념임. 회신마감은 에셋 제출 마감.
-  return new Date(2026, 3, 20, 14, 0, 0);
+  return new Date(2026, 3, 24, 14, 0, 0);
 }
 const DEADLINE = computeDeadline();
 const OPEN_DATE = params.get('o') ? new Date(params.get('o')) : null;
