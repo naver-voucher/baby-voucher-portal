@@ -958,6 +958,18 @@ function render() {
     if (f) f.addEventListener('submit', function(ev){
       ev.preventDefault();
       const acct = (inp.value||'').trim();
+      // 제출 직전에도 한 번 더 자동 조회 (blur 안 거친 경우 대비)
+      if (acct && (!bnm.value || !sv.value)) {
+        let r = APPS_SCRIPT_URL ? hydrateBrandFromServer_(acct) : { ok:false };
+        if (!r || !r.ok) r = hydrateBrandFromClient_(acct);
+        if (r && r.ok) {
+          if (!bnm.value && BRAND.brandName) bnm.value = BRAND.brandName;
+          if (!sv.value && BRAND.subvertical) {
+            const opt = Array.from(sv.options).find(o => o.value.toUpperCase() === String(BRAND.subvertical).toUpperCase());
+            if (opt) sv.value = opt.value;
+          }
+        }
+      }
       const name = (bnm.value||'').trim();
       const subv = (sv.value||'').trim();
       if (!acct || !name || !subv) {
