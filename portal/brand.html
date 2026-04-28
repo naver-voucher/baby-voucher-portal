@@ -1,0 +1,1958 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>네이버 베이비바우처 브랜드 파트너 포털</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #141414;
+    --bg-card: #1a1a1a;
+    --bg-card-hover: #222222;
+    --bg-elevated: #252525;
+    --border: #2a2a2a;
+    --border-light: #333333;
+    --text-primary: #f5f5f7;
+    --text-secondary: #a1a1a6;
+    --text-tertiary: #6e6e73;
+    --accent-green: #30d158;
+    --accent-green-dim: rgba(48, 209, 88, 0.12);
+    --accent-blue: #0a84ff;
+    --accent-blue-dim: rgba(10, 132, 255, 0.12);
+    --accent-orange: #ff9f0a;
+    --accent-orange-dim: rgba(255, 159, 10, 0.12);
+    --accent-red: #ff453a;
+    --accent-red-dim: rgba(255, 69, 58, 0.12);
+    --accent-purple: #bf5af2;
+    --accent-purple-dim: rgba(191, 90, 242, 0.12);
+    --accent-teal: #64d2ff;
+    --accent-teal-dim: rgba(100, 210, 255, 0.12);
+    --naver-green: #03c75a;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --shadow: 0 2px 20px rgba(0,0,0,0.3);
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+
+  /* Layout */
+  .app {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 260px;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border);
+    padding: 24px 16px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 8px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+
+  .sidebar-logo .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--naver-green);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .sidebar-logo .logo-text {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .sidebar-logo .logo-sub {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-weight: 400;
+  }
+
+  .nav-section {
+    margin-bottom: 24px;
+  }
+
+  .nav-section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0 12px;
+    margin-bottom: 8px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 14px;
+    color: var(--text-secondary);
+    position: relative;
+  }
+
+  .nav-item:hover {
+    background: var(--bg-card);
+    color: var(--text-primary);
+  }
+
+  .nav-item.active {
+    background: var(--bg-card);
+    color: var(--text-primary);
+  }
+
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 20px;
+    background: var(--naver-green);
+    border-radius: 2px;
+  }
+
+  .nav-item .nav-icon {
+    width: 20px;
+    text-align: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .nav-item .badge {
+    margin-left: auto;
+    background: var(--accent-red);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 1px 7px;
+    border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 16px 8px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .brand-selector {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+
+  .brand-selector:hover {
+    border-color: var(--border-light);
+  }
+
+  .brand-avatar {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .brand-info { flex: 1; min-width: 0; }
+  .brand-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .brand-role { font-size: 11px; color: var(--text-tertiary); }
+
+  /* Main Content */
+  .main {
+    flex: 1;
+    margin-left: 260px;
+    padding: 32px 40px;
+    max-width: 1200px;
+  }
+
+  .page-header {
+    margin-bottom: 32px;
+  }
+
+  .page-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+
+  .page-header p {
+    font-size: 15px;
+    color: var(--text-secondary);
+  }
+
+  /* Section */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* Cards Grid */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    transition: all 0.2s ease;
+  }
+
+  .card:hover {
+    border-color: var(--border-light);
+    background: var(--bg-card-hover);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .card-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  /* Status Badge */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .status-badge.green { background: var(--accent-green-dim); color: var(--accent-green); }
+  .status-badge.blue { background: var(--accent-blue-dim); color: var(--accent-blue); }
+  .status-badge.orange { background: var(--accent-orange-dim); color: var(--accent-orange); }
+  .status-badge.red { background: var(--accent-red-dim); color: var(--accent-red); }
+  .status-badge.purple { background: var(--accent-purple-dim); color: var(--accent-purple); }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* Overview Stats */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px 24px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -1px;
+  }
+
+  .stat-sub {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+
+  /* Announcement List */
+  .announce-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .announce-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 20px 24px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .announce-item:hover {
+    border-color: var(--border-light);
+    background: var(--bg-card-hover);
+  }
+
+  .announce-tag {
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .announce-tag.notice { background: var(--accent-blue-dim); color: var(--accent-blue); }
+  .announce-tag.important { background: var(--accent-red-dim); color: var(--accent-red); }
+  .announce-tag.event { background: var(--accent-purple-dim); color: var(--accent-purple); }
+  .announce-tag.guide { background: var(--accent-green-dim); color: var(--accent-green); }
+
+  .announce-content { flex: 1; }
+  .announce-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .announce-preview { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+  .announce-date { font-size: 12px; color: var(--text-tertiary); margin-top: 8px; }
+
+  /* Todo List */
+  .todo-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .todo-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.15s;
+  }
+
+  .todo-item:hover {
+    border-color: var(--border-light);
+  }
+
+  .todo-item.overdue {
+    border-color: rgba(255, 69, 58, 0.3);
+  }
+
+  .todo-check {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--border-light);
+    border-radius: 6px;
+    flex-shrink: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .todo-check:hover {
+    border-color: var(--naver-green);
+    background: var(--accent-green-dim);
+  }
+
+  .todo-check.done {
+    background: var(--naver-green);
+    border-color: var(--naver-green);
+  }
+
+  .todo-check.done::after {
+    content: '\2713';
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .todo-content { flex: 1; }
+  .todo-title { font-size: 14px; font-weight: 500; }
+  .todo-title.done-text { text-decoration: line-through; color: var(--text-tertiary); }
+  .todo-meta { font-size: 12px; color: var(--text-tertiary); margin-top: 4px; display: flex; gap: 16px; }
+
+  .todo-deadline {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .todo-deadline.urgent { background: var(--accent-red-dim); color: var(--accent-red); }
+  .todo-deadline.soon { background: var(--accent-orange-dim); color: var(--accent-orange); }
+  .todo-deadline.normal { background: var(--bg-elevated); color: var(--text-secondary); }
+
+  .todo-action-btn {
+    padding: 8px 16px;
+    background: var(--naver-green);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .todo-action-btn:hover { opacity: 0.85; }
+
+  /* Form Cards */
+  .form-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+  }
+
+  .form-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    transition: all 0.2s;
+  }
+
+  .form-card:hover {
+    border-color: var(--border-light);
+  }
+
+  .form-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .form-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .form-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  .form-link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--naver-green);
+    color: #fff;
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    transition: opacity 0.15s;
+    border: none;
+    cursor: pointer;
+  }
+
+  .form-link-btn:hover { opacity: 0.85; }
+
+  .form-link-btn.secondary {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border: 1px solid var(--border-light);
+  }
+
+  /* Asset Download */
+  .asset-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .asset-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .asset-item:hover {
+    border-color: var(--border-light);
+    background: var(--bg-card-hover);
+  }
+
+  .asset-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .asset-info { flex: 1; }
+  .asset-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .asset-meta { font-size: 12px; color: var(--text-tertiary); }
+
+  .asset-download {
+    color: var(--accent-blue);
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  /* Calendar */
+  .calendar-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .calendar-header h3 { font-size: 17px; font-weight: 600; }
+
+  .calendar-nav {
+    display: flex;
+    gap: 8px;
+  }
+
+  .calendar-nav button {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .calendar-nav button:hover { border-color: var(--border-light); }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    padding: 16px;
+    gap: 4px;
+  }
+
+  .calendar-day-label {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    padding: 8px 0;
+  }
+
+  .calendar-day {
+    text-align: center;
+    padding: 10px 4px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    cursor: default;
+    position: relative;
+  }
+
+  .calendar-day.today {
+    background: var(--naver-green);
+    color: #fff;
+    font-weight: 700;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+  }
+
+  .calendar-day.has-event::after {
+    content: '';
+    display: block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+    margin: 4px auto 0;
+  }
+
+  .calendar-day.other-month { color: var(--text-tertiary); opacity: 0.4; }
+
+  .calendar-events {
+    padding: 16px 24px 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .calendar-events h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+  }
+
+  .event-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .event-item:last-child { border-bottom: none; }
+
+  .event-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .event-text { font-size: 13px; flex: 1; }
+  .event-date { font-size: 12px; color: var(--text-tertiary); flex-shrink: 0; }
+
+  /* FAQ */
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .faq-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .faq-question {
+    padding: 18px 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.15s;
+  }
+
+  .faq-question:hover { background: var(--bg-card-hover); }
+
+  .faq-arrow {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    transition: transform 0.2s;
+  }
+
+  .faq-item.open .faq-arrow { transform: rotate(180deg); }
+
+  .faq-answer {
+    display: none;
+    padding: 0 24px 18px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  .faq-item.open .faq-answer { display: block; }
+
+  /* Status Section */
+  .status-timeline {
+    position: relative;
+    padding-left: 32px;
+  }
+
+  .status-timeline::before {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .timeline-item {
+    position: relative;
+    padding-bottom: 28px;
+  }
+
+  .timeline-item:last-child { padding-bottom: 0; }
+
+  .timeline-dot {
+    position: absolute;
+    left: -27px;
+    top: 4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--bg-primary);
+  }
+
+  .timeline-dot.completed { background: var(--naver-green); border-color: var(--naver-green); }
+  .timeline-dot.current { background: var(--accent-blue); border-color: var(--accent-blue); box-shadow: 0 0 0 4px var(--accent-blue-dim); }
+  .timeline-dot.pending { background: var(--bg-card); border-color: var(--border-light); }
+
+  .timeline-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .timeline-desc { font-size: 13px; color: var(--text-secondary); }
+  .timeline-date { font-size: 12px; color: var(--text-tertiary); margin-top: 4px; }
+
+  /* Sub-section Title */
+  .sub-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    letter-spacing: -0.3px;
+  }
+
+  .sub-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+  }
+
+  .section-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 32px 0;
+  }
+
+  /* Contact Banner */
+  .contact-banner {
+    background: linear-gradient(135deg, rgba(3, 199, 90, 0.08), rgba(10, 132, 255, 0.08));
+    border: 1px solid rgba(3, 199, 90, 0.2);
+    border-radius: var(--radius-lg);
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .contact-banner-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  .contact-banner-text {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .contact-banner-text strong {
+    color: var(--text-primary);
+  }
+
+  /* Search bar */
+  .search-bar {
+    position: relative;
+    margin-bottom: 24px;
+  }
+
+  .search-bar input {
+    width: 100%;
+    padding: 12px 16px 12px 42px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .search-bar input:focus {
+    border-color: var(--naver-green);
+  }
+
+  .search-bar input::placeholder { color: var(--text-tertiary); }
+
+  .search-bar .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+    font-size: 14px;
+  }
+
+  /* Table style for My Status */
+  .status-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .status-table th {
+    padding: 12px 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-align: left;
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .status-table td {
+    padding: 14px 20px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .status-table tr:last-child td { border-bottom: none; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--naver-green);
+    color: #fff;
+    padding: 14px 28px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 300;
+    opacity: 0;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(3,199,90,0.3);
+  }
+
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.show {
+    display: flex;
+  }
+
+  .modal {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 32px;
+    width: 90%;
+    max-width: 560px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow);
+  }
+
+  .modal h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .modal .modal-sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  .modal-close {
+    float: right;
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  .modal-close:hover { color: var(--text-primary); }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 20px; }
+    .stats-row { grid-template-columns: 1fr; }
+    .cards-grid { grid-template-columns: 1fr; }
+    .form-cards { grid-template-columns: 1fr; }
+    .asset-list { grid-template-columns: 1fr; }
+  }
+
+  /* Transition */
+  .fade-in {
+    animation: fadeIn 0.25s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">N</div>
+      <div>
+        <div class="logo-text">베이비바우처</div>
+        <div class="logo-sub">브랜드 파트너 포털</div>
+      </div>
+    </div>
+
+    <!-- Brand Nav -->
+    <div class="nav-section">
+      <div class="nav-section-title">메인</div>
+      <div class="nav-item active" data-section="dashboard">
+        <span class="nav-icon">&#9673;</span> 대시보드
+      </div>
+      <div class="nav-item" data-section="announcements">
+        <span class="nav-icon">&#9993;</span> 공지사항
+        <span class="badge">2</span>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">운영</div>
+      <div class="nav-item" data-section="todo">
+        <span class="nav-icon">&#9745;</span> 할 일
+        <span class="badge">3</span>
+      </div>
+      <div class="nav-item" data-section="forms">
+        <span class="nav-icon">&#9998;</span> 폼 제출
+      </div>
+      <div class="nav-item" data-section="calendar">
+        <span class="nav-icon">&#9783;</span> 운영 캘린더
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">리소스</div>
+      <div class="nav-item" data-section="assets">
+        <span class="nav-icon">&#8681;</span> 에셋 다운로드
+      </div>
+      <div class="nav-item" data-section="guide">
+        <span class="nav-icon">&#9432;</span> 가이드 / FAQ
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">내 정보</div>
+      <div class="nav-item" data-section="mystatus">
+        <span class="nav-icon">&#9881;</span> 내 현황
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="brand-selector">
+        <div class="brand-avatar">보</div>
+        <div class="brand-info">
+          <div class="brand-name">보뇨르베베</div>
+          <div class="brand-role">브랜드 담당자</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main">
+
+    <!-- ==================== DASHBOARD ==================== -->
+    <div id="dashboard" class="section active fade-in">
+      <div class="page-header">
+        <h1>안녕하세요, 보뇨르베베님</h1>
+        <p>2026년 4월 베이비바우처 운영 현황입니다.</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">미완료 할 일</div>
+          <div class="stat-value" style="color: var(--accent-orange)">3</div>
+          <div class="stat-sub">1건 마감 임박</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">이번 달 제출 폼</div>
+          <div class="stat-value">1<span style="font-size:16px;color:var(--text-tertiary)"> / 3</span></div>
+          <div class="stat-sub">소재 취합 미제출</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">계약 상태</div>
+          <div class="stat-value" style="color: var(--accent-green)">유효</div>
+          <div class="stat-sub">만료일 2026.09.30</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">4월 정산</div>
+          <div class="stat-value">&#8361;1.2M</div>
+          <div class="stat-sub">쿠폰 850K + 적립 350K</div>
+        </div>
+      </div>
+
+      <div class="sub-title">긴급 할 일</div>
+      <div class="todo-list" style="margin-bottom:32px">
+        <div class="todo-item overdue">
+          <div class="todo-check"></div>
+          <div class="todo-content">
+            <div class="todo-title">5월 브랜드관 연출컷 제출</div>
+            <div class="todo-meta">
+              <span>소재 취합 폼</span>
+              <span>규격: 1200x600px</span>
+            </div>
+          </div>
+          <div class="todo-deadline urgent">D-2</div>
+          <button class="todo-action-btn" onclick="openForm('material')">폼 제출</button>
+        </div>
+        <div class="todo-item">
+          <div class="todo-check"></div>
+          <div class="todo-content">
+            <div class="todo-title">5월 대표상품 링크 제출</div>
+            <div class="todo-meta">
+              <span>소재 취합 폼</span>
+              <span>스마트스토어 상품 링크</span>
+            </div>
+          </div>
+          <div class="todo-deadline soon">D-5</div>
+          <button class="todo-action-btn" onclick="openForm('material')">폼 제출</button>
+        </div>
+      </div>
+
+      <div class="sub-title">최근 공지</div>
+      <div class="announce-list">
+        <div class="announce-item" onclick="showAnnouncement(0)">
+          <span class="announce-tag important">중요</span>
+          <div class="announce-content">
+            <div class="announce-title">5월 입점 브랜드사 소재 취합 안내</div>
+            <div class="announce-preview">5월 바우처 갱신을 위한 브랜드 로고, 연출컷, 대표상품을 제출해 주세요.</div>
+            <div class="announce-date">2026.04.07</div>
+          </div>
+        </div>
+        <div class="announce-item" onclick="showAnnouncement(1)">
+          <span class="announce-tag notice">안내</span>
+          <div class="announce-content">
+            <div class="announce-title">브랜드사 제작 쇼츠 외부 광고 노출 프로그램 오픈</div>
+            <div class="announce-preview">자체 제작 쇼츠/영상을 외부 매체에 네이버 비용으로 광고 노출할 수 있습니다.</div>
+            <div class="announce-date">2026.04.01</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== ANNOUNCEMENTS ==================== -->
+    <div id="announcements" class="section fade-in">
+      <div class="page-header">
+        <h1>공지사항</h1>
+        <p>베이비바우처 운영 관련 안내사항입니다.</p>
+      </div>
+
+      <div class="search-bar">
+        <span class="search-icon">&#128269;</span>
+        <input type="text" placeholder="공지사항 검색..." oninput="filterAnnouncements(this.value)">
+      </div>
+
+      <div class="announce-list" id="announceFullList">
+        <div class="announce-item" onclick="showAnnouncement(0)">
+          <span class="announce-tag important">중요</span>
+          <div class="announce-content">
+            <div class="announce-title">5월 입점 브랜드사 소재 취합 안내</div>
+            <div class="announce-preview">5월 바우처 갱신을 위한 브랜드 로고, 연출컷, 대표상품 정보를 아래 네이버 폼을 통해 제출해 주세요. 마감일: 2026.04.11(금)</div>
+            <div class="announce-date">2026.04.07</div>
+          </div>
+        </div>
+        <div class="announce-item" onclick="showAnnouncement(1)">
+          <span class="announce-tag notice">안내</span>
+          <div class="announce-content">
+            <div class="announce-title">브랜드사 제작 쇼츠 외부 광고 노출 프로그램 오픈</div>
+            <div class="announce-preview">베이비바우처를 활용한 쇼츠/영상을 네이버가 비용 부담하여 메타, 구글 등 외부 매체에 광고 노출합니다. 상시 접수 중입니다.</div>
+            <div class="announce-date">2026.04.01</div>
+          </div>
+        </div>
+        <div class="announce-item" onclick="showAnnouncement(2)">
+          <span class="announce-tag guide">가이드</span>
+          <div class="announce-content">
+            <div class="announce-title">2026년 바우처 에셋 활용 가이드 업데이트</div>
+            <div class="announce-preview">바우처 에셋 PSD 파일이 업데이트되었습니다. 에셋 다운로드 메뉴에서 최신 파일을 받아주세요.</div>
+            <div class="announce-date">2026.03.25</div>
+          </div>
+        </div>
+        <div class="announce-item" onclick="showAnnouncement(3)">
+          <span class="announce-tag event">이벤트</span>
+          <div class="announce-content">
+            <div class="announce-title">4월 베이비바우처 연합 라이브 참여사 모집</div>
+            <div class="announce-preview">4월 연합 라이브에 참여하실 브랜드사를 모집합니다. 참여 희망 시 라이브 ID를 제출해 주세요.</div>
+            <div class="announce-date">2026.03.20</div>
+          </div>
+        </div>
+        <div class="announce-item" onclick="showAnnouncement(4)">
+          <span class="announce-tag notice">안내</span>
+          <div class="announce-content">
+            <div class="announce-title">3월 정산 내역 및 인보이스 발송 완료</div>
+            <div class="announce-preview">3월 쿠폰/적립 사용 내역 및 인보이스를 메일로 발송하였습니다. 내 현황에서 확인 가능합니다.</div>
+            <div class="announce-date">2026.04.05</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== TODO ==================== -->
+    <div id="todo" class="section fade-in">
+      <div class="page-header">
+        <h1>할 일</h1>
+        <p>제출이 필요한 항목과 마감일을 확인하세요.</p>
+      </div>
+
+      <div class="sub-title">미완료</div>
+      <div class="todo-list" style="margin-bottom:32px">
+        <div class="todo-item overdue">
+          <div class="todo-check" onclick="toggleTodo(this)"></div>
+          <div class="todo-content">
+            <div class="todo-title">5월 브랜드관 연출컷 제출</div>
+            <div class="todo-meta">
+              <span>소재 취합 폼 &middot; 1200x600px PNG/JPG</span>
+            </div>
+          </div>
+          <div class="todo-deadline urgent">4/11 마감 (D-2)</div>
+          <button class="todo-action-btn" onclick="openForm('material')">폼 제출</button>
+        </div>
+        <div class="todo-item">
+          <div class="todo-check" onclick="toggleTodo(this)"></div>
+          <div class="todo-content">
+            <div class="todo-title">5월 대표상품 링크 제출</div>
+            <div class="todo-meta">
+              <span>소재 취합 폼 &middot; 스마트스토어 상품 URL</span>
+            </div>
+          </div>
+          <div class="todo-deadline soon">4/14 마감 (D-5)</div>
+          <button class="todo-action-btn" onclick="openForm('material')">폼 제출</button>
+        </div>
+        <div class="todo-item">
+          <div class="todo-check" onclick="toggleTodo(this)"></div>
+          <div class="todo-content">
+            <div class="todo-title">4월 라이브 ID 제출</div>
+            <div class="todo-meta">
+              <span>라이브 취합 폼 &middot; 네이버 쇼핑라이브 ID</span>
+            </div>
+          </div>
+          <div class="todo-deadline normal">4/18 마감 (D-9)</div>
+          <button class="todo-action-btn" onclick="openForm('live')">폼 제출</button>
+        </div>
+      </div>
+
+      <div class="sub-title">완료</div>
+      <div class="todo-list">
+        <div class="todo-item" style="opacity:0.5">
+          <div class="todo-check done"></div>
+          <div class="todo-content">
+            <div class="todo-title done-text">커머스솔루션 계약 갱신 완료</div>
+            <div class="todo-meta"><span>2026.03.28 완료</span></div>
+          </div>
+        </div>
+        <div class="todo-item" style="opacity:0.5">
+          <div class="todo-check done"></div>
+          <div class="todo-content">
+            <div class="todo-title done-text">4월 브랜드 로고 제출 완료</div>
+            <div class="todo-meta"><span>2026.03.15 완료</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== FORMS ==================== -->
+    <div id="forms" class="section fade-in">
+      <div class="page-header">
+        <h1>폼 제출</h1>
+        <p>네이버 폼을 통해 필요한 자료를 제출해 주세요.</p>
+      </div>
+
+      <div class="form-cards">
+        <div class="form-card">
+          <div class="form-status">
+            <span class="status-badge orange"><span class="status-dot"></span> 미제출</span>
+          </div>
+          <div class="form-title">소재 취합 (5월)</div>
+          <div class="form-desc">브랜드 로고, 연출컷, 대표상품 링크를 제출해 주세요.<br>마감: 2026.04.11(금)</div>
+          <button class="form-link-btn" onclick="openForm('material')">&#9998; 폼 제출하기</button>
+        </div>
+
+        <div class="form-card">
+          <div class="form-status">
+            <span class="status-badge green"><span class="status-dot"></span> 상시 접수</span>
+          </div>
+          <div class="form-title">쇼츠/영상 외부 광고 노출 신청</div>
+          <div class="form-desc">베이비바우처를 활용한 쇼츠/영상을 외부 매체에 광고 노출 신청합니다.</div>
+          <button class="form-link-btn" onclick="openForm('shorts')">&#9998; 폼 제출하기</button>
+        </div>
+
+        <div class="form-card">
+          <div class="form-status">
+            <span class="status-badge blue"><span class="status-dot"></span> 모집 중</span>
+          </div>
+          <div class="form-title">연합 라이브 참여 신청 (4월)</div>
+          <div class="form-desc">4월 연합 라이브에 참여하실 브랜드사의 라이브 ID를 접수합니다.<br>마감: 2026.04.18(금)</div>
+          <button class="form-link-btn" onclick="openForm('live')">&#9998; 폼 제출하기</button>
+        </div>
+
+        <div class="form-card">
+          <div class="form-status">
+            <span class="status-badge green"><span class="status-dot"></span> 상시 접수</span>
+          </div>
+          <div class="form-title">시즌 연출컷 변경 신청</div>
+          <div class="form-desc">브랜드관 대표 이미지를 시즌별로 변경하고 싶으신 경우 신청해 주세요.</div>
+          <button class="form-link-btn secondary" onclick="openForm('season')">&#9998; 폼 제출하기</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== CALENDAR ==================== -->
+    <div id="calendar" class="section fade-in">
+      <div class="page-header">
+        <h1>운영 캘린더</h1>
+        <p>베이비바우처 주요 일정을 확인하세요.</p>
+      </div>
+
+      <div class="calendar-container">
+        <div class="calendar-header">
+          <h3 id="calendarTitle">2026년 4월</h3>
+          <div class="calendar-nav">
+            <button onclick="changeMonth(-1)">&#9664;</button>
+            <button onclick="changeMonth(1)">&#9654;</button>
+          </div>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+        <div class="calendar-events">
+          <h4>이번 달 주요 일정</h4>
+          <div class="event-item">
+            <div class="event-dot" style="background:var(--accent-red)"></div>
+            <div class="event-text">소재 취합 마감</div>
+            <div class="event-date">4/11 (금)</div>
+          </div>
+          <div class="event-item">
+            <div class="event-dot" style="background:var(--accent-orange)"></div>
+            <div class="event-text">대표상품 링크 제출 마감</div>
+            <div class="event-date">4/14 (월)</div>
+          </div>
+          <div class="event-item">
+            <div class="event-dot" style="background:var(--accent-blue)"></div>
+            <div class="event-text">라이브 ID 제출 마감</div>
+            <div class="event-date">4/18 (금)</div>
+          </div>
+          <div class="event-item">
+            <div class="event-dot" style="background:var(--naver-green)"></div>
+            <div class="event-text">5월 바우처 혜택 갱신 (입점일)</div>
+            <div class="event-date">5/4 (월)</div>
+          </div>
+          <div class="event-item">
+            <div class="event-dot" style="background:var(--accent-purple)"></div>
+            <div class="event-text">4월 정산 인보이스 발송</div>
+            <div class="event-date">5/5 (월)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== ASSETS ==================== -->
+    <div id="assets" class="section fade-in">
+      <div class="page-header">
+        <h1>에셋 다운로드</h1>
+        <p>바우처 에셋 및 가이드 파일을 다운로드하세요.</p>
+      </div>
+
+      <div class="sub-title">바우처 에셋</div>
+      <div class="asset-list" style="margin-bottom:32px">
+        <div class="asset-item" onclick="downloadAsset('psd')">
+          <div class="asset-icon" style="background:var(--accent-blue-dim)">&#127912;</div>
+          <div class="asset-info">
+            <div class="asset-name">베이비바우처 에셋 (PSD)</div>
+            <div class="asset-meta">2026년 최신 버전 &middot; 15.2 MB</div>
+          </div>
+          <div class="asset-download">&#8681;</div>
+        </div>
+        <div class="asset-item" onclick="downloadAsset('png')">
+          <div class="asset-icon" style="background:var(--accent-green-dim)">&#128444;</div>
+          <div class="asset-info">
+            <div class="asset-name">베이비바우처 로고 (PNG)</div>
+            <div class="asset-meta">로고 단독 파일 &middot; 520 KB</div>
+          </div>
+          <div class="asset-download">&#8681;</div>
+        </div>
+        <div class="asset-item" onclick="downloadAsset('badge')">
+          <div class="asset-icon" style="background:var(--accent-purple-dim)">&#127991;</div>
+          <div class="asset-info">
+            <div class="asset-name">바우처 뱃지 에셋 (SVG/PNG)</div>
+            <div class="asset-meta">상세페이지용 뱃지 &middot; 230 KB</div>
+          </div>
+          <div class="asset-download">&#8681;</div>
+        </div>
+      </div>
+
+      <div class="sub-title">가이드 문서</div>
+      <div class="asset-list">
+        <div class="asset-item" onclick="downloadAsset('guide')">
+          <div class="asset-icon" style="background:var(--accent-orange-dim)">&#128196;</div>
+          <div class="asset-info">
+            <div class="asset-name">에셋 활용 가이드</div>
+            <div class="asset-meta">에셋 적용 방법 및 유의사항 &middot; PDF</div>
+          </div>
+          <div class="asset-download">&#8681;</div>
+        </div>
+        <div class="asset-item" onclick="downloadAsset('brand-guide')">
+          <div class="asset-icon" style="background:var(--accent-teal-dim)">&#128218;</div>
+          <div class="asset-info">
+            <div class="asset-name">브랜드사 운영 가이드</div>
+            <div class="asset-meta">참여 절차, 운영 사이클, FAQ &middot; PDF</div>
+          </div>
+          <div class="asset-download">&#8681;</div>
+        </div>
+        <div class="asset-item" onclick="downloadAsset('spec')">
+          <div class="asset-icon" style="background:var(--accent-red-dim)">&#128208;</div>
+          <div class="asset-info">
+            <div class="asset-name">소재 제출 규격 안내</div>
+            <div class="asset-meta">로고, 연출컷, 배너 사이즈 가이드 &middot; PDF</div>
+          </div>
+          <div class="asset-download">&#8681;</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== GUIDE / FAQ ==================== -->
+    <div id="guide" class="section fade-in">
+      <div class="page-header">
+        <h1>가이드 / FAQ</h1>
+        <p>베이비바우처 운영 관련 자주 묻는 질문입니다.</p>
+      </div>
+
+      <div class="search-bar">
+        <span class="search-icon">&#128269;</span>
+        <input type="text" placeholder="질문 검색..." oninput="filterFAQ(this.value)">
+      </div>
+
+      <div class="sub-title">참여 및 계약</div>
+      <div class="faq-list" id="faqList" style="margin-bottom:24px">
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>베이비바우처 참여 조건은 무엇인가요?</span>
+            <span class="faq-arrow">&#9660;</span>
+          </div>
+          <div class="faq-answer">네이버 스마트스토어를 운영하는 육아/유아 관련 브랜드사가 참여 가능합니다. 구체적인 참여 조건은 사업팀과 별도 협의하며, 계약은 커머스솔루션을 통해 6개월 단위로 진행됩니다.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>계약 갱신은 어떻게 하나요?</span>
+            <span class="faq-arrow">&#9660;</span>
+          </div>
+          <div class="faq-answer">계약 만료 전 갱신 안내 메일을 발송합니다. 메일 내 커머스솔루션 링크에서 갱신 계약을 진행해 주세요. 갱신하지 않을 경우 만료일 기준으로 퇴점 처리됩니다.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>중도 퇴점이 가능한가요?</span>
+            <span class="faq-arrow">&#9660;</span>
+          </div>
+          <div class="faq-answer">네, 가능합니다. 퇴점 희망 시 최소 2주 전까지 담당자에게 안내해 주세요. 퇴점 시 쿠폰 발행 중지, 멤버십 페이지 제거, 적립/카드 할인 대상 제외가 처리됩니다. 기발행 쿠폰은 유효기간 내 사용 가능합니다.</div>
+        </div>
+      </div>
+
+      <div class="sub-title">혜택 및 정산</div>
+      <div class="faq-list" style="margin-bottom:24px">
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>쿠폰이 적용되지 않습니다.</span>
+            <span class="faq-arrow">&#9660;</span>
+          </div>
+          <div class="faq-answer">쿠폰 적용 조건(최소 주문금액, 대상 카테고리 등)을 먼저 확인해 주세요. 조건이 맞는데도 적용되지 않는 경우 dl_babyvoucher@navercorp.com으로 문의 부탁드립니다.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>추가 적립이 표시되지 않습니다.</span>
+            <span class="faq-arrow">&#9660;</span>
+          </div>
+          <div class="faq-answer">바우처 DB 등록 상태를 확인 중일 수 있습니다. 상품 단위로 적립 제외가 설정되어 있을 수 있으니 담당자에게 문의해 주세요.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>인보이스는 언제 받을 수 있나요?</span>
+            <span class="faq-arrow">&#9660;</span>
+          </div>
+          <div class="faq-answer">매월 5일에 전월 쿠폰/적립 사용 내역 및 인보이스를 메일로 발송합니다. '내 현황' 메뉴에서도 확인 가능합니다.</div>
+        </div>
+      </div>
+
+      <div class="sub-title">운영 문의</div>
+      <div class="faq-list" style="margin-bottom:24px">
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>쿠폰 및 적립 정산 프로세스는 어떻게 진행되나요?</span>
+            <span class="faq-arrow">&#9660;</span>
+          </div>
+          <div class="faq-answer">베이비바우처 할인과 적립 모두 네이버 측에서 세팅하며, 이를 위해 브랜드사에서는 스마트스토어센터 내 판매자‑관리자 혜택 적용 동의를 진행해주시면 됩니다. (별도 가이드 안내)<br>정산 방식은 할인과 적립 모두 대금 지급 시 상계 처리되는 방식으로 진행됩니다.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>계약 체결 방식 및 계약 기간은 어떻게 되나요?</span>
+            <span class="faq-arrow">&#9660;</span>
+          </div>
+          <div class="faq-answer">커머스솔루션을 활용한 전자 계약 방식으로 진행됩니다.<br>기본 진행 기간은 1년으로 검토해주시면 되며, 6개월마다 자동 갱신됩니다.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>바우처 적립은 세금 계산서 발행 대상인가요?</span>
+            <span class="faq-arrow">&#9660;</span>
+          </div>
+          <div class="faq-answer">포인트 거래는 세법상 재화 및 용역의 공급에 해당하지 않아 세금 부과 대상이 아니며, 세금계산서가 발행되지 않습니다.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>베이비바우처 유저 정보를 브랜드사에서 활용할 수 있는 방법이 있을까요?</span>
+            <span class="faq-arrow">&#9660;</span>
+          </div>
+          <div class="faq-answer">개인정보보호 정책 상 정확한 유저 정보 전달은 어렵습니다. 특정 세그먼트 대상 관리자 쿠폰은 운영 가능한 부분이 있어, 바우처 첫 구매자 대상 재구매 유도 쿠폰 및 입력된 자녀 정보(생일 등)에 기반한 생일 쿠폰을 발행하여 지속적인 구매를 유도하고자 합니다.<br><span style="color:var(--text-tertiary);font-size:12px">*브랜드별 바우처 CRM은 테스트 및 점도 중</span></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>베이비바우처와 슈퍼적립 동시 참여 시 정책은 어떻게 되나요?</span>
+            <span class="faq-arrow">&#9660;</span>
+          </div>
+          <div class="faq-answer">슈퍼적립 참여 가능하며, 슈퍼적립 상품은 수수료 구조로 인해 슈퍼적립 수수료가 우선 적용됩니다.<br>(예) 바우처 참여사 상품 A 슈퍼적립 참여 시, 바우처 쿠폰 적용 가능 + 바우처 적립 적용 불가<br>마찬가지로 슈퍼특가도 슈퍼특가 수수료가 우선 적용됩니다.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>스토어 자체 발행 쿠폰과 베이비바우처 할인 중복 적용이 가능한가요?</span>
+            <span class="faq-arrow">&#9660;</span>
+          </div>
+          <div class="faq-answer">베이비바우처 할인 쿠폰은 '상품 할인 유형'이므로, 스토어에서 자체 발행하는 상품'중복'할인쿠폰, '장바구니'쿠폰 유형과는 중복 적용을 할 수 있습니다.<br>일반 상품할인은 더 높은 혜택이 우선적용되며, 즉시 할인은 중복 적용 가능합니다.</div>
+        </div>
+      </div>
+
+      <div class="sub-title">소재 제출</div>
+      <div class="faq-list" style="margin-bottom:24px">
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>로고/연출컷 제출 규격이 어떻게 되나요?</span>
+            <span class="faq-arrow">&#9660;</span>
+          </div>
+          <div class="faq-answer">로고는 AI/PNG 원본, 연출컷은 1200x600px PNG/JPG를 권장합니다. 상세 규격은 '에셋 다운로드' 메뉴의 '소재 제출 규격 안내'를 참고해 주세요.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>소재를 변경하고 싶습니다.</span>
+            <span class="faq-arrow">&#9660;</span>
+          </div>
+          <div class="faq-answer">dl_babyvoucher@navercorp.com으로 변경 소재와 함께 요청 부탁드립니다. 반영까지 약 1~2주 소요됩니다. 시즌별 교체는 '폼 제출' 메뉴의 시즌 연출컷 변경 폼을 이용해 주세요.</div>
+        </div>
+      </div>
+
+      <div class="sub-title">쇼츠/영상 광고</div>
+      <div class="faq-list">
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>쇼츠 영상 신청 후 결과는 언제 알 수 있나요?</span>
+            <span class="faq-arrow">&#9660;</span>
+          </div>
+          <div class="faq-answer">영업일 기준 5~7일 내 검토 후, 선정 시에 한해 담당자 메일로 안내드립니다. 미선정 시 별도 안내가 되지 않는 점 양해 부탁드립니다.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>영상에 꼭 바우처 에셋이 들어가야 하나요?</span>
+            <span class="faq-arrow">&#9660;</span>
+          </div>
+          <div class="faq-answer">네, 베이비바우처 에셋 활용 또는 베이비바우처 언급이 포함된 영상에 한해 신청 가능합니다. 에셋 PSD는 '에셋 다운로드' 메뉴에서 받으실 수 있습니다.</div>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <div class="contact-banner">
+        <div class="contact-banner-icon">&#128172;</div>
+        <div class="contact-banner-text">
+          <strong>추가 문의가 있으신가요?</strong><br>
+          dl_babyvoucher@navercorp.com 으로 메일 보내주시면 담당자가 확인 후 회신드립니다.
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== MY STATUS ==================== -->
+    <div id="mystatus" class="section fade-in">
+      <div class="page-header">
+        <h1>내 현황</h1>
+        <p>보뇨르베베의 바우처 참여 현황입니다.</p>
+      </div>
+
+      <div class="stats-row" style="grid-template-columns: repeat(3, 1fr); margin-bottom:32px">
+        <div class="stat-card">
+          <div class="stat-label">참여 상태</div>
+          <div style="margin-top:8px"><span class="status-badge green"><span class="status-dot"></span> 참여 중</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">계약 기간</div>
+          <div class="stat-value" style="font-size:18px;margin-top:8px">2026.04.01 ~ 2026.09.30</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">서브버티컬</div>
+          <div class="stat-value" style="font-size:18px;margin-top:8px">국민육아템</div>
+        </div>
+      </div>
+
+      <div class="sub-title">입점 진행 현황</div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin-bottom:32px">
+        <div class="status-timeline">
+          <div class="timeline-item">
+            <div class="timeline-dot completed"></div>
+            <div class="timeline-title">참여 조건 확정</div>
+            <div class="timeline-desc">쿠폰/적립 부담 비율 협의 완료</div>
+            <div class="timeline-date">2026.03.05</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot completed"></div>
+            <div class="timeline-title">계약 체결 완료</div>
+            <div class="timeline-desc">커머스솔루션 6개 계약 항목 동의</div>
+            <div class="timeline-date">2026.03.15</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot completed"></div>
+            <div class="timeline-title">소재 제출 완료</div>
+            <div class="timeline-desc">로고, 연출컷, 대표상품 제출</div>
+            <div class="timeline-date">2026.03.18</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot completed"></div>
+            <div class="timeline-title">입점 완료</div>
+            <div class="timeline-desc">바우처 혜택 적용 시작</div>
+            <div class="timeline-date">2026.04.07 (월)</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot current"></div>
+            <div class="timeline-title">운영 중</div>
+            <div class="timeline-desc">5월 소재 취합 진행 중</div>
+            <div class="timeline-date">현재</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot pending"></div>
+            <div class="timeline-title">계약 갱신 / 만료</div>
+            <div class="timeline-desc">만료 전 갱신 안내 예정</div>
+            <div class="timeline-date">2026.09.30</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-title">정산 내역</div>
+      <table class="status-table">
+        <thead>
+          <tr>
+            <th>월</th>
+            <th>쿠폰 사용액</th>
+            <th>적립 지급액</th>
+            <th>합계</th>
+            <th>인보이스</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>2026년 3월</td>
+            <td>&#8361;850,000</td>
+            <td>&#8361;350,000</td>
+            <td><strong>&#8361;1,200,000</strong></td>
+            <td><span style="color:var(--accent-blue);cursor:pointer">PDF 다운로드</span></td>
+          </tr>
+          <tr>
+            <td>2026년 2월</td>
+            <td>&#8361;720,000</td>
+            <td>&#8361;280,000</td>
+            <td><strong>&#8361;1,000,000</strong></td>
+            <td><span style="color:var(--accent-blue);cursor:pointer">PDF 다운로드</span></td>
+          </tr>
+          <tr>
+            <td>2026년 1월</td>
+            <td>&#8361;680,000</td>
+            <td>&#8361;310,000</td>
+            <td><strong>&#8361;990,000</strong></td>
+            <td><span style="color:var(--accent-blue);cursor:pointer">PDF 다운로드</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-divider"></div>
+
+      <div class="sub-title">제출 이력</div>
+      <table class="status-table">
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>제출일</th>
+            <th>상태</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>4월 브랜드 로고</td>
+            <td>2026.03.15</td>
+            <td><span class="status-badge green" style="font-size:11px"><span class="status-dot"></span> 반영 완료</span></td>
+          </tr>
+          <tr>
+            <td>4월 연출컷</td>
+            <td>2026.03.15</td>
+            <td><span class="status-badge green" style="font-size:11px"><span class="status-dot"></span> 반영 완료</span></td>
+          </tr>
+          <tr>
+            <td>4월 대표상품</td>
+            <td>2026.03.18</td>
+            <td><span class="status-badge green" style="font-size:11px"><span class="status-dot"></span> 반영 완료</span></td>
+          </tr>
+          <tr>
+            <td>쇼츠 영상 (신규)</td>
+            <td>2026.04.02</td>
+            <td><span class="status-badge blue" style="font-size:11px"><span class="status-dot"></span> 검토 중</span></td>
+          </tr>
+          <tr>
+            <td>5월 연출컷</td>
+            <td>-</td>
+            <td><span class="status-badge orange" style="font-size:11px"><span class="status-dot"></span> 미제출</span></td>
+          </tr>
+          <tr>
+            <td>5월 대표상품</td>
+            <td>-</td>
+            <td><span class="status-badge orange" style="font-size:11px"><span class="status-dot"></span> 미제출</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalContent">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <h3 id="modalTitle"></h3>
+    <div class="modal-sub" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+  // Navigation
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const section = item.dataset.section;
+      if (!section) return;
+
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      item.classList.add('active');
+
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById(section);
+      if (target) {
+        target.classList.add('active');
+        target.classList.remove('fade-in');
+        void target.offsetWidth;
+        target.classList.add('fade-in');
+      }
+    });
+  });
+
+  // Todo toggle
+  function toggleTodo(el) {
+    el.classList.toggle('done');
+    const title = el.parentElement.querySelector('.todo-title');
+    if (title) title.classList.toggle('done-text');
+  }
+
+  // FAQ toggle
+  function toggleFAQ(el) {
+    el.parentElement.classList.toggle('open');
+  }
+
+  // Form open
+  function openForm(type) {
+    const urls = {
+      material: '#',
+      shorts: 'https://naver.me/GuCl9nB2',
+      live: '#',
+      season: '#'
+    };
+    const names = {
+      material: '소재 취합',
+      shorts: '쇼츠/영상 외부 광고 노출 신청',
+      live: '연합 라이브 참여 신청',
+      season: '시즌 연출컷 변경 신청'
+    };
+
+    if (urls[type] && urls[type] !== '#') {
+      window.open(urls[type], '_blank');
+    } else {
+      showModal(names[type] || '폼 제출', '네이버 폼 링크가 연결되면 이곳에서 바로 제출 페이지로 이동합니다.<br><br><em style="color:var(--text-tertiary)">프로토타입에서는 폼 URL이 연결되지 않았습니다.</em>');
+    }
+  }
+
+  // Asset download
+  function downloadAsset(type) {
+    showModal('다운로드', '에셋 파일 다운로드가 시작됩니다.<br><br><em style="color:var(--text-tertiary)">프로토타입에서는 실제 파일이 연결되지 않았습니다.</em>');
+  }
+
+  // Announcements data
+  const announcements = [
+    {
+      title: '5월 입점 브랜드사 소재 취합 안내',
+      body: '5월 바우처 갱신을 위한 아래 소재를 네이버 폼을 통해 제출해 주세요.<br><br><strong>제출 항목</strong><br>- 브랜드 로고 (AI/PNG 원본)<br>- 연출컷 (1200x600px)<br>- 대표상품 스마트스토어 링크<br><br><strong>마감일</strong>: 2026.04.11(금)<br><br>소재 미제출 시 5월 멤버십 페이지 및 행사장 노출이 지연될 수 있습니다.',
+      date: '2026.04.07'
+    },
+    {
+      title: '브랜드사 제작 쇼츠 외부 광고 노출 프로그램 오픈',
+      body: '베이비바우처를 활용한 쇼츠/영상을 네이버가 비용을 부담하여 외부 매체(메타, 구글 앱스토어, 네트워크 지면 등)에 광고 노출하는 프로그램이 오픈되었습니다.<br><br><strong>신청 조건</strong><br>- 베이비바우처 에셋 활용 또는 언급이 포함된 영상<br>- 인플루언서 협업 시 출연자 외부 광고 동의 확보<br><br><strong>신청 방법</strong>: 폼 제출 메뉴에서 상시 접수<br><br>브랜드 자체 광고도 함께 집행 시 선정 우선 검토됩니다.',
+      date: '2026.04.01'
+    },
+    {
+      title: '2026년 바우처 에셋 활용 가이드 업데이트',
+      body: '2026년 버전 바우처 에셋 PSD 파일이 업데이트되었습니다.<br><br>에셋 다운로드 메뉴에서 최신 파일을 받아주세요.<br><br><strong>변경 사항</strong><br>- 로고 리뉴얼 반영<br>- 상세페이지용 뱃지 에셋 추가<br>- 활용 가이드 문서 갱신',
+      date: '2026.03.25'
+    },
+    {
+      title: '4월 베이비바우처 연합 라이브 참여사 모집',
+      body: '4월 연합 라이브에 참여하실 브랜드사를 모집합니다.<br><br>참여를 희망하시면 폼 제출 메뉴에서 라이브 ID를 접수해 주세요.<br><br><strong>마감</strong>: 2026.04.18(금)<br><strong>라이브 예정일</strong>: 2026.04.25(금) 20:00',
+      date: '2026.03.20'
+    },
+    {
+      title: '3월 정산 내역 및 인보이스 발송 완료',
+      body: '3월 쿠폰/적립 사용 내역 및 인보이스를 메일로 발송하였습니다.<br><br>내 현황 메뉴에서도 확인 가능합니다.<br>내역 확인 후 이상이 있으실 경우 dl_babyvoucher@navercorp.com으로 회신 부탁드립니다.',
+      date: '2026.04.05'
+    }
+  ];
+
+  function showAnnouncement(idx) {
+    const a = announcements[idx];
+    if (a) showModal(a.title, a.body + '<br><br><span style="color:var(--text-tertiary);font-size:12px">' + a.date + '</span>');
+  }
+
+  function filterAnnouncements(query) {
+    const items = document.querySelectorAll('#announceFullList .announce-item');
+    items.forEach(item => {
+      const text = item.textContent.toLowerCase();
+      item.style.display = text.includes(query.toLowerCase()) ? '' : 'none';
+    });
+  }
+
+  function filterFAQ(query) {
+    const items = document.querySelectorAll('.faq-item');
+    items.forEach(item => {
+      const text = item.textContent.toLowerCase();
+      item.style.display = text.includes(query.toLowerCase()) ? '' : 'none';
+    });
+  }
+
+  // Modal
+  function showModal(title, body) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalBody').innerHTML = body;
+    document.getElementById('modalOverlay').classList.add('show');
+  }
+
+  function closeModal(e) {
+    if (e && e.target !== document.getElementById('modalOverlay') && !e.target.classList.contains('modal-close')) return;
+    document.getElementById('modalOverlay').classList.remove('show');
+  }
+
+  // Calendar
+  let currentYear = 2026;
+  let currentMonth = 3; // 0-indexed, 3 = April
+
+  const events = {
+    '2026-4-11': true,
+    '2026-4-14': true,
+    '2026-4-18': true,
+    '2026-5-4': true,
+    '2026-5-5': true,
+  };
+
+  function renderCalendar() {
+    const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+    document.getElementById('calendarTitle').textContent = `${currentYear}년 ${months[currentMonth]}`;
+
+    const grid = document.getElementById('calendarGrid');
+    grid.innerHTML = '';
+
+    const dayLabels = ['일','월','화','수','목','금','토'];
+    dayLabels.forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'calendar-day-label';
+      el.textContent = d;
+      grid.appendChild(el);
+    });
+
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const prevDays = new Date(currentYear, currentMonth, 0).getDate();
+    const today = new Date();
+
+    for (let i = firstDay - 1; i >= 0; i--) {
+      const el = document.createElement('div');
+      el.className = 'calendar-day other-month';
+      el.textContent = prevDays - i;
+      grid.appendChild(el);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const el = document.createElement('div');
+      el.className = 'calendar-day';
+      el.textContent = d;
+
+      if (today.getFullYear() === currentYear && today.getMonth() === currentMonth && today.getDate() === d) {
+        el.classList.add('today');
+      }
+
+      const key = `${currentYear}-${currentMonth+1}-${d}`;
+      if (events[key]) el.classList.add('has-event');
+
+      grid.appendChild(el);
+    }
+
+    const totalCells = firstDay + daysInMonth;
+    const remaining = 7 - (totalCells % 7);
+    if (remaining < 7) {
+      for (let i = 1; i <= remaining; i++) {
+        const el = document.createElement('div');
+        el.className = 'calendar-day other-month';
+        el.textContent = i;
+        grid.appendChild(el);
+      }
+    }
+  }
+
+  function changeMonth(delta) {
+    currentMonth += delta;
+    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+    renderCalendar();
+  }
+
+  renderCalendar();
+
+  // Toast
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+</script>
+
+</body>
+</html>
