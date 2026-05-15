@@ -1175,9 +1175,7 @@
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect width="18" height="18" rx="3" fill="#fff" fill-opacity="0.2"/><path d="M4 6h2.5l1.5 3.5L9.5 6H12l-3 7H7L4 6z" fill="#fff"/></svg>
         네이버웍스로 로그인
       </button>
-      <div id="worksNotConfigured" style="display:none;font-size:10px;color:var(--accent-orange);text-align:center;margin-bottom:10px;padding:6px 10px;background:rgba(255,159,10,0.1);border-radius:6px">
-        Works 연동이 설정되지 않았습니다. 아래 &#9881; 버튼에서 Client ID를 설정하세요
-      </div>
+      <div id="worksNotConfigured" style="display:none"></div>
     </div>
 
     <!-- 비밀번호 폴백 -->
@@ -1193,11 +1191,8 @@
       <div class="login-error" id="loginError">비밀번호가 올바르지 않습니다</div>
     </div>
 
-    <!-- Works 설정 (하단) -->
-    <div style="margin-top:16px;text-align:center">
-      <button onclick="document.getElementById('worksSetupArea').style.display=document.getElementById('worksSetupArea').style.display==='none'?'block':'none'" style="font-size:10px;color:var(--text-tertiary);background:none;border:none;cursor:pointer">&#9881; Works 연동 설정</button>
-    </div>
-    <div id="worksSetupArea" style="display:none;margin-top:10px;text-align:left">
+    <!-- Works 설정 영역은 PRISM 방식 전환으로 더 이상 사용자가 ClientID 를 입력할 필요 없음 -->
+    <div id="worksSetupArea" style="display:none">
       <div style="background:var(--bg-elevated);border-radius:8px;padding:12px;font-size:11px">
         <label style="font-size:10px;color:var(--text-tertiary);font-weight:600;display:block;margin-bottom:4px">CLIENT ID</label>
         <input type="text" id="worksClientId" placeholder="Works Developer Console의 Client ID" style="width:100%;font-size:11px;padding:6px 8px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);border-radius:6px;font-family:monospace;box-sizing:border-box;margin-bottom:6px">
@@ -3469,8 +3464,8 @@
   const ADMIN_PW_HASH = 'ba49a696f5958779cdb8379fd9f1c9d71b736c704beaa8aaf23ff48ee8f6ab4e';
   const SESSION_KEY = 'bv_admin_session';
   const SESSION_DURATION = 8 * 60 * 60 * 1000; // 8시간
-  const WORKS_CONFIG_KEY = 'works_oauth_config';
-  const WORKS_AUTH_URL = 'https://auth.worksmobile.com/oauth2/v2.0/authorize';
+  // PRISM Gateway 기반 SSO — admin-portal 이 모든 OAuth flow 를 대신 처리한다.
+  const ADMIN_PORTAL_BASE = 'https://dev-babyvoucher-admin.io.naver.com';
 
   async function sha256(text) {
     const encoder = new TextEncoder();
@@ -3479,93 +3474,33 @@
     return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
-  // ---- Works OAuth ----
-  function getWorksConfig() {
-    try { return JSON.parse(localStorage.getItem(WORKS_CONFIG_KEY)) || {}; } catch { return {}; }
-  }
-
-  function saveWorksConfig() {
-    const clientId = document.getElementById('worksClientId').value.trim();
-    if (!clientId) { showToast('Client ID를 입력하세요', 'warn'); return; }
-    const domainId = document.getElementById('worksDomainId').value.trim();
-    localStorage.setItem(WORKS_CONFIG_KEY, JSON.stringify({ clientId, domainId }));
-    showToast('Works 연동 설정 저장 완료!');
-    initLoginUI();
-  }
-
+  // ---- Works PRISM SSO ----
   function loginWithWorks() {
-    const config = getWorksConfig();
-    if (!config.clientId) {
-      document.getElementById('worksNotConfigured').style.display = 'block';
-      document.getElementById('worksSetupArea').style.display = 'block';
-      return;
-    }
-    // Generate state & nonce for security
-    const state = crypto.randomUUID();
-    const nonce = crypto.randomUUID();
-    sessionStorage.setItem('oauth_state', state);
-    sessionStorage.setItem('oauth_nonce', nonce);
-
-    const redirectUri = window.location.origin + window.location.pathname;
-    const authUrl = new URL(WORKS_AUTH_URL);
-    authUrl.searchParams.set('client_id', config.clientId);
-    authUrl.searchParams.set('redirect_uri', redirectUri);
-    authUrl.searchParams.set('response_type', 'id_token');
-    authUrl.searchParams.set('scope', 'openid profile email');
-    authUrl.searchParams.set('state', state);
-    authUrl.searchParams.set('nonce', nonce);
-    if (config.domainId) authUrl.searchParams.set('domain_id', config.domainId);
-
-    window.location.href = authUrl.toString();
+    // admin-portal SSO 시작 엔드포인트로 redirect.
+    // admin-portal 이 PRISM Gateway → 토큰 교환 → user_get_info 완료 후 returnTo 로 복귀시킨다.
+    const returnTo = window.location.origin + window.location.pathname + window.location.search;
+    window.location.href = ADMIN_PORTAL_BASE + '/api/auth/works/login?returnTo=' + encodeURIComponent(returnTo);
   }
 
-  function decodeJwt(token) {
+  // admin-portal 세션이 이미 살아있는지 확인 (콜백 후 복귀 시 + 페이지 첫 로드 시).
+  async function checkWorksSession() {
     try {
-      const parts = token.split('.');
-      if (parts.length !== 3) return null;
-      const payload = atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'));
-      return JSON.parse(payload);
-    } catch(e) { return null; }
-  }
-
-  function checkOAuthCallback() {
-    // Check URL hash for id_token (implicit flow)
-    const hash = window.location.hash.substring(1);
-    if (!hash) return false;
-    const params = new URLSearchParams(hash);
-    const idToken = params.get('id_token');
-    const state = params.get('state');
-    if (!idToken || !state) return false;
-
-    const savedState = sessionStorage.getItem('oauth_state');
-    if (state !== savedState) {
-      console.warn('OAuth state mismatch');
+      const res = await fetch(ADMIN_PORTAL_BASE + '/api/auth/works-status', {
+        credentials: 'include',
+      });
+      if (!res.ok) return false;
+      const user = await res.json();
+      if (!user || !user.authenticated || !user.email) return false;
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+        type: 'works',
+        user: user.name || user.email,
+        email: user.email,
+        ts: Date.now()
+      }));
+      return true;
+    } catch (e) {
       return false;
     }
-
-    const claims = decodeJwt(idToken);
-    if (!claims) return false;
-
-    // Verify nonce
-    const savedNonce = sessionStorage.getItem('oauth_nonce');
-    if (claims.nonce && savedNonce && claims.nonce !== savedNonce) {
-      console.warn('OAuth nonce mismatch');
-      return false;
-    }
-
-    // Authenticated!
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify({
-      type: 'works',
-      user: claims.name || claims.email || 'Works User',
-      email: claims.email || '',
-      ts: Date.now()
-    }));
-    sessionStorage.removeItem('oauth_state');
-    sessionStorage.removeItem('oauth_nonce');
-
-    // Clean URL
-    window.history.replaceState({}, '', window.location.pathname + window.location.search);
-    return true;
   }
 
   // ---- 공통 세션 관리 ----
@@ -3624,36 +3559,22 @@
   }
 
   function initLoginUI() {
-    const config = getWorksConfig();
-    const urlEl = document.getElementById('currentPageUrl');
-    if (urlEl) urlEl.textContent = window.location.origin + window.location.pathname;
-    if (config.clientId) {
-      document.getElementById('worksNotConfigured').style.display = 'none';
-      document.getElementById('worksClientId').value = config.clientId;
-      if (config.domainId) document.getElementById('worksDomainId').value = config.domainId;
-    } else {
-      // Works 미설정 시 비밀번호 로그인을 기본으로
-      document.getElementById('pwLoginArea').style.display = 'block';
-    }
+    // PRISM 방식: 사용자가 별도 설정할 항목 없음. 비번 로그인은 항상 fallback 으로 표시.
+    document.getElementById('pwLoginArea').style.display = 'block';
   }
 
   // ---- 초기화 ----
-  // 1. OAuth 콜백 확인
-  if (checkOAuthCallback()) {
+  // 1. 로컬 세션 (이전 로그인 흔적) 우선
+  if (checkSession()) {
     unlockApp();
-  }
-  // 2. 기존 세션 확인
-  else if (checkSession()) {
-    unlockApp();
-  }
-  // 3. 로그인 화면 표시
-  else {
+  } else {
+    // 2. admin-portal 쿠키 세션 확인 (PRISM 콜백 후 returnTo 복귀 시 자동 인식)
     document.getElementById('loginOverlay').style.display = '';
     initLoginUI();
-    const config = getWorksConfig();
-    if (!config.clientId) {
-      setTimeout(() => { const pw = document.getElementById('loginPassword'); if(pw) pw.focus(); }, 100);
-    }
+    checkWorksSession().then((ok) => {
+      if (ok) unlockApp();
+      else setTimeout(() => { const pw = document.getElementById('loginPassword'); if(pw) pw.focus(); }, 100);
+    });
   }
 
   // ==================== NAVIGATION ====================
