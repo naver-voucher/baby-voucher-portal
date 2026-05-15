@@ -3098,6 +3098,37 @@
         <p>실제 발송 메일 원문 기반 템플릿 관리 및 발송</p>
       </div>
 
+      <!-- COS 메일 발송 도구 다운로드 카드 -->
+      <div style="background:linear-gradient(135deg, var(--accent-purple-dim), var(--accent-blue-dim));border:1px solid var(--accent-purple);border-radius:var(--radius-md);padding:18px 22px;margin-bottom:24px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <div style="flex:1;min-width:280px">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+              <span style="font-size:18px">📥</span>
+              <div style="font-size:14px;font-weight:700;color:var(--accent-purple)">COS 메일 발송 도구 (베이비바우처 DL 발신)</div>
+            </div>
+            <div style="font-size:13px;color:var(--text-secondary);line-height:1.65;margin-bottom:10px">
+              <strong style="color:var(--text-primary)">dl_babyvoucher@navercorp.com</strong> 명의로 메일 발송할 수 있는 로컬 도구.
+              개인 사번이 아닌 운영팀 명의로 보낼 수 있습니다.<br>
+              <span style="color:var(--text-tertiary)">템플릿 VOU_000002 · Python 3.8+ 필요 · Mac/Windows 둘 다 지원</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:stretch;min-width:180px">
+            <a href="cos-tool.zip" download="COS-메일발송도구.zip"
+               style="padding:10px 16px;background:var(--accent-purple);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;text-align:center">📥 ZIP 다운로드 (35KB)</a>
+            <a href="cos-tool/Mac_사용법.md" target="_blank"
+               style="padding:7px 14px;background:transparent;border:1px solid var(--accent-purple);color:var(--accent-purple);border-radius:8px;text-decoration:none;font-size:12px;font-weight:600;text-align:center">📖 Mac 사용법</a>
+            <a href="cos-tool/사용법.md" target="_blank"
+               style="padding:7px 14px;background:transparent;border:1px solid var(--accent-purple);color:var(--accent-purple);border-radius:8px;text-decoration:none;font-size:12px;font-weight:600;text-align:center">📖 Windows 사용법</a>
+          </div>
+        </div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:11px;color:var(--text-tertiary);line-height:1.7">
+          <strong style="color:var(--accent-purple)">사용 흐름:</strong>
+          ① ZIP 다운로드 → 압축 해제 →
+          ② Mac: <code>실행.command</code> 더블클릭 / Windows: <code>실행.bat</code> 더블클릭 →
+          ③ 브라우저에 발송 UI 열림 (localhost:5001) → 수신자·제목·본문 입력 후 발송
+        </div>
+      </div>
+
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px 20px;margin-bottom:24px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
           <div style="font-size:14px;font-weight:600">일정 설정</div>

@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COS 메일 발송</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, 'Malgun Gothic', 'Noto Sans KR', sans-serif; background: #f4f6f9; color: #333; font-size: 14px; }
+
+/* ── Layout ───────────────────────────────────────────────── */
+#app { display: flex; height: 100vh; overflow: hidden; }
+#sidebar { width: 250px; background: #1e2235; color: #e0e0e0; display: flex; flex-direction: column; flex-shrink: 0; }
+#main { flex: 1; overflow-y: auto; padding: 28px 32px; }
+
+/* ── Sidebar ──────────────────────────────────────────────── */
+.sb-header { padding: 18px 14px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.sb-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 12px; letter-spacing: -0.3px; }
+.btn-new {
+  width: 100%; padding: 8px 12px;
+  background: #03c75a; color: #fff;
+  border: none; border-radius: 6px; cursor: pointer;
+  font-size: 13px; font-weight: 600;
+}
+.btn-new:hover { background: #02b04e; }
+
+.history-list { flex: 1; overflow-y: auto; padding: 6px; }
+.history-empty { padding: 20px; font-size: 12px; color: #777; text-align: center; }
+.hi-item {
+  padding: 10px 10px 8px; border-radius: 7px; cursor: pointer; margin-bottom: 3px;
+  border: 1px solid transparent; position: relative;
+}
+.hi-item:hover { background: rgba(255,255,255,0.07); }
+.hi-item.active { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.15); }
+.hi-title { font-size: 13px; font-weight: 600; color: #eee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 20px; }
+.hi-meta { font-size: 11px; color: #888; margin-top: 3px; }
+.hi-del {
+  position: absolute; top: 8px; right: 8px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgba(255,255,255,0.0); border: none; cursor: pointer;
+  color: #666; font-size: 11px; display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .15s, background .15s;
+}
+.hi-item:hover .hi-del { opacity: 1; }
+.hi-del:hover { background: rgba(220,38,38,0.7) !important; color: #fff !important; }
+.hi-badge {
+  display: inline-block; padding: 1px 7px; border-radius: 10px;
+  font-size: 10px; font-weight: 600; margin-top: 5px;
+}
+.badge-draft { background: rgba(255,255,255,0.1); color: #aaa; }
+.badge-sent { background: rgba(3,199,90,0.2); color: #5dbb7a; }
+
+.sb-footer { padding: 10px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+.btn-settings {
+  width: 100%; background: none; border: 1px solid rgba(255,255,255,0.2);
+  color: #aaa; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px;
+}
+.btn-settings:hover { background: rgba(255,255,255,0.06); color: #ccc; }
+
+/* ── Wizard progress ──────────────────────────────────────── */
+.wiz-bar {
+  display: flex; align-items: center;
+  background: #fff; border-radius: 10px; padding: 14px 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin-bottom: 24px;
+}
+.wiz-step { display: flex; align-items: center; flex-shrink: 0; }
+.wiz-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: #e0e0e0; color: #999;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+}
+.wiz-label { margin-left: 7px; font-size: 13px; color: #aaa; white-space: nowrap; }
+.wiz-line { flex: 1; height: 2px; background: #e0e0e0; margin: 0 10px; }
+.wiz-step.active .wiz-num { background: #03c75a; color: #fff; }
+.wiz-step.active .wiz-label { color: #111; font-weight: 600; }
+.wiz-step.done .wiz-num { background: #d4f5e3; color: #03c75a; }
+.wiz-step.done .wiz-label { color: #555; }
+.wiz-step.done + .wiz-line { background: #03c75a; }
+
+/* ── Step content ─────────────────────────────────────────── */
+.step-panel { display: none; }
+.step-panel.active { display: block; }
+
+/* ── Card ─────────────────────────────────────────────────── */
+.card {
+  background: #fff; border-radius: 10px; padding: 22px 26px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin-bottom: 18px;
+}
+.card-title { font-size: 15px; font-weight: 700; margin-bottom: 18px; color: #1e2235; }
+
+/* ── Form ─────────────────────────────────────────────────── */
+.f-row { display: grid; grid-template-columns: 120px 1fr; align-items: start; margin-bottom: 14px; gap: 10px; }
+.f-label { font-size: 13px; color: #555; padding-top: 9px; text-align: right; font-weight: 500; }
+.f-label.req::after { content: ' *'; color: #e53e3e; }
+.f-col { display: flex; flex-direction: column; gap: 4px; }
+
+input.fi, textarea.fi {
+  padding: 8px 11px; border: 1px solid #ddd; border-radius: 6px;
+  font-size: 13px; font-family: inherit; outline: none; width: 100%;
+}
+input.fi:focus, textarea.fi:focus { border-color: #03c75a; box-shadow: 0 0 0 2px rgba(3,199,90,0.13); }
+textarea.fi { resize: vertical; line-height: 1.5; }
+.f-hint { font-size: 11px; color: #999; }
+
+.f-divider { border: none; border-top: 1px solid #f0f0f0; margin: 16px 0; }
+
+/* ── Email chips ──────────────────────────────────────────── */
+.chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+.chip {
+  display: inline-flex; align-items: center; padding: 2px 9px;
+  border-radius: 12px; font-size: 12px; gap: 4px;
+}
+.chip-to  { background: #e8f4ff; color: #1060c9; }
+.chip-cc  { background: #fff8e6; color: #8a6400; }
+.chip-bcc { background: #fce4ec; color: #b71c3c; }
+.chip-more { background: #f0f0f0; color: #666; }
+.chips-count { font-size: 11px; color: #888; margin-top: 3px; }
+.chips-count.over { color: #e53e3e; font-weight: 600; }
+
+/* ── Toggle (개인별발송) ───────────────────────────────────── */
+.toggle-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+.toggle { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0; border-radius: 20px;
+  background: #ccc; cursor: pointer; transition: .2s;
+}
+.toggle-slider::before {
+  content: ''; position: absolute;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #fff; left: 3px; top: 3px; transition: .2s;
+}
+.toggle input:checked + .toggle-slider { background: #03c75a; }
+.toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
+.toggle-label { font-size: 13px; color: #555; }
+
+/* ── Editor ───────────────────────────────────────────────── */
+.editor-wrap { border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
+.editor-wrap:focus-within { border-color: #03c75a; box-shadow: 0 0 0 2px rgba(3,199,90,0.13); }
+.etabs { display: flex; background: #f8f9fa; border-bottom: 1px solid #e8e8e8; }
+.etab {
+  padding: 7px 14px; font-size: 12px; cursor: pointer; color: #888;
+  border: none; background: none; border-bottom: 2px solid transparent;
+}
+.etab.active { color: #03c75a; border-bottom-color: #03c75a; font-weight: 600; }
+.etoolbar {
+  display: flex; flex-wrap: wrap; gap: 1px; padding: 6px 8px;
+  background: #f8f9fa; border-bottom: 1px solid #eee;
+}
+.tbtn {
+  padding: 3px 8px; background: none; border: 1px solid transparent;
+  border-radius: 4px; cursor: pointer; font-size: 13px; line-height: 1.4;
+}
+.tbtn:hover { background: #eee; border-color: #ddd; }
+.tsep { width: 1px; background: #ddd; margin: 0 3px; align-self: stretch; }
+.econtent {
+  min-height: 280px; max-height: 500px; overflow-y: auto;
+  padding: 14px; outline: none; font-size: 14px; line-height: 1.8;
+}
+.econtent table { border-collapse: collapse; }
+.econtent table td, .econtent table th { border: 1px solid #ccc; padding: 6px 10px; }
+.ehtml, .etext {
+  width: 100%; min-height: 280px; padding: 14px;
+  font-family: 'Courier New', monospace; font-size: 13px;
+  border: none; outline: none; resize: vertical; line-height: 1.6;
+  background: #fafafa;
+}
+.hidden { display: none !important; }
+
+/* ── Summary cards ────────────────────────────────────────── */
+.summ { background: #f8f9fa; border-radius: 8px; padding: 14px 16px; margin-bottom: 14px; }
+.summ-row { display: flex; gap: 10px; margin-bottom: 6px; font-size: 13px; }
+.summ-row:last-child { margin-bottom: 0; }
+.summ-key { color: #777; width: 90px; flex-shrink: 0; }
+.summ-val { color: #222; font-weight: 500; word-break: break-all; }
+.recipients-box {
+  max-height: 180px; overflow-y: auto;
+  background: #f8f9fa; border-radius: 6px; padding: 10px 12px;
+  font-size: 12px; line-height: 1.9; margin-bottom: 12px;
+}
+
+/* ── Result box ───────────────────────────────────────────── */
+.result { padding: 12px 14px; border-radius: 6px; font-size: 13px; margin-top: 14px; line-height: 1.6; }
+.result-ok  { background: #eafaf2; border: 1px solid #b2e8c9; color: #1a5c33; }
+.result-err { background: #fff5f5; border: 1px solid #fcc; color: #b91c1c; }
+
+/* ── Warning box ──────────────────────────────────────────── */
+.warn {
+  background: #fffbeb; border: 1px solid #fbbf24;
+  border-radius: 6px; padding: 10px 14px;
+  font-size: 13px; color: #78350f; margin-bottom: 14px;
+}
+
+/* ── Buttons ──────────────────────────────────────────────── */
+.btn-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+.btn { padding: 9px 22px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; }
+.btn-primary { background: #03c75a; color: #fff; }
+.btn-primary:hover { background: #02b04e; }
+.btn-primary:disabled { background: #a8d5b9; cursor: not-allowed; }
+.btn-ghost { background: #fff; color: #555; border: 1px solid #ddd; }
+.btn-ghost:hover { background: #f4f4f4; }
+.btn-danger { background: #dc2626; color: #fff; }
+.btn-danger:hover { background: #b91c1c; }
+.btn-send { padding: 10px 32px; font-size: 14px; }
+
+/* ── Mode tabs ───────────────────────────────────────────── */
+.mode-tabs { display: flex; gap: 4px; margin-bottom: 8px; }
+.mode-tab { padding: 5px 14px; border-radius: 5px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid #ddd; background: #f8f9fa; color: #777; }
+.mode-tab.active { background: #1e2235; color: #fff; border-color: #1e2235; }
+
+/* ── Recipient-attach table ──────────────────────────────── */
+.ra-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+.ra-table th { background: #f4f6f9; padding: 7px 10px; text-align: left; font-weight: 600; color: #555; border-bottom: 2px solid #eee; }
+.ra-table td { padding: 6px 10px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; word-break: break-all; }
+.ra-table tr:last-child td { border-bottom: none; }
+.tag-ok   { color: #03c75a; font-size: 12px; font-weight: 600; }
+.tag-err  { color: #e53e3e; font-size: 12px; }
+.tag-none { color: #aaa;    font-size: 12px; }
+
+/* ── Manual row (직접 입력 모드) ─────────────────────────── */
+.manual-row-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.manual-row-item .fi { flex: 1; min-width: 0; }
+.btn-file-pick {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px;
+  cursor: pointer; padding: 7px 12px; max-width: 190px; overflow: hidden;
+  white-space: nowrap; text-overflow: ellipsis;
+  background: #f4f6f9; border: 1px solid #ddd; border-radius: 6px;
+  font-size: 12px; font-weight: 600; color: #555;
+}
+.btn-file-pick.has-file { background: #e8f4ff; border-color: #b3d4f5; color: #1060c9; }
+.btn-remove-row {
+  flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+  border: 1px solid #ddd; background: #f8f9fa; cursor: pointer; font-size: 12px;
+  color: #999; display: flex; align-items: center; justify-content: center; padding: 0;
+}
+.btn-remove-row:hover { background: #fee2e2; border-color: #fca5a5; color: #dc2626; }
+.indiv-subtabs { display: flex; gap: 4px; margin-bottom: 12px; }
+.indiv-subtab {
+  padding: 4px 14px; border-radius: 12px; font-size: 12px; font-weight: 600;
+  cursor: pointer; border: 1px solid #ddd; background: #f8f9fa; color: #777;
+}
+.indiv-subtab.active { background: #e8f4ff; color: #1060c9; border-color: #b3d4f5; }
+
+/* ── Send progress ───────────────────────────────────────── */
+.progress-bar-wrap { background: #e8e8e8; border-radius: 4px; height: 8px; margin: 10px 0; }
+.progress-bar-fill { background: #03c75a; height: 8px; border-radius: 4px; transition: width .3s; }
+.send-log { max-height: 260px; overflow-y: auto; font-size: 12px; line-height: 1.8; }
+.send-log-ok  { color: #1a5c33; }
+.send-log-err { color: #b91c1c; }
+
+/* ── Modal ────────────────────────────────────────────────── */
+.modal-bg {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+  display: flex; align-items: center; justify-content: center; z-index: 100;
+}
+.modal {
+  background: #fff; border-radius: 12px; padding: 26px 28px;
+  width: 460px; box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+.modal-title { font-size: 15px; font-weight: 700; margin-bottom: 18px; }
+.modal-foot { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ── Sidebar ───────────────────────────────────────────── -->
+  <aside id="sidebar">
+    <div class="sb-header">
+      <div class="sb-title">📧 COS 메일 발송</div>
+      <button class="btn-new" onclick="newDraft()">＋ 새 발송 작성</button>
+    </div>
+    <div id="historyList" class="history-list"></div>
+    <div class="sb-footer">
+      <div style="font-size:11px;color:#555;line-height:1.8;">
+        <div>만든이 : 펫사업팀 민동빈</div>
+        <div>버전 : 1.0</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main ─────────────────────────────────────────────── -->
+  <main id="main">
+
+    <!-- Wizard progress bar -->
+    <div class="wiz-bar">
+      <div class="wiz-step active" id="ws1">
+        <div class="wiz-num">1</div>
+        <div class="wiz-label">수신자 설정</div>
+      </div>
+      <div class="wiz-line" id="wl1"></div>
+      <div class="wiz-step" id="ws2">
+        <div class="wiz-num">2</div>
+        <div class="wiz-label">메일 내용</div>
+      </div>
+      <div class="wiz-line" id="wl2"></div>
+      <div class="wiz-step" id="ws3">
+        <div class="wiz-num">3</div>
+        <div class="wiz-label">테스트 발송</div>
+      </div>
+      <div class="wiz-line" id="wl3"></div>
+      <div class="wiz-step" id="ws4">
+        <div class="wiz-num">4</div>
+        <div class="wiz-label">최종 발송</div>
+      </div>
+    </div>
+
+    <!-- ── STEP 1: 수신자 설정 ──────────────────────────────── -->
+    <div id="step1" class="step-panel active">
+      <div class="card">
+        <div class="card-title">발신자 정보</div>
+
+        <div class="f-row">
+          <label class="f-label req">발신자</label>
+          <div class="f-col">
+            <select class="fi" id="senderId" onchange="onSenderChange(); autoSave()" style="cursor:pointer">
+              <option value="VOU_000001">펫바우처 — dl_naverpet_2025@navercorp.com</option>
+              <option value="VOU_000002">베이비바우처 — dl_babyvoucher@navercorp.com</option>
+            </select>
+          </div>
+        </div>
+        <div class="f-row">
+          <label class="f-label req">발신자명</label>
+          <div class="f-col">
+            <input class="fi" id="senderName" placeholder="예: 네이버펫바우처_2025" oninput="autoSave()">
+            <span class="f-hint">메일에 표시되는 발신자 이름</span>
+          </div>
+        </div>
+        <div class="f-row">
+          <label class="f-label req">테스트 이메일</label>
+          <div class="f-col">
+            <input class="fi" id="testEmail" type="email" placeholder="예: my.email@navercorp.com" oninput="autoSave()">
+            <span class="f-hint">3단계에서 이 주소로 먼저 테스트 발송합니다.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">수신자 목록</div>
+
+        <div class="f-row" style="align-items:start">
+          <label class="f-label req" style="padding-top:40px">수신자 (TO)</label>
+          <div class="f-col">
+            <!-- 모드 탭 -->
+            <div class="mode-tabs">
+              <button class="mode-tab active" id="tabSingle"     onclick="setAttachMode('single')">일반 발송</button>
+              <button class="mode-tab"        id="tabIndividual" onclick="setAttachMode('individual')">수신자별 첨부파일</button>
+            </div>
+
+            <!-- 일반 모드 -->
+            <div id="singleMode">
+              <textarea class="fi" id="toInput" rows="4"
+                placeholder="한 줄에 한 명. 엑셀에서 이메일 열 복사 후 Ctrl+V 붙여넣기 가능."
+                oninput="parseField('to'); autoSave()"></textarea>
+              <div id="toChips" class="chips"></div>
+              <div id="toCount" class="chips-count"></div>
+            </div>
+
+            <!-- 수신자별 첨부 모드 -->
+            <div id="individualMode" class="hidden">
+              <!-- 하위 탭 -->
+              <div class="indiv-subtabs">
+                <button class="indiv-subtab active" id="tabManual" onclick="setIndivSubMode('manual')">직접 입력</button>
+                <button class="indiv-subtab" id="tabExcel" onclick="setIndivSubMode('excel')">엑셀 업로드</button>
+              </div>
+
+              <!-- 직접 입력 -->
+              <div id="indivManual">
+                <div id="manualRows"></div>
+                <button class="btn btn-ghost" onclick="addManualRow()" style="margin-top:6px;font-size:12px;padding:6px 14px;">＋ 이메일 추가하기</button>
+              </div>
+
+              <!-- 엑셀 업로드 -->
+              <div id="indivExcel" class="hidden">
+                <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
+                  <a href="/template" download style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:#f4f6f9;border:1px solid #ddd;border-radius:6px;font-size:13px;font-weight:600;color:#333;text-decoration:none;">📥 양식 다운로드</a>
+                  <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;padding:7px 14px;background:#1e2235;border:1px solid #1e2235;border-radius:6px;font-size:13px;font-weight:600;color:#fff;">
+                    <input type="file" id="listFile" accept=".xlsx,.csv" style="display:none" onchange="uploadList()">
+                    📤 목록 업로드
+                  </label>
+                  <span id="listStatus" style="font-size:12px;color:#888;"></span>
+                </div>
+                <div style="font-size:12px;color:#999;margin-bottom:8px;">양식 다운로드 → 수신자이메일·첨부파일경로 입력 → 업로드</div>
+                <table class="ra-table" id="recipTable">
+                  <thead><tr><th>이메일</th><th>첨부파일 경로</th><th>상태</th></tr></thead>
+                  <tbody id="recipTableBody"><tr><td colspan="3" style="color:#aaa;text-align:center;padding:12px;">양식을 다운로드 후 작성하여 업로드하세요</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="f-row" style="align-items:start">
+          <label class="f-label" style="padding-top:9px">참조 (CC)</label>
+          <div class="f-col">
+            <textarea class="fi" id="ccInput" rows="2"
+              placeholder="한 줄에 한 명 (최대 50명)"
+              oninput="parseField('cc'); autoSave()"></textarea>
+            <div id="ccChips" class="chips"></div>
+            <div id="ccCount" class="chips-count"></div>
+          </div>
+        </div>
+        <div class="f-row" style="align-items:start">
+          <label class="f-label" style="padding-top:9px">숨은참조 (BCC)</label>
+          <div class="f-col">
+            <textarea class="fi" id="bccInput" rows="2"
+              placeholder="한 줄에 한 명 (최대 20명)"
+              oninput="parseField('bcc'); autoSave()"></textarea>
+            <div id="bccChips" class="chips"></div>
+            <div id="bccCount" class="chips-count"></div>
+          </div>
+        </div>
+
+        <div class="f-row" id="singleAttachSection">
+          <label class="f-label">첨부파일</label>
+          <div class="f-col">
+            <input type="file" id="attachFile" onchange="onAttach()">
+            <span class="f-hint">1개만 가능합니다. 여러 파일은 zip으로 묶어 업로드하세요.</span>
+          </div>
+        </div>
+
+        <hr class="f-divider">
+
+        <div class="f-row">
+          <label class="f-label">개인별 발송</label>
+          <div class="f-col">
+            <div class="toggle-row">
+              <label class="toggle">
+                <input type="checkbox" id="individualDispatch" onchange="autoSave()">
+                <span class="toggle-slider"></span>
+              </label>
+              <span class="toggle-label">수신자가 여러 명이어도 개별로 보낸 것처럼 발송</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="goStep(2)">다음 →</button>
+      </div>
+    </div>
+
+    <!-- ── STEP 2: 메일 내용 ─────────────────────────────────── -->
+    <div id="step2" class="step-panel">
+      <div class="card">
+        <div class="card-title">메일 내용 작성</div>
+
+        <div class="f-row">
+          <label class="f-label req">메일 제목</label>
+          <div class="f-col">
+            <input class="fi" id="mailTitle" placeholder="메일 제목을 입력하세요" oninput="autoSave()">
+          </div>
+        </div>
+
+        <div class="f-row" style="align-items:start">
+          <label class="f-label req" style="padding-top:40px">본문</label>
+          <div class="f-col">
+            <div class="editor-wrap">
+              <!-- Tab buttons -->
+              <div class="etabs">
+                <button class="etab active" onclick="switchTab('visual')">에디터</button>
+                <button class="etab" onclick="switchTab('html')">HTML</button>
+                <button class="etab" onclick="switchTab('text')">텍스트</button>
+              </div>
+              <!-- Visual toolbar (only for editor tab) -->
+              <div class="etoolbar" id="etoolbar">
+                <button class="tbtn" onclick="fmt('bold')" title="굵게"><b>B</b></button>
+                <button class="tbtn" onclick="fmt('italic')" title="기울임"><i>I</i></button>
+                <button class="tbtn" onclick="fmt('underline')" title="밑줄"><u>U</u></button>
+                <button class="tbtn" onclick="fmt('strikeThrough')" title="취소선"><s>S</s></button>
+                <div class="tsep"></div>
+                <button class="tbtn" onclick="fmt('justifyLeft')" title="왼쪽">≡</button>
+                <button class="tbtn" onclick="fmt('justifyCenter')" title="가운데">☰</button>
+                <button class="tbtn" onclick="fmt('justifyRight')" title="오른쪽">≡</button>
+                <div class="tsep"></div>
+                <button class="tbtn" onclick="fmt('insertUnorderedList')" title="글머리">• 목록</button>
+                <button class="tbtn" onclick="fmt('insertOrderedList')" title="번호">1. 목록</button>
+                <div class="tsep"></div>
+                <button class="tbtn" onclick="doLink()" title="링크">🔗 링크</button>
+                <button class="tbtn" onclick="doTable()" title="표">⊞ 표</button>
+                <div class="tsep"></div>
+                <select onchange="fmt('fontSize', this.value); this.value=''" style="font-size:12px;border:1px solid #ddd;border-radius:4px;padding:2px 4px;cursor:pointer">
+                  <option value="">크기</option>
+                  <option value="1">10px</option>
+                  <option value="2">13px</option>
+                  <option value="3">16px</option>
+                  <option value="4">18px</option>
+                  <option value="5">24px</option>
+                </select>
+              </div>
+              <!-- Editor panels -->
+              <div class="econtent" id="eVisual" contenteditable="true" oninput="syncFrom('visual'); autoSave()"></div>
+              <textarea class="ehtml hidden" id="eHtml" placeholder="HTML 코드를 직접 입력하세요" oninput="syncFrom('html'); autoSave()"></textarea>
+              <textarea class="etext hidden" id="eText" placeholder="일반 텍스트 (줄바꿈 → &lt;br&gt; 자동 변환)" oninput="syncFrom('text'); autoSave()"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <hr class="f-divider">
+
+        <div class="f-row">
+          <label class="f-label">예약 발송</label>
+          <div class="f-col">
+            <div class="toggle-row">
+              <label class="toggle">
+                <input type="checkbox" id="reserveChk" onchange="toggleReserve()">
+                <span class="toggle-slider"></span>
+              </label>
+              <span class="toggle-label">예약 발송 설정</span>
+            </div>
+            <div id="reserveFields" class="hidden" style="margin-top:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <input type="datetime-local" class="fi" id="reserveDate" style="width:auto" oninput="checkReserveTime(); autoSave()">
+              <span id="reserveWarn" style="font-size:12px;color:#e53e3e;"></span>
+            </div>
+            <span class="f-hint">현재 시간 기준 최소 30분 이후로 설정해야 합니다.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goStep(1)">← 이전</button>
+        <button class="btn btn-primary" onclick="goStep(3)">다음 →</button>
+      </div>
+    </div>
+
+    <!-- ── STEP 3: 테스트 발송 ──────────────────────────────── -->
+    <div id="step3" class="step-panel">
+      <div class="card">
+        <div class="card-title">테스트 발송</div>
+        <div id="s3Summ" class="summ"></div>
+        <div style="text-align:center; padding: 14px 0 6px;">
+          <button class="btn btn-primary btn-send" id="btnTest" onclick="sendMail(true)">
+            📤 테스트 발송
+          </button>
+        </div>
+        <div id="testResult"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goStep(2)">← 이전</button>
+        <button class="btn btn-primary" id="btnGoFinal" onclick="goStep(4)" disabled>
+          다음 → 최종 발송
+        </button>
+      </div>
+    </div>
+
+    <!-- ── STEP 4: 최종 발송 ─────────────────────────────────── -->
+    <div id="step4" class="step-panel">
+      <div class="card">
+        <div class="card-title">최종 발송</div>
+        <div id="s4Summ" class="summ"></div>
+        <div id="s4Recip" class="recipients-box"></div>
+        <div class="warn">⚠ 실제 수신자에게 발송됩니다. 신중하게 확인 후 발송하세요.</div>
+        <div style="text-align:center; padding: 6px 0 4px;">
+          <button class="btn btn-danger btn-send" id="btnFinal" onclick="confirmFinal()">
+            🚀 최종 발송
+          </button>
+        </div>
+        <div id="finalResult"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goStep(3)">← 이전</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+
+<script>
+// ── State ──────────────────────────────────────────────────────
+let draft = initDraft();
+let emails = { to: [], cc: [], bcc: [] };
+let attachFile = null;
+let editorTab  = 'visual';
+let currentStep = 1;
+let testOk = false;
+let _loading = false;  // loadDraft 중 autoSave 차단용
+let historyCache = [];  // history.json 인메모리 캐시
+
+// 수신자별 첨부 모드
+let attachMode    = 'single';   // 'single' | 'individual'
+let indivSubMode  = 'manual';   // 'manual' | 'excel'
+let parsedRecips  = [];         // [{email, path}]  — 엑셀 업로드 결과
+let manualRows    = [];         // [{id, email, file}] — 직접 입력 행
+let _mrid         = 0;          // manualRow id 카운터
+
+function initDraft() {
+  return {
+    id: null,
+    senderId: 'VOU_000001', senderName: '', testEmail: '',
+    toRaw: '', ccRaw: '', bccRaw: '',
+    individualDispatch: false,
+    title: '', body: '', attachName: '',
+    reservationDate: '',
+    status: 'draft',
+    createdAt: null, sentAt: null,
+  };
+}
+
+// ── Config ─────────────────────────────────────────────────────
+const SENDER_MAP = {
+  'VOU_000001': { email: 'dl_naverpet_2025@navercorp.com',  name: '네이버펫바우처_2025' },
+  'VOU_000002': { email: 'dl_babyvoucher@navercorp.com',    name: '네이버베이비바우처' },
+};
+function getCfg() {
+  return {
+    apiUrl:     'http://localhost:5001/send',
+    serviceId:  'VOU',
+    templateId: draft.senderId || 'VOU_000001',
+  };
+}
+function onSenderChange() {
+  const id = document.getElementById('senderId').value;
+  // 발신자명이 비어있거나 기존 기본값이면 자동 채움
+  const nameEl = document.getElementById('senderName');
+  const defaultNames = Object.values(SENDER_MAP).map(v => v.name);
+  if (!nameEl.value || defaultNames.includes(nameEl.value)) {
+    nameEl.value = SENDER_MAP[id].name;
+  }
+  draft.senderId = id;
+}
+
+// ── 수신자별 첨부 모드 ─────────────────────────────────────────
+function setAttachMode(mode) {
+  attachMode = mode;
+  const isInd = mode === 'individual';
+  document.getElementById('tabSingle').classList.toggle('active', !isInd);
+  document.getElementById('tabIndividual').classList.toggle('active', isInd);
+  document.getElementById('singleMode').classList.toggle('hidden', isInd);
+  document.getElementById('individualMode').classList.toggle('hidden', !isInd);
+  document.getElementById('singleAttachSection').classList.toggle('hidden', isInd);
+  if (isInd) {
+    if (!manualRows.length) manualRows = [{ id: _mrid++, email: '', file: null }];
+    _syncIndivSubMode();
+    renderManualRows();
+  }
+  autoSave();
+}
+
+function setIndivSubMode(mode) {
+  indivSubMode = mode;
+  _syncIndivSubMode();
+  autoSave();
+}
+
+function _syncIndivSubMode() {
+  const m = indivSubMode === 'manual';
+  document.getElementById('tabManual').classList.toggle('active', m);
+  document.getElementById('tabExcel').classList.toggle('active', !m);
+  document.getElementById('indivManual').classList.toggle('hidden', !m);
+  document.getElementById('indivExcel').classList.toggle('hidden', m);
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function addManualRow() {
+  manualRows.push({ id: _mrid++, email: '', file: null });
+  renderManualRows();
+  autoSave();
+}
+
+function removeManualRow(id) {
+  manualRows = manualRows.filter(r => r.id !== id);
+  renderManualRows();
+  autoSave();
+}
+
+function manualRowUpdate(id, val) {
+  const row = manualRows.find(r => r.id === id);
+  if (row) { row.email = val; autoSave(); }
+}
+
+function manualRowFile(id, input) {
+  const row = manualRows.find(r => r.id === id);
+  if (row) { row.file = input.files[0] || null; renderManualRows(); }
+}
+
+function renderManualRows() {
+  const container = document.getElementById('manualRows');
+  if (!container) return;
+  const canDel = manualRows.length > 1;
+  container.innerHTML = manualRows.map(r => `
+    <div class="manual-row-item">
+      <input class="fi" type="email" placeholder="수신자@example.com" value="${escHtml(r.email)}"
+        oninput="manualRowUpdate(${r.id}, this.value)">
+      <label class="btn-file-pick${r.file ? ' has-file' : ''}">
+        <input type="file" style="display:none" onchange="manualRowFile(${r.id}, this)">
+        📎 ${r.file ? escHtml(r.file.name) : '파일 선택'}
+      </label>
+      ${canDel ? `<button class="btn-remove-row" onclick="removeManualRow(${r.id})">✕</button>` : '<div style="width:28px"></div>'}
+    </div>`).join('');
+}
+
+function getIndividualRows() {
+  if (indivSubMode === 'manual') {
+    return manualRows
+      .filter(r => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r.email.trim()))
+      .map(r => ({ email: r.email.trim(), file: r.file, path: null }));
+  }
+  return parsedRecips.map(r => ({ email: r.email, file: null, path: r.path }));
+}
+
+async function uploadList() {
+  const file = document.getElementById('listFile').files[0];
+  if (!file) return;
+  const statusEl = document.getElementById('listStatus');
+  statusEl.textContent = '파싱 중...';
+  statusEl.style.color = '#888';
+
+  const reader = new FileReader();
+  reader.onload = async () => {
+    const base64 = reader.result.split(',')[1];
+    try {
+      const res = await fetch('http://localhost:5001/upload-list', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: base64, name: file.name }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const json = await res.json();
+      if (json.state === 'ERROR') throw new Error(json.errorMessage);
+      parsedRecips = json.rows || [];
+      renderRecipTable();
+      statusEl.textContent = `${parsedRecips.length}명 로드됨`;
+      statusEl.style.color = '#03c75a';
+      autoSave();
+    } catch (err) {
+      statusEl.textContent = '파싱 실패: ' + err.message;
+      statusEl.style.color = '#e53e3e';
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderRecipTable() {
+  const tbody = document.getElementById('recipTableBody');
+  if (!parsedRecips.length) {
+    tbody.innerHTML = '<tr><td colspan="3" style="color:#aaa;text-align:center;padding:12px;">양식을 다운로드 후 작성하여 업로드하세요</td></tr>';
+    return;
+  }
+  tbody.innerHTML = parsedRecips.map(r => {
+    const status = r.path
+      ? '<span class="tag-ok">✅</span>'
+      : '<span class="tag-none">경로 없음</span>';
+    return `<tr><td>${r.email}</td><td style="font-size:12px;font-family:monospace;color:#555;word-break:break-all;">${r.path || '—'}</td><td>${status}</td></tr>`;
+  }).join('');
+}
+
+// ── Email parsing ──────────────────────────────────────────────
+function parseEmails(raw) {
+  return [...new Set(
+    raw.split(/[\n,;]+/).map(s => s.trim()).filter(s => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s))
+  )];
+}
+function parseField(field) {
+  const raw = document.getElementById(field + 'Input').value;
+  const list = parseEmails(raw);
+  emails[field] = list;
+
+  const limits = { to: 50, cc: 50, bcc: 20 };
+  const chipsEl = document.getElementById(field + 'Chips');
+  const countEl = document.getElementById(field + 'Count');
+
+  if (!list.length) { chipsEl.innerHTML = ''; countEl.textContent = ''; return; }
+
+  const show = list.slice(0, 8);
+  const more = list.length - show.length;
+  chipsEl.innerHTML =
+    show.map(e => `<span class="chip chip-${field}">${e}</span>`).join('') +
+    (more > 0 ? `<span class="chip chip-more">+${more}명 더</span>` : '');
+
+  const over = list.length > limits[field];
+  countEl.textContent = `${list.length}명 인식됨` + (over ? ` ⚠ 최대 ${limits[field]}명 초과!` : '');
+  countEl.className = 'chips-count' + (over ? ' over' : '');
+}
+
+// ── Editor ─────────────────────────────────────────────────────
+function switchTab(tab) {
+  // flush current tab → draft.body
+  flushEditor();
+  editorTab = tab;
+
+  // update tab buttons
+  document.querySelectorAll('.etab').forEach((el, i) =>
+    el.classList.toggle('active', ['visual','html','text'][i] === tab)
+  );
+
+  const isVisual = tab === 'visual';
+  document.getElementById('etoolbar').classList.toggle('hidden', !isVisual);
+  document.getElementById('eVisual').classList.toggle('hidden', !isVisual);
+  document.getElementById('eHtml').classList.toggle('hidden',   tab !== 'html');
+  document.getElementById('eText').classList.toggle('hidden',   tab !== 'text');
+
+  // populate new tab from draft.body
+  if (isVisual)       document.getElementById('eVisual').innerHTML = draft.body;
+  else if (tab==='html') document.getElementById('eHtml').value = draft.body;
+  else document.getElementById('eText').value = htmlToText(draft.body);
+}
+function flushEditor() {
+  if (editorTab === 'visual')
+    draft.body = document.getElementById('eVisual').innerHTML;
+  else if (editorTab === 'html')
+    draft.body = document.getElementById('eHtml').value;
+  else
+    draft.body = textToHtml(document.getElementById('eText').value);
+}
+function syncFrom(src) { flushEditor(); }
+function htmlToText(html) {
+  return html.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '');
+}
+function textToHtml(text) {
+  return text.split('\n').map(l => `<p>${l || '&nbsp;'}</p>`).join('');
+}
+function fmt(cmd, val) {
+  document.getElementById('eVisual').focus();
+  document.execCommand(cmd, false, val || null);
+  flushEditor();
+}
+function doLink() {
+  const url = prompt('링크 URL을 입력하세요:');
+  if (url) { document.getElementById('eVisual').focus(); document.execCommand('createLink', false, url); flushEditor(); }
+}
+function doTable() {
+  const r = parseInt(prompt('행 수:', '2') || '2');
+  const c = parseInt(prompt('열 수:', '3') || '3');
+  if (!r || !c) return;
+  let html = '<table border="1" style="border-collapse:collapse;width:100%">';
+  for (let i = 0; i < r; i++) {
+    html += '<tr>' + '<td style="padding:6px 10px;border:1px solid #ccc;">&nbsp;</td>'.repeat(c) + '</tr>';
+  }
+  html += '</table><p><br></p>';
+  document.getElementById('eVisual').focus();
+  document.execCommand('insertHTML', false, html);
+  flushEditor();
+}
+function onAttach() {
+  attachFile = document.getElementById('attachFile').files[0] || null;
+  draft.attachName = attachFile ? attachFile.name : '';
+}
+
+// ── 예약 발송 ──────────────────────────────────────────────────
+function toggleReserve() {
+  const on = document.getElementById('reserveChk').checked;
+  document.getElementById('reserveFields').classList.toggle('hidden', !on);
+  if (on && !document.getElementById('reserveDate').value) {
+    const d = new Date(Date.now() + 60 * 60 * 1000); // 기본값: 1시간 후
+    const p = n => String(n).padStart(2, '0');
+    document.getElementById('reserveDate').value =
+      `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+  checkReserveTime();
+  autoSave();
+}
+
+function checkReserveTime() {
+  const val = document.getElementById('reserveDate').value;
+  const warnEl = document.getElementById('reserveWarn');
+  if (!val) { warnEl.textContent = ''; return; }
+  const diff = new Date(val) - Date.now();
+  warnEl.textContent = diff < 30 * 60 * 1000
+    ? '⚠ 30분 이후 시간으로 설정하세요.'
+    : '';
+}
+
+// ── Validation ─────────────────────────────────────────────────
+function collectRecipients() {
+  draft.senderId           = document.getElementById('senderId').value;
+  draft.senderName         = document.getElementById('senderName').value.trim();
+  draft.testEmail          = document.getElementById('testEmail').value.trim();
+  draft.toRaw              = document.getElementById('toInput').value;
+  draft.ccRaw              = document.getElementById('ccInput').value;
+  draft.bccRaw             = document.getElementById('bccInput').value;
+  draft.individualDispatch = document.getElementById('individualDispatch').checked;
+  draft.attachMode         = attachMode;
+  draft.indivSubMode       = indivSubMode;
+  draft.parsedRecips       = parsedRecips;
+  draft.manualEmails       = manualRows.map(r => r.email);
+  emails.to  = parseEmails(draft.toRaw);
+  emails.cc  = parseEmails(draft.ccRaw);
+  emails.bcc = parseEmails(draft.bccRaw);
+}
+function collectContent() {
+  draft.title = document.getElementById('mailTitle').value.trim();
+  flushEditor();
+  const on  = document.getElementById('reserveChk').checked;
+  const val = document.getElementById('reserveDate').value;
+  draft.reservationDate = (on && val) ? val.replace('T', ' ') + ':00' : '';
+}
+function validateRecipients() {
+  if (!draft.senderName) { alert('발신자명을 입력하세요.'); return false; }
+  if (!draft.testEmail)  { alert('테스트 이메일을 입력하세요.'); return false; }
+  if (attachMode === 'individual') {
+    if (!getIndividualRows().length) {
+      alert(indivSubMode === 'manual' ? '수신자 이메일을 입력하세요.' : '엑셀 목록을 업로드하세요.');
+      return false;
+    }
+  } else {
+    if (!emails.to.length)      { alert('수신자(TO)를 1명 이상 입력하세요.'); return false; }
+    if (emails.to.length > 50)  { alert('수신자(TO)는 최대 50명까지 가능합니다.'); return false; }
+    if (emails.cc.length > 50)  { alert('참조(CC)는 최대 50명까지 가능합니다.'); return false; }
+    if (emails.bcc.length > 20) { alert('숨은참조(BCC)는 최대 20명까지 가능합니다.'); return false; }
+  }
+  return true;
+}
+function validateContent() {
+  if (!draft.title) { alert('메일 제목을 입력하세요.'); return false; }
+  if (!draft.body || !draft.body.replace(/<[^>]*>/g, '').trim()) {
+    alert('메일 본문을 입력하세요.'); return false;
+  }
+  if (draft.reservationDate) {
+    const diff = new Date(draft.reservationDate.replace(' ', 'T')) - Date.now();
+    if (diff < 30 * 60 * 1000) {
+      alert('예약 발송 시간은 현재 시간 기준 30분 이후로 설정해야 합니다.');
+      return false;
+    }
+  }
+  return true;
+}
+
+// ── Step navigation ────────────────────────────────────────────
+function goStep(n) {
+  collectRecipients();
+  collectContent();
+
+  if (n > 1 && !validateRecipients()) return;
+  if (n > 2 && !validateContent()) return;
+
+  // progress bar
+  for (let i = 1; i <= 4; i++) {
+    const ws = document.getElementById('ws' + i);
+    ws.className = 'wiz-step' + (i === n ? ' active' : i < n ? ' done' : '');
+    if (i < 4) document.getElementById('wl' + i).style.background = i < n ? '#03c75a' : '#e0e0e0';
+  }
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById('step' + i).className = 'step-panel' + (i === n ? ' active' : '');
+  }
+
+  currentStep = n;
+  if (n === 3) renderStep3();
+  if (n === 4) renderStep4();
+  autoSave();
+  window.scrollTo(0, 0);
+}
+
+// ── Step 3 ─────────────────────────────────────────────────────
+function renderStep3() {
+  testOk = false;
+  document.getElementById('btnGoFinal').disabled = true;
+  document.getElementById('testResult').innerHTML = '';
+  document.getElementById('btnTest').disabled = false;
+  document.getElementById('btnTest').textContent = '📤 테스트 발송';
+
+  const senderEmail3 = SENDER_MAP[draft.senderId || 'VOU_000001'].email;
+  const indivRows3 = attachMode === 'individual' ? getIndividualRows() : [];
+  const toN  = attachMode === 'individual' ? indivRows3.length : emails.to.length;
+  const ccN  = emails.cc.length;
+  const bccN = emails.bcc.length;
+  const recipDesc3 = attachMode === 'individual'
+    ? `${toN}명 (수신자별 개별 발송)`
+    : `TO ${toN}명${ccN ? `, CC ${ccN}명` : ''}${bccN ? `, BCC ${bccN}명` : ''}`;
+  const testAttach = attachMode === 'individual'
+    ? (() => {
+        const first = indivRows3[0];
+        if (!first) return '없음';
+        const name = first.file ? first.file.name : (first.path ? first.path.split(/[\\/]/).pop() : null);
+        return name ? name + ' (첫 번째 항목)' : '없음';
+      })()
+    : draft.attachName;
+  document.getElementById('s3Summ').innerHTML = `
+    <div class="summ-row"><span class="summ-key">발신자</span><span class="summ-val">${draft.senderName} &lt;${senderEmail3}&gt;</span></div>
+    <div class="summ-row"><span class="summ-key">테스트 수신</span><span class="summ-val">${draft.testEmail}</span></div>
+    <div class="summ-row"><span class="summ-key">제목</span><span class="summ-val">${draft.title}</span></div>
+    <div class="summ-row"><span class="summ-key">수신자</span><span class="summ-val">${recipDesc3}</span></div>
+    ${testAttach ? `<div class="summ-row"><span class="summ-key">첨부파일</span><span class="summ-val">${testAttach}</span></div>` : ''}
+    ${draft.reservationDate ? `<div class="summ-row"><span class="summ-key">예약 발송</span><span class="summ-val" style="color:#1060c9;">🕐 ${draft.reservationDate}</span></div>` : ''}
+  `;
+}
+
+// ── Step 4 ─────────────────────────────────────────────────────
+function renderStep4() {
+  document.getElementById('finalResult').innerHTML = '';
+  document.getElementById('btnFinal').disabled = false;
+  document.getElementById('btnFinal').textContent = '🚀 최종 발송';
+
+  const senderEmail4 = SENDER_MAP[draft.senderId || 'VOU_000001'].email;
+  const indivRows4 = attachMode === 'individual' ? getIndividualRows() : [];
+  const totalN = attachMode === 'individual' ? indivRows4.length
+    : emails.to.length + emails.cc.length + emails.bcc.length;
+  const recipDesc4 = attachMode === 'individual'
+    ? `${indivRows4.length}명 (수신자별 개별 발송)`
+    : `TO ${emails.to.length}명${emails.cc.length ? `, CC ${emails.cc.length}명` : ''}${emails.bcc.length ? `, BCC ${emails.bcc.length}명` : ''}`;
+  document.getElementById('s4Summ').innerHTML = `
+    <div class="summ-row"><span class="summ-key">발신자</span><span class="summ-val">${draft.senderName} &lt;${senderEmail4}&gt;</span></div>
+    <div class="summ-row"><span class="summ-key">제목</span><span class="summ-val">${draft.title}</span></div>
+    <div class="summ-row"><span class="summ-key">총 수신자</span><span class="summ-val">${recipDesc4}</span></div>
+    ${draft.attachName && attachMode === 'single' ? `<div class="summ-row"><span class="summ-key">첨부파일</span><span class="summ-val">${draft.attachName}</span></div>` : ''}
+    ${draft.reservationDate ? `<div class="summ-row"><span class="summ-key">예약 발송</span><span class="summ-val" style="color:#1060c9;">🕐 ${draft.reservationDate}</span></div>` : '<div class="summ-row"><span class="summ-key">발송 방식</span><span class="summ-val">즉시 발송</span></div>'}
+  `;
+
+  let html = '<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:6px;">수신자 전체 목록</div>';
+  if (attachMode === 'individual') {
+    indivRows4.forEach(r => {
+      const attachName = r.file ? r.file.name : (r.path ? r.path.split(/[\\/]/).pop() : null);
+      html += `<div style="font-size:12px;padding:2px 0;">${r.email} → <span style="color:${attachName?'#03c75a':'#e53e3e'};font-family:monospace;">${attachName || '첨부없음'}${attachName?' ✅':' ❌'}</span></div>`;
+    });
+  } else {
+    emails.to.forEach(e  => html += `<span style="display:inline-block;margin:1px 6px 1px 0;font-size:12px;color:#1060c9;">TO: ${e}</span><br>`);
+    emails.cc.forEach(e  => html += `<span style="display:inline-block;margin:1px 6px 1px 0;font-size:12px;color:#8a6400;">CC: ${e}</span><br>`);
+    emails.bcc.forEach(e => html += `<span style="display:inline-block;margin:1px 6px 1px 0;font-size:12px;color:#b71c3c;">BCC: ${e}</span><br>`);
+  }
+  document.getElementById('s4Recip').innerHTML = html;
+}
+
+// ── COS API 공통 호출 ──────────────────────────────────────────
+async function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result.split(',')[1]);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+
+async function postToProxy(payload, attachment) {
+  // attachment: null | File | {name, path}
+  const cfg = getCfg();
+  let attachData = null;
+  if (attachment instanceof File) {
+    const data = await fileToBase64(attachment);
+    attachData = { name: attachment.name, data };
+  } else if (attachment && attachment.path) {
+    attachData = { name: attachment.name || attachment.path.split(/[\\/]/).pop(), path: attachment.path };
+  }
+  const res = await fetch(cfg.apiUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mailRequest: payload, attachFile: attachData }),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+  return res.json();
+}
+
+function buildPayload(recipients) {
+  const cfg = getCfg();
+  const p = {
+    mailTitle:            draft.title,
+    mailBody:             draft.body,
+    senderEmailAddress:   SENDER_MAP[draft.senderId || 'VOU_000001'].email,
+    senderName:           draft.senderName,
+    recipients,
+    nameValues:           [],
+    individualDispatchYn: draft.individualDispatch ? 'Y' : 'N',
+    serviceId:            cfg.serviceId,
+    templateId:           cfg.templateId,
+  };
+  if (draft.reservationDate) p.reservationDate = draft.reservationDate;
+  return p;
+}
+
+// ── 일반 발송 ──────────────────────────────────────────────────
+async function sendMail(isTest) {
+  const btnId = isTest ? 'btnTest'    : 'btnFinal';
+  const resId = isTest ? 'testResult' : 'finalResult';
+  const btn   = document.getElementById(btnId);
+  btn.disabled = true;
+  btn.textContent = '발송 중...';
+
+  // 수신자별 첨부 모드 + 최종 발송 → 개별 발송 함수로 위임
+  if (!isTest && attachMode === 'individual') {
+    await sendMailIndividual();
+    btn.disabled = false;
+    btn.textContent = '🚀 최종 발송';
+    return;
+  }
+
+  const recipients = isTest
+    ? [{ primaryMailAddress: draft.testEmail, recipientType: 'O' }]
+    : [
+        ...emails.to.map(e  => ({ primaryMailAddress: e, recipientType: 'O' })),
+        ...emails.cc.map(e  => ({ primaryMailAddress: e, recipientType: 'C' })),
+        ...emails.bcc.map(e => ({ primaryMailAddress: e, recipientType: 'B' })),
+      ];
+
+  // 테스트: 수신자별 모드면 첫 번째 항목 첨부 사용
+  let attachment = null;
+  if (isTest && attachMode === 'individual') {
+    const first = getIndividualRows()[0];
+    if (first) attachment = first.file || (first.path ? { name: first.path.split(/[\\/]/).pop(), path: first.path } : null);
+  } else {
+    attachment = attachFile;
+  }
+
+  try {
+    const data = await postToProxy(buildPayload(recipients), attachment);
+    const ok   = String(data.state).toUpperCase() === 'SUCCESS';
+    document.getElementById(resId).innerHTML = `
+      <div class="result ${ok ? 'result-ok' : 'result-err'}">
+        <strong>${ok ? '✅ SUCCESS' : '❌ ' + data.state}</strong><br>
+        ${data.requestId    ? `Request ID: <code>${data.requestId}</code><br>` : ''}
+        ${data.mailIds      ? `Mail ID: <code>${data.mailIds}</code><br>`      : ''}
+        ${data.errorMessage ? `오류: ${data.errorMessage}`                    : ''}
+      </div>`;
+    if (isTest && ok) { testOk = true; document.getElementById('btnGoFinal').disabled = false; }
+    if (!isTest && ok) { draft.status = 'sent'; draft.sentAt = new Date().toISOString(); saveHistory(); renderHistory(); }
+  } catch (err) {
+    let msg = err.message;
+    if (err instanceof TypeError) msg += '\n\n(CORS 오류. 사내 네트워크 / VPN 확인하세요.)';
+    document.getElementById(resId).innerHTML =
+      `<div class="result result-err">❌ <strong>발송 실패</strong><br><pre style="white-space:pre-wrap;font-size:12px;margin-top:6px">${msg}</pre></div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = isTest ? '📤 테스트 발송' : '🚀 최종 발송';
+  }
+}
+
+// ── 수신자별 첨부 개별 발송 ────────────────────────────────────
+async function sendMailIndividual() {
+  const total  = getIndividualRows().length;
+  const resEl  = document.getElementById('finalResult');
+  resEl.innerHTML = `
+    <div style="margin-top:12px;">
+      <div style="font-size:13px;font-weight:600;margin-bottom:6px;">발송 진행 중... <span id="progText">0 / ${total}</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progBar" style="width:0%"></div></div>
+      <div class="send-log" id="sendLog"></div>
+    </div>`;
+
+  let ok = 0, fail = 0;
+  const logEl = document.getElementById('sendLog');
+
+  const rows = getIndividualRows();
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    const attachment = row.file || (row.path ? { name: row.path.split(/[\\/]/).pop(), path: row.path } : null);
+    const attachLabel = row.file ? row.file.name : (row.path ? row.path.split(/[\\/]/).pop() : '첨부없음');
+    const payload = buildPayload([{ primaryMailAddress: row.email, recipientType: 'O' }]);
+
+    try {
+      const data   = await postToProxy(payload, attachment);
+      const isOk   = String(data.state).toUpperCase() === 'SUCCESS';
+      if (isOk) ok++; else fail++;
+      logEl.innerHTML += `<div class="${isOk ? 'send-log-ok' : 'send-log-err'}">
+        ${isOk ? '✅' : '❌'} [${i+1}/${total}] ${row.email} — ${attachLabel}
+        ${data.requestId ? `<span style="color:#888"> (req: ${data.requestId})</span>` : ''}
+        ${data.errorMessage ? `<span style="color:#e53e3e"> ${data.errorMessage}</span>` : ''}
+      </div>`;
+    } catch (err) {
+      fail++;
+      logEl.innerHTML += `<div class="send-log-err">❌ [${i+1}/${total}] ${recip.email} — ${err.message}</div>`;
+    }
+
+    logEl.scrollTop = logEl.scrollHeight;
+    document.getElementById('progText').textContent = `${i+1} / ${total}`;
+    document.getElementById('progBar').style.width  = `${Math.round((i+1)/total*100)}%`;
+  }
+
+  logEl.innerHTML += `<div style="margin-top:8px;font-weight:600;font-size:13px;border-top:1px solid #eee;padding-top:8px;">
+    완료: ✅ ${ok}건 성공 / ❌ ${fail}건 실패
+  </div>`;
+
+  if (ok > 0) { draft.status = 'sent'; draft.sentAt = new Date().toISOString(); saveHistory(); renderHistory(); }
+}
+
+function confirmFinal() {
+  const total = attachMode === 'individual'
+    ? getIndividualRows().length
+    : emails.to.length + emails.cc.length + emails.bcc.length;
+  const senderEmail = SENDER_MAP[draft.senderId || 'VOU_000001'].email;
+  const modeNote = attachMode === 'individual' ? '\n⚠ 수신자별 개별 발송 (각자 다른 파일 첨부)' : '';
+  if (!confirm(
+    `📬 최종 발송 확인\n\n제목: ${draft.title}\n발신자: ${draft.senderName} <${senderEmail}>\n총 수신자: ${total}명${modeNote}\n\n실제 수신자에게 발송됩니다. 계속하시겠습니까?`
+  )) return;
+  sendMail(false);
+}
+
+// ── History (history.json) ─────────────────────────────────────
+function getHistory() {
+  return historyCache;
+}
+function saveHistory() {
+  const idx = historyCache.findIndex(h => h.id === draft.id);
+  if (idx >= 0) historyCache[idx] = { ...draft };
+  else historyCache.unshift({ ...draft });
+  historyCache = historyCache.slice(0, 100);
+  fetch('http://localhost:5001/history', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(historyCache),
+  }).catch(e => console.warn('[history] 저장 실패:', e));
+}
+async function initHistory() {
+  try {
+    const res = await fetch('http://localhost:5001/history');
+    if (res.ok) historyCache = await res.json();
+  } catch (e) {
+    console.warn('[history] 불러오기 실패:', e);
+    historyCache = [];
+  }
+}
+function deleteHistory(id, event) {
+  event.stopPropagation();
+  historyCache = historyCache.filter(h => h.id !== id);
+  fetch('http://localhost:5001/history', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(historyCache),
+  }).catch(e => console.warn('[history] 저장 실패:', e));
+  if (draft.id === id) newDraft();
+  else renderHistory();
+}
+
+function autoSave() {
+  if (_loading) return;
+  collectRecipients();
+  collectContent();
+  if (!draft.id) draft.id = Date.now().toString();
+  if (!draft.createdAt) draft.createdAt = new Date().toISOString();
+  saveHistory();
+  renderHistory();
+}
+function renderHistory() {
+  const list = getHistory();
+  const el   = document.getElementById('historyList');
+  if (!list.length) {
+    el.innerHTML = '<div class="history-empty">발송 이력 없음</div>';
+    return;
+  }
+  el.innerHTML = list.map(h => {
+    const d    = new Date(h.sentAt || h.createdAt || Date.now());
+    const dt   = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    const toN  = parseEmails(h.toRaw || '').length;
+    const badge = h.status === 'sent'
+      ? '<span class="hi-badge badge-sent">발송완료</span>'
+      : '<span class="hi-badge badge-draft">임시저장</span>';
+    return `
+      <div class="hi-item${draft.id === h.id ? ' active' : ''}" onclick="loadDraft('${h.id}')">
+        <button class="hi-del" onclick="deleteHistory('${h.id}', event)" title="삭제">✕</button>
+        <div class="hi-title">${h.title || '(제목 없음)'}</div>
+        <div class="hi-meta">${dt} · TO ${toN}명</div>
+        ${badge}
+      </div>`;
+  }).join('');
+}
+
+function loadDraft(id) {
+  const h = getHistory().find(h => h.id === id);
+  if (!h) return;
+
+  _loading = true;
+  draft      = { ...h };
+  attachFile = null;
+  testOk     = false;
+  emails     = {
+    to:  parseEmails(draft.toRaw  || ''),
+    cc:  parseEmails(draft.ccRaw  || ''),
+    bcc: parseEmails(draft.bccRaw || ''),
+  };
+
+  // fill form
+  document.getElementById('senderId').value    = draft.senderId   || 'VOU_000001';
+  document.getElementById('senderName').value  = draft.senderName  || '';
+  document.getElementById('testEmail').value   = '';
+  document.getElementById('toInput').value     = draft.toRaw  || '';
+  document.getElementById('ccInput').value     = draft.ccRaw  || '';
+  document.getElementById('bccInput').value    = draft.bccRaw || '';
+  document.getElementById('individualDispatch').checked = !!draft.individualDispatch;
+  ['to','cc','bcc'].forEach(parseField);
+
+  // 수신자별 첨부 모드 복원
+  parsedRecips = draft.parsedRecips || [];
+  indivSubMode = draft.indivSubMode || 'manual';
+  manualRows = (draft.manualEmails || ['']).map(e => ({ id: _mrid++, email: e, file: null }));
+  if (!manualRows.length) manualRows = [{ id: _mrid++, email: '', file: null }];
+  attachMode = draft.attachMode || 'single';
+  setAttachMode(attachMode);
+  renderRecipTable();
+  renderManualRows();
+  const listStatus = document.getElementById('listStatus');
+  if (listStatus) listStatus.textContent = parsedRecips.length ? `${parsedRecips.length}명 로드됨` : '';
+
+  document.getElementById('mailTitle').value  = draft.title || '';
+
+  // 예약 발송 복원
+  const rsvOn = !!draft.reservationDate;
+  document.getElementById('reserveChk').checked = rsvOn;
+  document.getElementById('reserveFields').classList.toggle('hidden', !rsvOn);
+  document.getElementById('reserveDate').value = draft.reservationDate
+    ? draft.reservationDate.replace(' ', 'T').slice(0, 16) : '';
+  document.getElementById('reserveWarn').textContent = '';
+
+  editorTab = 'visual';
+  document.querySelectorAll('.etab').forEach((t,i) => t.classList.toggle('active', i===0));
+  document.getElementById('etoolbar').classList.remove('hidden');
+  document.getElementById('eVisual').classList.remove('hidden');
+  document.getElementById('eHtml').classList.add('hidden');
+  document.getElementById('eText').classList.add('hidden');
+  document.getElementById('eVisual').innerHTML = draft.body || '';
+
+  _loading = false;
+  goStep(1);
+  renderHistory();
+}
+
+function newDraft() {
+  draft      = initDraft();
+  attachFile = null;
+  testOk     = false;
+  emails     = { to: [], cc: [], bcc: [] };
+
+  document.getElementById('senderId').value = 'VOU_000001';
+  ['senderName','testEmail','mailTitle'].forEach(id =>
+    (document.getElementById(id).value = ''));
+  attachMode   = 'single';
+  indivSubMode = 'manual';
+  parsedRecips = [];
+  manualRows   = [{ id: _mrid++, email: '', file: null }];
+  setAttachMode('single');
+  renderRecipTable();
+  renderManualRows();
+  const listStatus = document.getElementById('listStatus');
+  if (listStatus) listStatus.textContent = '';
+  ['toInput','ccInput','bccInput'].forEach(id =>
+    (document.getElementById(id).value = ''));
+  ['to','cc','bcc'].forEach(f => {
+    document.getElementById(f+'Chips').innerHTML = '';
+    document.getElementById(f+'Count').textContent = '';
+  });
+  document.getElementById('individualDispatch').checked = false;
+  document.getElementById('reserveChk').checked = false;
+  document.getElementById('reserveFields').classList.add('hidden');
+  document.getElementById('reserveDate').value = '';
+  document.getElementById('reserveWarn').textContent = '';
+  document.getElementById('eVisual').innerHTML = '';
+  document.getElementById('eHtml').value = '';
+  document.getElementById('eText').value = '';
+
+  goStep(1);
+  renderHistory();
+}
+
+// ── Init ───────────────────────────────────────────────────────
+window.onload = async () => {
+  await initHistory();
+  renderHistory();
+  const lastDraft = historyCache.find(h => h.status === 'draft');
+  if (lastDraft) loadDraft(lastDraft.id);
+};
+</script>
+</body>
+</html>

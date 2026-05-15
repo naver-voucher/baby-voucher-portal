@@ -1,0 +1,48 @@
+[
+  {
+    "id": "1778835304581",
+    "senderId": "VOU_000002",
+    "senderName": "네이버베이비바우처",
+    "testEmail": "",
+    "toRaw": "yunah2010@naver.com",
+    "ccRaw": "",
+    "bccRaw": "",
+    "individualDispatch": false,
+    "title": "테스트입니다",
+    "body": "외부메일 테스트입니다. (파일첨부)",
+    "attachName": "스파오키즈 공식스토어_2603.zip",
+    "reservationDate": "",
+    "status": "draft",
+    "createdAt": "2026-05-15T08:55:04.581Z",
+    "sentAt": null,
+    "attachMode": "single",
+    "indivSubMode": "excel",
+    "parsedRecips": [],
+    "manualEmails": [
+      ""
+    ]
+  },
+  {
+    "id": "1778833702092",
+    "senderId": "VOU_000002",
+    "senderName": "네이버베이비바우처",
+    "testEmail": "",
+    "toRaw": "yunah.choii@navercorp.com",
+    "ccRaw": "",
+    "bccRaw": "",
+    "individualDispatch": false,
+    "title": "테스트입니다",
+    "body": "테스트입니다<div><br></div><div>파일을 첨부함</div>",
+    "attachName": "베이비바우처_월간대시보드_26년3월_그린핑거 스토어.html",
+    "reservationDate": "",
+    "status": "draft",
+    "createdAt": "2026-05-15T08:28:22.092Z",
+    "sentAt": null,
+    "attachMode": "single",
+    "indivSubMode": "manual",
+    "parsedRecips": [],
+    "manualEmails": [
+      ""
+    ]
+  }
+]
