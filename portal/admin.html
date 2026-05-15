@@ -3479,8 +3479,25 @@
   const ADMIN_PW_HASH = 'ba49a696f5958779cdb8379fd9f1c9d71b736c704beaa8aaf23ff48ee8f6ab4e';
   const SESSION_KEY = 'bv_admin_session';
   const SESSION_DURATION = 8 * 60 * 60 * 1000; // 8시간
-  // PRISM Gateway 기반 SSO — admin-portal 이 모든 OAuth flow 를 대신 처리한다.
-  const ADMIN_PORTAL_BASE = 'https://dev-babyvoucher-admin.io.naver.com';
+
+  // ---- PRISM Gateway + DCR + PKCE (브라우저 직접 구현) ----
+  const PRISM_BASE = 'https://kr0-prismgw.io.naver.com';
+  const WORKS_OAUTH_DISCOVERY = PRISM_BASE + '/.well-known/oauth-authorization-server/mcp';
+  const WORKS_REDIRECT_URI = window.location.origin + window.location.pathname;
+  const WORKS_DCR_CACHE_KEY = 'works_dcr_client_id';      // localStorage
+  const WORKS_OAUTH_META_KEY = 'works_oauth_meta';        // localStorage (1일 캐시)
+  const WORKS_PKCE_VERIFIER_KEY = 'works_pkce_verifier';  // sessionStorage
+  const WORKS_OAUTH_STATE_KEY = 'works_oauth_state';      // sessionStorage
+
+  const ACCESS_WHITELIST = [
+    'hezy.shin@navercorp.com',
+    'yunah.choii@navercorp.com',
+    'yeonsu.ko@navercorp.com',
+    'hyunsoo89.kim@navercorp.com',
+    'minho.lee01@navercorp.com',
+    'jungwoo.choi@navercorp.com',
+    'dawn.chung@navercorp.com',
+  ];
 
   async function sha256(text) {
     const encoder = new TextEncoder();
@@ -3489,31 +3506,171 @@
     return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
-  // ---- Works PRISM SSO ----
-  function loginWithWorks() {
-    // admin-portal SSO 시작 엔드포인트로 redirect.
-    // admin-portal 이 PRISM Gateway → 토큰 교환 → user_get_info 완료 후 returnTo 로 복귀시킨다.
-    const returnTo = window.location.origin + window.location.pathname + window.location.search;
-    window.location.href = ADMIN_PORTAL_BASE + '/api/auth/works/login?returnTo=' + encodeURIComponent(returnTo);
+  function base64urlEncode(buf) {
+    const b = btoa(String.fromCharCode(...new Uint8Array(buf)));
+    return b.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   }
 
-  // admin-portal 세션이 이미 살아있는지 확인 (콜백 후 복귀 시 + 페이지 첫 로드 시).
-  async function checkWorksSession() {
+  async function pkcePair() {
+    const verifier = base64urlEncode(crypto.getRandomValues(new Uint8Array(32)));
+    const challenge = base64urlEncode(
+      await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier))
+    );
+    return { verifier, challenge };
+  }
+
+  async function getOAuthMeta() {
     try {
-      const res = await fetch(ADMIN_PORTAL_BASE + '/api/auth/works-status', {
-        credentials: 'include',
+      const cached = JSON.parse(localStorage.getItem(WORKS_OAUTH_META_KEY) || 'null');
+      if (cached && cached.ts > Date.now() - 24*60*60*1000) return cached.meta;
+    } catch {}
+    const res = await fetch(WORKS_OAUTH_DISCOVERY);
+    if (!res.ok) throw new Error('Discovery 실패 ' + res.status);
+    const meta = await res.json();
+    localStorage.setItem(WORKS_OAUTH_META_KEY, JSON.stringify({ ts: Date.now(), meta }));
+    return meta;
+  }
+
+  async function getOrRegisterClient() {
+    const cached = localStorage.getItem(WORKS_DCR_CACHE_KEY);
+    if (cached) return cached;
+    const meta = await getOAuthMeta();
+    const res = await fetch(meta.registration_endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        client_name: '베이비바우처 관리자 포털',
+        redirect_uris: [WORKS_REDIRECT_URI],
+        grant_types: ['authorization_code'],
+        response_types: ['code'],
+        token_endpoint_auth_method: 'none',
+        scope: 'mcp',
+      }),
+    });
+    if (!res.ok) throw new Error('DCR 실패 ' + res.status + ': ' + await res.text());
+    const data = await res.json();
+    localStorage.setItem(WORKS_DCR_CACHE_KEY, data.client_id);
+    return data.client_id;
+  }
+
+  async function loginWithWorks() {
+    try {
+      const [meta, clientId] = await Promise.all([getOAuthMeta(), getOrRegisterClient()]);
+      const { verifier, challenge } = await pkcePair();
+      const state = crypto.randomUUID();
+
+      sessionStorage.setItem(WORKS_PKCE_VERIFIER_KEY, verifier);
+      sessionStorage.setItem(WORKS_OAUTH_STATE_KEY, state);
+
+      const url = new URL(meta.authorization_endpoint);
+      url.searchParams.set('response_type', 'code');
+      url.searchParams.set('client_id', clientId);
+      url.searchParams.set('redirect_uri', WORKS_REDIRECT_URI);
+      url.searchParams.set('code_challenge', challenge);
+      url.searchParams.set('code_challenge_method', 'S256');
+      url.searchParams.set('scope', 'mcp');
+      url.searchParams.set('state', state);
+
+      window.location.href = url.toString();
+    } catch (e) {
+      alert('Works 로그인 시작 실패: ' + e.message + '\n사내망에서만 동작할 수 있습니다.');
+    }
+  }
+
+  async function handleWorksCallback() {
+    const params = new URLSearchParams(location.search);
+    const code = params.get('code');
+    const state = params.get('state');
+    if (!code) return false;
+
+    const savedState = sessionStorage.getItem(WORKS_OAUTH_STATE_KEY);
+    const verifier = sessionStorage.getItem(WORKS_PKCE_VERIFIER_KEY);
+    if (!verifier || state !== savedState) {
+      alert('state 검증 실패 (CSRF) — 다시 로그인해주세요');
+      window.history.replaceState({}, '', WORKS_REDIRECT_URI);
+      return false;
+    }
+
+    try {
+      const meta = await getOAuthMeta();
+      const clientId = await getOrRegisterClient();
+
+      // 1) Token 교환
+      const tokenRes = await fetch(meta.token_endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          grant_type: 'authorization_code',
+          code,
+          client_id: clientId,
+          redirect_uri: WORKS_REDIRECT_URI,
+          code_verifier: verifier,
+        }),
       });
-      if (!res.ok) return false;
-      const user = await res.json();
-      if (!user || !user.authenticated || !user.email) return false;
+      if (!tokenRes.ok) throw new Error('Token 교환 실패 ' + tokenRes.status + ': ' + await tokenRes.text());
+      const tokens = await tokenRes.json();
+
+      // 2) user_get_info (MCP JSON-RPC)
+      const rpcRes = await fetch(PRISM_BASE + '/mcp', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + tokens.access_token,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'tools/call',
+          id: crypto.randomUUID(),
+          params: { name: 'user_get_info', arguments: {} },
+        }),
+      });
+      const rpcText = await rpcRes.text();
+      // SSE 응답 가능 — data: 라인 추출
+      const dataLine = rpcText.match(/^data:\s*(.+)$/m);
+      const rpcJson = JSON.parse(dataLine ? dataLine[1] : rpcText);
+      const userInfoText = rpcJson.result?.content?.[0]?.text;
+      if (!userInfoText) throw new Error('user_get_info 결과 없음');
+      const userInfo = JSON.parse(userInfoText);
+
+      // displayName fallback chain
+      const ko = userInfo.i18nNames?.find?.(n => n.language === 'ko_KR');
+      let name = '';
+      if (ko && (ko.lastName || ko.firstName)) {
+        name = `${ko.lastName||''}${ko.firstName||''}`.trim();
+      } else if (typeof userInfo.userName === 'string') {
+        name = userInfo.userName;
+      } else if (userInfo.userName?.lastName || userInfo.userName?.firstName) {
+        name = `${userInfo.userName?.lastName||''}${userInfo.userName?.firstName||''}`.trim();
+      }
+      name = name || userInfo.email || 'Works User';
+
+      // 화이트리스트 검증
+      const email = (userInfo.email || '').toLowerCase();
+      if (!ACCESS_WHITELIST.includes(email)) {
+        alert('접근 권한이 없습니다 (화이트리스트 7명만 허용)\n로그인 이메일: ' + (userInfo.email || '(없음)'));
+        sessionStorage.removeItem(WORKS_PKCE_VERIFIER_KEY);
+        sessionStorage.removeItem(WORKS_OAUTH_STATE_KEY);
+        window.history.replaceState({}, '', WORKS_REDIRECT_URI);
+        return false;
+      }
+
+      // 세션 저장
       sessionStorage.setItem(SESSION_KEY, JSON.stringify({
         type: 'works',
-        user: user.name || user.email,
-        email: user.email,
-        ts: Date.now()
+        user: name,
+        email: userInfo.email,
+        ts: Date.now(),
       }));
+      sessionStorage.removeItem(WORKS_PKCE_VERIFIER_KEY);
+      sessionStorage.removeItem(WORKS_OAUTH_STATE_KEY);
+
+      // URL에서 ?code=, ?state= 제거
+      window.history.replaceState({}, '', WORKS_REDIRECT_URI);
       return true;
     } catch (e) {
+      alert('Works 로그인 완료 실패: ' + e.message);
+      window.history.replaceState({}, '', WORKS_REDIRECT_URI);
       return false;
     }
   }
@@ -3579,18 +3736,20 @@
   }
 
   // ---- 초기화 ----
-  // 1. 로컬 세션 (이전 로그인 흔적) 우선
-  if (checkSession()) {
-    unlockApp();
-  } else {
-    // 2. admin-portal 쿠키 세션 확인 (PRISM 콜백 후 returnTo 복귀 시 자동 인식)
+  // 0. URL에 ?code= 가 있으면 PRISM OAuth 콜백 처리 우선
+  (async function bootAuth() {
+    const hasCode = new URLSearchParams(location.search).get('code');
+    if (hasCode) {
+      const ok = await handleWorksCallback();
+      if (ok) { unlockApp(); return; }
+    }
+    // 1. 로컬 세션 (이전 로그인 흔적)
+    if (checkSession()) { unlockApp(); return; }
+    // 2. 로그인 화면 표시
     document.getElementById('loginOverlay').style.display = '';
     initLoginUI();
-    checkWorksSession().then((ok) => {
-      if (ok) unlockApp();
-      else setTimeout(() => { const pw = document.getElementById('loginPassword'); if(pw) pw.focus(); }, 100);
-    });
-  }
+    setTimeout(() => { const pw = document.getElementById('loginPassword'); if(pw) pw.focus(); }, 100);
+  })();
 
   // ==================== NAVIGATION ====================
   document.querySelectorAll('.nav-item').forEach(item => {
