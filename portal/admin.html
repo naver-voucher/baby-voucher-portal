@@ -1154,6 +1154,40 @@
     40%,80% { transform: translateX(8px); }
   }
   .login-shake { animation: loginShake 0.4s ease; }
+
+  /* ==================== 메일 양식 마스터 ==================== */
+  .mail-master-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+  .mail-master-card {
+    background: var(--bg-card); border:1px solid var(--border); border-radius: var(--radius-md);
+    padding: 16px; display:flex; flex-direction:column; gap:8px; transition: border-color .15s, transform .15s;
+  }
+  .mail-master-card:hover { border-color: var(--accent-green); transform: translateY(-1px); }
+  .mail-master-card h4 { margin: 2px 0 0; font-size: 14px; font-weight: 600; color: var(--text-primary); line-height:1.4; }
+  .mm-badge {
+    display:inline-block; align-self:flex-start; font-size:10px; padding:3px 8px; border-radius:10px;
+    background: rgba(0,200,150,.12); color: var(--accent-green); font-weight:600; letter-spacing:.2px;
+  }
+  .mm-subject { font-size:11px; color:var(--text-tertiary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mm-vars { font-size:11px; color:var(--text-secondary); display:flex; flex-wrap:wrap; gap:4px; align-items:center; }
+  .mm-vars code {
+    background:rgba(255,255,255,.04); border:1px solid var(--border); padding:1px 6px; border-radius:4px;
+    font-size:10px; color: var(--accent-green); font-family: ui-monospace, monospace;
+  }
+  .mm-actions { display:flex; gap:8px; margin-top:6px; }
+  .mm-btn {
+    flex:1; text-align:center; font-size:11px; padding:7px 10px; border-radius:6px; cursor:pointer;
+    border:1px solid var(--border); background: transparent; color: var(--text-primary); text-decoration:none;
+    display:inline-flex; align-items:center; justify-content:center; gap:4px; transition: all .15s;
+  }
+  .mm-btn:hover { background: var(--bg-card-hover, rgba(255,255,255,.04)); }
+  .mm-btn-copy { background: var(--accent-green); color:#000; border-color: var(--accent-green); font-weight:600; }
+  .mm-btn-copy:hover { filter: brightness(1.1); }
+  .mm-filter {
+    background: transparent; border:1px solid var(--border); color: var(--text-secondary);
+    padding:6px 14px; border-radius:16px; font-size:12px; cursor:pointer; transition: all .15s;
+  }
+  .mm-filter:hover { color: var(--text-primary); }
+  .mm-filter.active { background: var(--accent-green); color:#000; border-color: var(--accent-green); font-weight:600; }
 </style>
 <!-- SheetJS (Excel 파싱) -->
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
@@ -1266,6 +1300,9 @@
       <div class="nav-section-title">자동화</div>
       <div class="nav-item" data-section="admin-comms">
         <span class="nav-icon">&#9993;</span> 메일 템플릿
+      </div>
+      <div class="nav-item" data-section="admin-mail-master" style="padding-left:28px;font-size:12px;color:var(--text-secondary)">
+        <span class="nav-icon">&#128203;</span> 양식 마스터 (8종)
       </div>
       <div class="nav-item" data-section="admin-checklist">
         <span class="nav-icon">&#9745;</span> 세팅 최종검수
@@ -1470,7 +1507,7 @@
       <div id="onboardingProgressCard" style="background:var(--bg-card);border:1px solid var(--accent-blue);border-radius:var(--radius-md);padding:16px 20px;margin-bottom:20px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
           <div>
-            <div style="font-size:13px;font-weight:700;color:var(--accent-blue)">입점 진행 현황 (9단계 체크리스트)</div>
+            <div style="font-size:13px;font-weight:700;color:var(--accent-blue)">입점 진행 현황 (11단계 체크리스트)</div>
             <div style="font-size:10px;color:var(--text-tertiary);margin-top:2px" id="onboardingProgressSub">브랜드별 진행 상태 실시간 집계</div>
           </div>
           <div style="display:flex;gap:6px;align-items:center">
@@ -1996,7 +2033,7 @@
 
         <!-- 전체 프로세스 플로우 요약 -->
         <div style="background:var(--bg-card);border:1px solid var(--accent-blue);border-radius:var(--radius-md);padding:16px 20px;margin-bottom:20px">
-          <div style="font-size:13px;font-weight:700;color:var(--accent-blue);margin-bottom:12px">신규 입점 전체 프로세스 (9단계)</div>
+          <div style="font-size:13px;font-weight:700;color:var(--accent-blue);margin-bottom:12px">신규 입점 전체 프로세스 (11단계)</div>
           <div class="ops-flow-bar" style="flex-wrap:wrap;gap:4px 0">
             <span class="flow-step" style="font-size:10px;padding:4px 8px">1. 시트 기입</span>
             <span class="flow-arrow">&rarr;</span>
@@ -2695,7 +2732,7 @@
           <a href="https://wiki.navercorp.com/pages/viewpage.action?pageId=4327717465" target="_blank" class="ops-sys-row">
             <span class="ops-sys-tag" style="background:var(--accent-purple-dim);color:var(--accent-purple)">&#128221;</span>
             <span class="ops-sys-name">사업담당자 운영 메뉴얼</span>
-            <span class="ops-sys-hint">신규 바우처 출시 9단계 전체 프로세스</span>
+            <span class="ops-sys-hint">신규 바우처 출시 11단계 전체 프로세스</span>
             <span class="ops-sys-arrow">&rarr;</span>
           </a>
         </div>
@@ -2928,6 +2965,22 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- ==================== MAIL MASTER (EML 기반 양식) ==================== -->
+    <div id="admin-mail-master" class="section fade-in">
+      <div class="page-header">
+        <h1>&#128203; 메일 양식 마스터 (8종)</h1>
+        <p>실제 발송본에서 변수만 추출한 양식. 변수({월}, {마감일} 등) 채워서 메일 클라이언트에 복사·붙여넣기</p>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap">
+        <button class="mm-filter active" data-filter="all" onclick="filterMailMasters(this,'all')">전체</button>
+        <button class="mm-filter" data-filter="신규입점" onclick="filterMailMasters(this,'신규입점')">신규입점</button>
+        <button class="mm-filter" data-filter="월간" onclick="filterMailMasters(this,'월간')">월간</button>
+        <button class="mm-filter" data-filter="퇴점" onclick="filterMailMasters(this,'퇴점')">퇴점</button>
+        <button class="mm-filter" data-filter="외부" onclick="filterMailMasters(this,'외부')">외부</button>
+      </div>
+      <div id="mailMasterList" class="mail-master-grid"></div>
     </div>
 
     <!-- ==================== COMMS / MAIL AUTOMATION ==================== -->
@@ -4931,15 +4984,17 @@ NAVER 키즈사업`
 
   // ==================== ONBOARDING PROGRESS TRACKER ====================
   const ONBOARDING_STEPS = [
-    { key: '1', label: '시트 기입 / NSS·NIMO 조회', color: 'var(--accent-blue)' },
-    { key: '2', label: '커머스솔루션 계약 등록', color: 'var(--accent-blue)' },
-    { key: '3', label: '계약·소재 요청 메일 발송', color: 'var(--accent-teal)' },
-    { key: '4', label: '미회신사 리마인드', color: 'var(--accent-orange)' },
-    { key: '5', label: '로고·연출컷 리사이징', color: 'var(--accent-purple)' },
-    { key: '6', label: '쿠폰 발행 (NSS)', color: 'var(--accent-green)' },
-    { key: '7', label: 'MEM 지면 셋팅', color: 'var(--accent-green)' },
-    { key: '8', label: '쿠폰 승인 요청', color: 'var(--accent-green)' },
-    { key: '9', label: 'NSS/MEM 최종 검수', color: 'var(--accent-red)' }
+    { key: '1',  label: '시트 기입 / NSS·NIMO 조회', color: 'var(--accent-blue)' },
+    { key: '2',  label: '커머스솔루션 계약 등록', color: 'var(--accent-blue)' },
+    { key: '3',  label: '계약·소재 요청 메일 발송', color: 'var(--accent-teal)' },
+    { key: '4',  label: '미회신사 리마인드', color: 'var(--accent-orange)' },
+    { key: '5',  label: '로고·연출컷 리사이징', color: 'var(--accent-purple)' },
+    { key: '6',  label: '쿠폰 발행 (NSS)', color: 'var(--accent-green)' },
+    { key: '7',  label: 'MEM 지면 셋팅', color: 'var(--accent-green)' },
+    { key: '8',  label: '쿠폰 승인 요청', color: 'var(--accent-green)' },
+    { key: '9',  label: 'NSS/MEM 최종 검수', color: 'var(--accent-red)' },
+    { key: '10', label: 'CNS 등록 (D-day 09:50 수동)', color: 'var(--accent-red)' },
+    { key: '11', label: '카드할인정책 등록 (NSS)', color: 'var(--accent-purple)' }
   ];
   const PROGRESS_KEY = 'bv_onboarding_progress';
 
@@ -4992,7 +5047,7 @@ NAVER 키즈사업`
       <div class="bd-checklist">
         <div class="bd-checklist-header">
           <div>
-            <div class="bd-checklist-title">&#9734; 입점 진행 체크리스트 (9단계)</div>
+            <div class="bd-checklist-title">&#9734; 입점 진행 체크리스트 (11단계)</div>
             <div style="font-size:10px;color:var(--text-tertiary);margin-top:2px">마지막 업데이트: ${updatedTxt}</div>
           </div>
           <div class="bd-checklist-progress"><strong style="color:${done===total?'var(--accent-green)':'var(--accent-blue)'}">${done}/${total}</strong> · ${pct}%</div>
@@ -6791,6 +6846,66 @@ NAVER 키즈사업`
   // badge 초기화 (비동기)
   fetchSellerSubmissions().then(() => renderSellerSubmissions()).catch(() => {});
   fetchInquiries().then(() => renderInquiries()).catch(() => {});
+
+  // ==================== 메일 양식 마스터 ====================
+  window.MAIL_MASTERS = [];
+  async function loadMailMasters() {
+    try {
+      const res = await fetch('mail-master-catalog.json', { cache: 'no-store' });
+      if (res.ok) window.MAIL_MASTERS = await res.json();
+    } catch (e) { console.warn('mail master load fail', e); }
+  }
+  function renderMailMasters(filter) {
+    filter = filter || 'all';
+    const list = document.getElementById('mailMasterList');
+    if (!list) return;
+    const data = filter === 'all' ? window.MAIL_MASTERS : window.MAIL_MASTERS.filter(m => m.category === filter);
+    if (!data.length) { list.innerHTML = '<div style="color:var(--text-tertiary);padding:24px">양식이 없습니다. mail-master-catalog.json 확인.</div>'; return; }
+    list.innerHTML = data.map(m => `
+      <div class="mail-master-card">
+        <span class="mm-badge">${m.category} &middot; ${m.whenToUse}</span>
+        <h4>${m.title}</h4>
+        <div class="mm-subject" title="${m.originalSubject.replace(/"/g,'&quot;')}">${m.originalSubject}</div>
+        <div class="mm-vars">변수: ${(m.variables||[]).map(v=>`<code>${v}</code>`).join(' ') || '<span style="color:var(--text-tertiary)">없음</span>'}</div>
+        <div class="mm-actions">
+          <a href="${m.htmlPath}" target="_blank" class="mm-btn mm-btn-preview">&#128065; 미리보기</a>
+          <button onclick="copyMailMaster('${m.id}')" class="mm-btn mm-btn-copy">&#128203; 본문 복사</button>
+        </div>
+      </div>
+    `).join('');
+  }
+  window.renderMailMasters = renderMailMasters;
+  window.filterMailMasters = function(btn, cat) {
+    document.querySelectorAll('.mm-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderMailMasters(cat);
+  };
+  window.copyMailMaster = async function(id) {
+    const m = window.MAIL_MASTERS.find(x => x.id === id);
+    if (!m) return;
+    try {
+      const res = await fetch(m.htmlPath, { cache: 'no-store' });
+      const html = await res.text();
+      const match = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+      const bodyHtml = match ? match[1] : html;
+      const plain = bodyHtml.replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<[^>]+>/g, '').replace(/\n{3,}/g, '\n\n').trim();
+      try {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            'text/html': new Blob([bodyHtml], { type: 'text/html' }),
+            'text/plain': new Blob([plain], { type: 'text/plain' }),
+          })
+        ]);
+        showToast('본문 복사됨 — 메일 클라이언트에 Cmd+V');
+      } catch (e) {
+        await navigator.clipboard.writeText(bodyHtml);
+        showToast('본문 복사 (텍스트만)');
+      }
+    } catch (e) {
+      showToast('복사 실패: ' + (e.message || e), 'warn');
+    }
+  };
+  loadMailMasters().then(() => renderMailMasters('all')).catch(() => {});
 </script>
 
 </body>
