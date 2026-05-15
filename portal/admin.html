@@ -1336,6 +1336,33 @@
         </div>
       </div>
 
+      <!-- + Works 할일 추가 카드 -->
+      <div class="admin-stat" style="padding:18px 20px;margin:16px 0 20px;display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="font-size:12px;font-weight:700;color:var(--accent-teal)">+ Works 할일 추가</div>
+          <div style="font-size:10px;color:var(--text-tertiary)">사내망(VPN) 안에서만 동작</div>
+        </div>
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px">
+          <input id="taskTitle" type="text" placeholder="할일 제목 *" style="padding:8px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:12px">
+          <input id="taskDue" type="date" style="padding:8px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:12px">
+          <select id="taskAssignee" style="padding:8px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:12px">
+            <option value="">담당자 (기본: 본인)</option>
+            <option value="yunah.choii@navercorp.com">최윤아 (본인)</option>
+            <option value="hezy.shin@navercorp.com">신혜지</option>
+            <option value="yeonsu.ko@navercorp.com">고연수</option>
+            <option value="hyunsoo89.kim@navercorp.com">김현수</option>
+            <option value="minho.lee01@navercorp.com">이민호</option>
+            <option value="jungwoo.choi@navercorp.com">최정우</option>
+            <option value="dawn.chung@navercorp.com">정다은</option>
+          </select>
+        </div>
+        <textarea id="taskDesc" placeholder="설명 (선택)" rows="2" style="padding:8px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:12px;resize:vertical;font-family:inherit"></textarea>
+        <div style="display:flex;align-items:center;gap:10px">
+          <button onclick="createWorksTask()" style="padding:8px 16px;background:var(--accent-teal);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">📋 Works 할일에 추가</button>
+          <div id="taskResult" style="font-size:11px;color:var(--text-secondary);flex:1"></div>
+        </div>
+      </div>
+
       <div class="cards-grid">
         <div class="card" style="cursor:pointer" onclick="navigateTo('admin-submissions')">
           <div class="card-header">
@@ -3685,6 +3712,60 @@
     toast.textContent = msg;
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  // ==================== WORKS TASK CREATE ====================
+  // admin-portal (사내망) API 경유 → WORKS 할일 등록
+  // 외부망에서는 호출 불가 — 사내 VPN 안에서만 동작
+  const ADMIN_API_BASE = 'https://dev-babyvoucher-admin.io.naver.com';
+
+  async function createWorksTask() {
+    const titleEl = document.getElementById('taskTitle');
+    const descEl = document.getElementById('taskDesc');
+    const dueEl = document.getElementById('taskDue');
+    const assigneeEl = document.getElementById('taskAssignee');
+    const resultEl = document.getElementById('taskResult');
+
+    const title = titleEl.value.trim();
+    if (!title) {
+      resultEl.textContent = '❌ 제목 필수';
+      resultEl.style.color = 'var(--accent-red)';
+      return;
+    }
+
+    const body = {
+      title,
+      description: descEl.value.trim() || undefined,
+      dueDate: dueEl.value || undefined,
+      assigneeEmail: assigneeEl.value || undefined,
+    };
+
+    resultEl.textContent = '⏳ 생성 중...';
+    resultEl.style.color = 'var(--text-secondary)';
+
+    try {
+      const res = await fetch(ADMIN_API_BASE + '/api/works/task-create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        credentials: 'include',
+      });
+      const j = await res.json().catch(() => ({}));
+      if (res.ok && j.ok) {
+        resultEl.innerHTML = `✅ 할일 생성됨${j.taskId ? ` (id: ${j.taskId})` : ''}${j.link ? ` <a href="${j.link}" target="_blank" style="color:var(--accent-teal)">[열기]</a>` : ''}`;
+        resultEl.style.color = 'var(--accent-green)';
+        titleEl.value = '';
+        descEl.value = '';
+        dueEl.value = '';
+        assigneeEl.value = '';
+      } else {
+        resultEl.textContent = `❌ ${j.error || ('실패 ' + res.status)}`;
+        resultEl.style.color = 'var(--accent-red)';
+      }
+    } catch (e) {
+      resultEl.innerHTML = `❌ 네트워크 오류 — 사내망(VPN) 확인 필요 <span style="opacity:.6">(${(e && e.message) || e})</span>`;
+      resultEl.style.color = 'var(--accent-red)';
+    }
   }
 
   // ==================== MODAL ====================
