@@ -1,0 +1,42 @@
+name: Works Calendar Sync
+
+on:
+  schedule:
+    # 매시간 정각 (UTC). KST 기준 매시간 정각.
+    - cron: '0 * * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run WORKS calendar sync
+        env:
+          WORKS_BEARER_TOKEN: ${{ secrets.WORKS_BEARER_TOKEN }}
+          WORKS_CALENDAR_ID: ${{ secrets.WORKS_CALENDAR_ID }}
+        run: node scripts/sync-works-calendar.mjs
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name  "Works Calendar Sync Bot"
+          git config user.email "bot@navercorp.com"
+          git add portal/events.json
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore(events): Works 캘린더 sync ($(date -u +%Y-%m-%d_%H:%MZ))"
+            git push
+          fi

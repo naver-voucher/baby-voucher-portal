@@ -6715,26 +6715,68 @@ NAVER 키즈사업`
         </div>`).join('');
     }
 
-    // 7) 캘린더 이번 달 일정 (eventList)
-    const ev = document.getElementById('eventList');
-    if (ev && Array.isArray(PERIOD.calendarEvents)) {
-      ev.innerHTML = PERIOD.calendarEvents.map(e => {
-        const d = new Date(e.date);
-        const md = (d.getMonth() + 1) + '/' + d.getDate();
-        return `
-          <div class="event-item">
-            <div class="event-dot" style="background:var(--accent-${e.color})"></div>
-            <div class="event-text">${e.title}</div>
-            <div class="event-date">${md} (${e.weekday})</div>
-          </div>`;
-      }).join('');
+    // 7) 캘린더 렌더링은 bindCalendar() 에서 통합 처리 (period + works)
+  }
+
+  // ==================== WORKS CALENDAR (events.json) ====================
+  let WORKS_EVENTS = [];
+
+  async function loadWorksEvents() {
+    try {
+      const res = await fetch('events.json', { cache: 'no-store' });
+      if (res.ok) {
+        const json = await res.json();
+        if (Array.isArray(json)) WORKS_EVENTS = json;
+      }
+    } catch (e) {
+      // events.json 없거나 네트워크 실패 시 무시
+      console.debug('[events.json] skipped:', e);
     }
   }
 
-  // 페이지 로드 시 period.json을 불러와 바인딩
+  function bindCalendar() {
+    const eventList = document.getElementById('eventList');
+    if (!eventList) return;
+
+    const periodEvents = Array.isArray(PERIOD?.calendarEvents)
+      ? PERIOD.calendarEvents.map(e => ({ ...e, source: e.source || 'period' }))
+      : [];
+    const worksEvents = WORKS_EVENTS.map(e => ({ ...e, source: 'works' }));
+
+    const combined = [...periodEvents, ...worksEvents]
+      .filter(e => e && e.date)
+      .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+
+    // 이번 달 이후만 표시
+    const now = new Date();
+    const startMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const filtered = combined.filter(e => e.date >= `${startMonth}-01`);
+
+    if (!filtered.length) {
+      eventList.innerHTML = '<div class="event-item" style="opacity:.6">예정된 일정이 없습니다.</div>';
+      return;
+    }
+
+    eventList.innerHTML = filtered.map(e => {
+      const d = new Date(e.date);
+      const md = (d.getMonth() + 1) + '/' + d.getDate();
+      const sourceBadge = e.source === 'works'
+        ? `<span style="font-size:9px;padding:1px 6px;background:var(--accent-green-dim);color:var(--accent-green);border-radius:3px;margin-left:4px;vertical-align:middle">Works</span>`
+        : '';
+      return `
+        <div class="event-item">
+          <div class="event-dot" style="background:var(--accent-${e.color || 'blue'})"></div>
+          <div class="event-text">${e.title}${sourceBadge}</div>
+          <div class="event-date">${md} (${e.weekday || ''})</div>
+        </div>`;
+    }).join('');
+  }
+
+  // 페이지 로드 시 period.json + events.json 을 동시 fetch 후 바인딩
   (async () => {
-    await loadPeriod();
+    await Promise.all([loadPeriod(), loadWorksEvents()]);
     bindPeriod();
+    bindCalendar();
   })();
 
   // ==================== INIT ====================
