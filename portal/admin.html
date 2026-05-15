@@ -1372,7 +1372,10 @@
       <div class="admin-stat" style="padding:18px 20px;margin:16px 0 20px;display:flex;flex-direction:column;gap:8px">
         <div style="display:flex;align-items:center;justify-content:space-between">
           <div style="font-size:12px;font-weight:700;color:var(--accent-teal)">+ Works 할일 추가</div>
-          <div style="font-size:10px;color:var(--text-tertiary)">사내망(VPN) 안에서만 동작</div>
+          <div style="font-size:10px;color:var(--text-tertiary)">
+            <a href="#" onclick="promptWorksToken();return false;" style="color:var(--accent-teal)">🔑 토큰 설정</a>
+            · 7일 유효 · 사내망에서만 동작 가능
+          </div>
         </div>
         <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px">
           <input id="taskTitle" type="text" placeholder="할일 제목 *" style="padding:8px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:12px">
@@ -3648,9 +3651,33 @@
   }
 
   // ==================== WORKS TASK CREATE ====================
-  // admin-portal (사내망) API 경유 → WORKS 할일 등록
-  // 외부망에서는 호출 불가 — 사내 VPN 안에서만 동작
-  const ADMIN_API_BASE = 'https://dev-babyvoucher-admin.io.naver.com';
+  // WORKS MCP (kr0-prismgw.io.naver.com) 에 직접 호출 — admin-portal 불용
+  // 사용자가 localStorage('works_bearer_token')에 7일 토큰 입력 후 사용
+  // CORS: 사내 prism gateway가 외부 origin에서 호출 허용해야 함 (미지원 시 사내망 안에서만 가능)
+  const WORKS_MCP_BASE = 'https://kr0-prismgw.io.naver.com/mcp/api/tools';
+  const WORKS_TOKEN_KEY = 'works_bearer_token';
+
+  function getWorksToken() {
+    return localStorage.getItem(WORKS_TOKEN_KEY) || '';
+  }
+  function setWorksToken(t) {
+    if (t) localStorage.setItem(WORKS_TOKEN_KEY, t);
+    else localStorage.removeItem(WORKS_TOKEN_KEY);
+  }
+
+  // 토큰 입력 GUI 호출
+  function promptWorksToken() {
+    const cur = getWorksToken();
+    const masked = cur ? cur.slice(0, 10) + '...' + cur.slice(-4) : '(미설정)';
+    const next = prompt(
+      'WORKS Bearer 토큰 입력 (Claude /mcp 로그인 후 get_current_token으로 발급, 7일 유효)\n\n현재: ' + masked,
+      cur
+    );
+    if (next !== null) {
+      setWorksToken(next.trim());
+      alert(next ? '✅ 토큰 저장됨' : '🗑 토큰 삭제됨');
+    }
+  }
 
   async function createWorksTask() {
     const titleEl = document.getElementById('taskTitle');
@@ -3666,37 +3693,53 @@
       return;
     }
 
+    const token = getWorksToken();
+    if (!token) {
+      resultEl.innerHTML = '❌ WORKS 토큰 미설정 — <a href="#" onclick="promptWorksToken();return false;" style="color:var(--accent-teal)">[설정하기]</a>';
+      resultEl.style.color = 'var(--accent-red)';
+      return;
+    }
+
     const body = {
       title,
       description: descEl.value.trim() || undefined,
       dueDate: dueEl.value || undefined,
-      assigneeEmail: assigneeEl.value || undefined,
+      assignees: assigneeEl.value ? [assigneeEl.value] : undefined,
     };
 
-    resultEl.textContent = '⏳ 생성 중...';
+    resultEl.textContent = '⏳ WORKS API 호출 중...';
     resultEl.style.color = 'var(--text-secondary)';
 
     try {
-      const res = await fetch(ADMIN_API_BASE + '/api/works/task-create', {
+      const res = await fetch(WORKS_MCP_BASE + '/task_create', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(body),
-        credentials: 'include',
       });
       const j = await res.json().catch(() => ({}));
       if (res.ok && j.ok) {
-        resultEl.innerHTML = `✅ 할일 생성됨${j.taskId ? ` (id: ${j.taskId})` : ''}${j.link ? ` <a href="${j.link}" target="_blank" style="color:var(--accent-teal)">[열기]</a>` : ''}`;
+        const taskId = j.result?.taskId || j.result?.id || '';
+        const link = j.result?.link || j.result?.url || '';
+        resultEl.innerHTML = `✅ 할일 생성됨${taskId ? ` (id: ${taskId})` : ''}${link ? ` <a href="${link}" target="_blank" style="color:var(--accent-teal)">[열기]</a>` : ''}`;
         resultEl.style.color = 'var(--accent-green)';
         titleEl.value = '';
         descEl.value = '';
         dueEl.value = '';
         assigneeEl.value = '';
       } else {
-        resultEl.textContent = `❌ ${j.error || ('실패 ' + res.status)}`;
+        const errMsg = j.error?.message || j.error || ('HTTP ' + res.status);
+        if (res.status === 401) {
+          resultEl.innerHTML = `❌ 401 — 토큰 만료/잘못됨 <a href="#" onclick="promptWorksToken();return false;" style="color:var(--accent-teal)">[재설정]</a>`;
+        } else {
+          resultEl.textContent = `❌ ${errMsg}`;
+        }
         resultEl.style.color = 'var(--accent-red)';
       }
     } catch (e) {
-      resultEl.innerHTML = `❌ 네트워크 오류 — 사내망(VPN) 확인 필요 <span style="opacity:.6">(${(e && e.message) || e})</span>`;
+      resultEl.innerHTML = `❌ 네트워크 오류 (CORS 차단 가능 — 사내망에서 시도) <span style="opacity:.6">${(e && e.message) || e}</span>`;
       resultEl.style.color = 'var(--accent-red)';
     }
   }
