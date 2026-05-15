@@ -1304,7 +1304,7 @@
     <div id="admin-dashboard" class="section active fade-in">
       <div class="page-header">
         <h1>전체 현황</h1>
-        <p>2026년 5월 베이비바우처 운영 현황 요약</p>
+        <p><span data-bind="period.label">2026년 5월</span> <span data-bind="period.dashboardSubtitle">베이비바우처 운영 현황 요약</span></p>
       </div>
 
       <div class="admin-stats-row">
@@ -1313,7 +1313,7 @@
           <div class="stat-value" id="dashActive">-</div>
         </div>
         <div class="admin-stat">
-          <div class="stat-label">신규입점 (9차·5월)</div>
+          <div class="stat-label" data-bind="period.phaseLabel">신규입점 (9차·5월)</div>
           <div class="stat-value" style="color:var(--accent-blue)" id="dashNew">-</div>
         </div>
         <div class="admin-stat">
@@ -1358,54 +1358,15 @@
         </div>
       </div>
 
-      <div class="cards-grid">
+      <div class="cards-grid" id="dashboardCards">
+        <!-- period.json의 dashboardCards로 자동 렌더링됩니다. JS 실행 실패 시 fallback. -->
         <div class="card" style="cursor:pointer" onclick="navigateTo('admin-submissions')">
           <div class="card-header">
             <div class="card-icon" style="background:var(--accent-orange-dim)">&#9745;</div>
-            <span class="status-badge orange"><span class="status-dot"></span> 68건 미제출</span>
+            <span class="status-badge orange"><span class="status-dot"></span> 4건 미제출</span>
           </div>
           <div class="card-title">5월 소재 취합 현황</div>
-          <div class="card-desc">마감일 4/11(금) &middot; D-2<br>연출컷 미제출 42사, 대표상품 미제출 38사, 로고 미제출 12사</div>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <div class="card-icon" style="background:var(--accent-blue-dim)">&#9998;</div>
-            <span class="status-badge blue"><span class="status-dot"></span> 진행 중</span>
-          </div>
-          <div class="card-title">5월 입점 준비</div>
-          <div class="card-desc">신규 12사 중 계약 완료 8사, 미완료 4사<br>CNS 등록 예정: 5/4(월) 09:50</div>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <div class="card-icon" style="background:var(--accent-red-dim)">&#9888;</div>
-            <span class="status-badge red"><span class="status-dot"></span> 주의</span>
-          </div>
-          <div class="card-title">5월 퇴점 처리</div>
-          <div class="card-desc">퇴점 예정 5사 &middot; 쿠폰 중지, CNS 삭제, 카드 할인 제외 처리 필요<br>처리 완료: 2사 / 미처리: 3사</div>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <div class="card-icon" style="background:var(--accent-green-dim)">&#8361;</div>
-            <span class="status-badge green"><span class="status-dot"></span> 완료</span>
-          </div>
-          <div class="card-title">3월 정산</div>
-          <div class="card-desc">인보이스 170건 발송 완료 (4/5)<br>총 정산액: &#8361;284,500,000</div>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <div class="card-icon" style="background:var(--accent-purple-dim)">&#9654;</div>
-            <span class="status-badge purple"><span class="status-dot"></span> 3건 접수</span>
-          </div>
-          <div class="card-title">쇼츠 외부 광고 신청</div>
-          <div class="card-desc">신규 접수 3건 &middot; 마케팅팀 검토 대기 중<br>보뇨르베베, 리틀자이언트, 꼬마농장</div>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <div class="card-icon" style="background:var(--accent-teal-dim)">&#127909;</div>
-            <span class="status-badge blue"><span class="status-dot"></span> 모집 중</span>
-          </div>
-          <div class="card-title">4월 연합 라이브</div>
-          <div class="card-desc">참여 신청 15사 / 마감 4/18(금)<br>라이브 예정: 4/25(금) 20:00</div>
+          <div class="card-desc">마감일 5/14(목) &middot; D-1<br>연출컷 미제출 2사, 대표상품 미제출 2사, 로고 미제출 1사</div>
         </div>
       </div>
     </div>
@@ -1438,7 +1399,7 @@
 
       <div class="admin-header-row">
         <div class="filter-bar" id="submissionFilters">
-          <div class="filter-chip active" onclick="filterBrands('all', this)">전체 <span id="filterAll">188</span></div>
+          <div class="filter-chip active" onclick="filterBrands('all', this)">전체 <span id="filterAll" data-bind="period.brandCount">188</span></div>
           <div class="filter-chip" onclick="filterBrands('done', this)">완료 <span id="filterDone">104</span></div>
           <div class="filter-chip" onclick="filterBrands('partial', this)">일부 제출 <span id="filterPartial">38</span></div>
           <div class="filter-chip" onclick="filterBrands('none', this)">미제출 <span id="filterNone">30</span></div>
@@ -1492,7 +1453,7 @@
           <div class="stat-value" id="brandStatActive" style="color:var(--accent-green)">-</div>
         </div>
         <div class="admin-stat">
-          <div class="stat-label">신규입점 (9차·5월)</div>
+          <div class="stat-label" data-bind="period.phaseLabel">신규입점 (9차·5월)</div>
           <div class="stat-value" id="brandStatNew" style="color:var(--accent-blue)">-</div>
         </div>
         <div class="admin-stat">
@@ -1817,7 +1778,7 @@
         <div style="margin-bottom:24px">
           <label style="font-size:12px;font-weight:600;color:var(--text-tertiary);display:block;margin-bottom:8px">대상 선택</label>
           <div style="display:flex;gap:8px;flex-wrap:wrap" id="targetSelector">
-            <div class="filter-chip active" style="font-size:11px" onclick="selectTarget(this)">전체 브랜드사 (188)</div>
+            <div class="filter-chip active" style="font-size:11px" onclick="selectTarget(this)" data-bind="period.brandCountChipAll">전체 브랜드사 (188)</div>
             <div class="filter-chip" style="font-size:11px" onclick="selectTarget(this)">신규 입점사만 (12)</div>
             <div class="filter-chip" style="font-size:11px" onclick="selectTarget(this)">육아생필템 (43)</div>
             <div class="filter-chip" style="font-size:11px" onclick="selectTarget(this)">국민육아템 (43)</div>
@@ -1853,41 +1814,18 @@
         <p>미제출 브랜드사에 리마인드를 발송합니다.</p>
       </div>
 
-      <div class="cards-grid" style="margin-bottom:32px">
+      <div class="cards-grid" id="remindCards" style="margin-bottom:32px">
+        <!-- period.json의 remindList로 자동 렌더링됩니다. 아래는 fallback. -->
         <div class="card">
           <div class="card-header">
             <div class="card-icon" style="background:var(--accent-orange-dim)">&#9993;</div>
-            <span class="status-badge orange"><span class="status-dot"></span> 68사</span>
+            <span class="status-badge orange"><span class="status-dot"></span> 4사</span>
           </div>
           <div class="card-title">5월 소재 미제출 리마인드</div>
-          <div class="card-desc" style="margin-bottom:16px">대상: 연출컷/대표상품/로고 미제출 68사<br>마감: 4/11(금) D-2</div>
+          <div class="card-desc" style="margin-bottom:16px">대상: 연출컷/대표상품/로고 미제출 4사<br>마감: 5/14(목) D-1</div>
           <div style="display:flex;gap:8px">
-            <button class="remind-all-btn" onclick="showToast('68개 브랜드사에 리마인드 메일 발송 완료')">&#9993; 일괄 발송</button>
+            <button class="remind-all-btn" onclick="showToast('4개 브랜드사에 리마인드 메일 발송 완료')">&#9993; 일괄 발송</button>
             <button class="export-btn" onclick="navigateTo('admin-submissions')">목록 확인</button>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <div class="card-icon" style="background:var(--accent-blue-dim)">&#9993;</div>
-            <span class="status-badge blue"><span class="status-dot"></span> 4사</span>
-          </div>
-          <div class="card-title">계약 미완료 리마인드</div>
-          <div class="card-desc" style="margin-bottom:16px">대상: 5월 신규 입점 계약 미완료 4사<br>마감: 4/14(월)</div>
-          <div style="display:flex;gap:8px">
-            <button class="remind-all-btn" onclick="showToast('4개 브랜드사에 계약 미완료 리마인드 발송 완료')">&#9993; 일괄 발송</button>
-            <button class="export-btn" onclick="showToast('미완료사 목록: 리틀베어, 아이그로우, 키즈넷, 베이비핑크')">목록 확인</button>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <div class="card-icon" style="background:var(--accent-purple-dim)">&#9993;</div>
-            <span class="status-badge purple"><span class="status-dot"></span> 6사</span>
-          </div>
-          <div class="card-title">라이브 ID 미제출 리마인드</div>
-          <div class="card-desc" style="margin-bottom:16px">대상: 라이브 참여 희망했으나 ID 미제출 6사<br>마감: 4/18(금)</div>
-          <div style="display:flex;gap:8px">
-            <button class="remind-all-btn" onclick="showToast('6개 브랜드사에 라이브 ID 미제출 리마인드 발송 완료')">&#9993; 일괄 발송</button>
-            <button class="export-btn" onclick="showToast('미제출사: 꼬마농장, 베베숲, 토들러랩, 키즈캐슬, 맘앤베이비, 아이조이')">목록 확인</button>
           </div>
         </div>
       </div>
@@ -1947,29 +1885,12 @@
               <th>상태</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="mailHistoryBody">
+            <!-- period.json의 mailHistory로 자동 렌더링. fallback row 1개. -->
             <tr>
-              <td>2026.04.08</td>
+              <td>2026.05.13</td>
               <td>소재 미제출 리마인드</td>
-              <td>72사</td>
-              <td><span class="mini-badge done">발송 완료</span></td>
-            </tr>
-            <tr>
-              <td>2026.04.05</td>
-              <td>3월 정산 인보이스</td>
-              <td>188사</td>
-              <td><span class="mini-badge done">발송 완료</span></td>
-            </tr>
-            <tr>
-              <td>2026.04.01</td>
-              <td>5월 소재 취합 안내</td>
-              <td>188사</td>
-              <td><span class="mini-badge done">발송 완료</span></td>
-            </tr>
-            <tr>
-              <td>2026.03.28</td>
-              <td>계약 미완료 리마인드</td>
-              <td>6사</td>
+              <td>12사</td>
               <td><span class="mini-badge done">발송 완료</span></td>
             </tr>
           </tbody>
@@ -2986,7 +2907,7 @@
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
           <div>
             <label style="font-size:11px;color:var(--text-tertiary);display:block;margin-bottom:4px">오픈일 (입점 반영일)</label>
-            <input type="text" id="varOpenDate" value="2026년 5월 4일 (월) 10시" onblur="saveDatesToStorage()" style="width:100%;padding:7px 10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:12px;outline:none">
+            <input type="text" id="varOpenDate" data-bind="period.openDateText" value="2026년 5월 4일 (월) 10시" onblur="saveDatesToStorage()" style="width:100%;padding:7px 10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:12px;outline:none">
           </div>
           <div>
             <label style="font-size:11px;color:var(--text-tertiary);display:block;margin-bottom:4px">계약 마감일</label>
@@ -2998,11 +2919,11 @@
           </div>
           <div>
             <label style="font-size:11px;color:var(--text-tertiary);display:block;margin-bottom:4px">퇴점 일시</label>
-            <input type="text" id="varExitDate" value="2026년 4월 30일(수) 18:00" onblur="saveDatesToStorage()" style="width:100%;padding:7px 10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:12px;outline:none">
+            <input type="text" id="varExitDate" data-bind="period.exitDateText" value="2026년 4월 30일(수) 18:00" onblur="saveDatesToStorage()" style="width:100%;padding:7px 10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:12px;outline:none">
           </div>
           <div>
             <label style="font-size:11px;color:var(--text-tertiary);display:block;margin-bottom:4px">퇴점 월</label>
-            <input type="text" id="varExitMonth" value="5월" onblur="saveDatesToStorage()" style="width:100%;padding:7px 10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:12px;outline:none">
+            <input type="text" id="varExitMonth" data-bind="period.exitMonthLabel" value="5월" onblur="saveDatesToStorage()" style="width:100%;padding:7px 10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:12px;outline:none">
           </div>
           <div>
             <label style="font-size:11px;color:var(--text-tertiary);display:block;margin-bottom:4px">네이버폼 URL</label>
@@ -3200,7 +3121,7 @@
 
       <div class="calendar-container">
         <div class="calendar-header">
-          <h3 id="calendarTitle">2026년 5월</h3>
+          <h3 id="calendarTitle" data-bind="period.calendarTitle">2026년 5월</h3>
           <div class="calendar-nav">
             <button onclick="changeMonth(-1)">&#9664;</button>
             <button onclick="changeMonth(1)">&#9654;</button>
@@ -3208,7 +3129,7 @@
         </div>
         <div class="calendar-grid" id="calendarGrid"></div>
         <div class="calendar-events">
-          <h4>이번 달 주요 일정 — [키즈] 베이비바우처 6월 입·퇴점사 확정 (6/1 오픈)</h4>
+          <h4 data-bind="period.calendarHeading">이번 달 주요 일정 — [키즈] 베이비바우처 6월 입·퇴점사 확정 (6/1 오픈)</h4>
           <div id="eventList">
             <div class="event-item">
               <div class="event-dot" style="background:var(--accent-purple)"></div>
@@ -6625,6 +6546,152 @@ NAVER 키즈사업`
     if (el) el.classList.add('active');
     renderStatusBoard(type);
   }
+
+  // ==================== PERIOD LOADER (period.json) ====================
+  // 매월 portal/period.json 1개 파일만 수정하면 admin.html 전반의 "이번 달" 데이터가 갱신됩니다.
+  let PERIOD = null;
+
+  async function loadPeriod() {
+    try {
+      const res = await fetch('period.json', { cache: 'no-store' });
+      if (res.ok) PERIOD = await res.json();
+    } catch (e) {
+      console.warn('[period.json] 로드 실패 — fallback markup 사용', e);
+    }
+  }
+
+  function _getByPath(obj, path) {
+    return path.split('.').reduce((o, k) => (o == null ? o : o[k]), obj);
+  }
+
+  function bindPeriod() {
+    if (!PERIOD) return;
+
+    // 1) 헤더/라벨 단순 바인딩 (data-bind="period.xxx")
+    const aliases = {
+      'period.label': PERIOD.label,
+      'period.phase': PERIOD.phase,
+      'period.phaseLabel': PERIOD.phaseLabel,
+      'period.brandCount': PERIOD.brandCount,
+      'period.brandCountChipAll': '전체 브랜드사 (' + PERIOD.brandCount + ')',
+      'period.openDateText': PERIOD.openDateText,
+      'period.exitDateText': PERIOD.exitDateText,
+      'period.exitMonthLabel': PERIOD.exitMonthLabel,
+      'period.calendarTitle': PERIOD.calendarTitle,
+      'period.calendarHeading': PERIOD.calendarHeading,
+      'period.dashboardSubtitle': PERIOD.dashboardSubtitle
+    };
+    document.querySelectorAll('[data-bind]').forEach(el => {
+      const key = el.getAttribute('data-bind');
+      const val = aliases.hasOwnProperty(key) ? aliases[key] : _getByPath({ period: PERIOD }, key);
+      if (val == null) return;
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.value = val;
+      else el.textContent = val;
+    });
+
+    // 2) 대시보드 카드 6개
+    const dash = document.getElementById('dashboardCards');
+    if (dash && Array.isArray(PERIOD.dashboardCards)) {
+      dash.innerHTML = PERIOD.dashboardCards.map(c => {
+        const onclick = c.onclick ? ` style="cursor:pointer" onclick="${c.onclick}"` : '';
+        return `
+        <div class="card"${onclick}>
+          <div class="card-header">
+            <div class="card-icon" style="background:${c.iconBg || 'var(--accent-blue-dim)'}">${c.icon || ''}</div>
+            <span class="status-badge ${c.badge && c.badge.color || 'blue'}"><span class="status-dot"></span> ${c.badge && c.badge.text || ''}</span>
+          </div>
+          <div class="card-title">${c.title || ''}</div>
+          <div class="card-desc">${c.desc || ''}</div>
+        </div>`;
+      }).join('');
+    }
+
+    // 3) 리마인드 카드
+    const remind = document.getElementById('remindCards');
+    if (remind && Array.isArray(PERIOD.remindList)) {
+      remind.innerHTML = PERIOD.remindList.map(r => {
+        const listBtn = r.listToast
+          ? `<button class="export-btn" onclick="showToast('${(r.listToast || '').replace(/'/g, "\\'")}')">목록 확인</button>`
+          : `<button class="export-btn" onclick="navigateTo('admin-submissions')">목록 확인</button>`;
+        return `
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon" style="background:${r.iconBg || 'var(--accent-orange-dim)'}">${r.icon || '&#9993;'}</div>
+            <span class="status-badge ${r.badgeColor || 'orange'}"><span class="status-dot"></span> ${r.badgeText || ''}</span>
+          </div>
+          <div class="card-title">${r.title || ''}</div>
+          <div class="card-desc" style="margin-bottom:16px">${r.desc || ''}</div>
+          <div style="display:flex;gap:8px">
+            <button class="remind-all-btn" onclick="showToast('${(r.sendToast || '').replace(/'/g, "\\'")}')">&#9993; 일괄 발송</button>
+            ${listBtn}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    // 4) 메일 발송 이력
+    const mh = document.getElementById('mailHistoryBody');
+    if (mh && Array.isArray(PERIOD.mailHistory)) {
+      mh.innerHTML = PERIOD.mailHistory.map(m => `
+        <tr>
+          <td>${m.date}</td>
+          <td>${m.type}</td>
+          <td>${m.target}</td>
+          <td><span class="mini-badge done">${m.status}</span></td>
+        </tr>`).join('');
+    }
+
+    // 5) 공지 목록 (announceFullList)
+    const ann = document.getElementById('announceFullList');
+    if (ann && Array.isArray(PERIOD.announcements)) {
+      ann.innerHTML = PERIOD.announcements.map((a, i) => `
+        <div class="announce-item" onclick="showAnnouncement(${i})">
+          <span class="announce-tag ${a.tag}">${a.tagLabel}</span>
+          <div class="announce-content">
+            <div class="announce-title">${a.title}</div>
+            <div class="announce-preview">${a.preview}</div>
+            <div class="announce-date">${a.date} &middot; ${a.scope || '전체'} &middot; 조회 ${a.views || 0}</div>
+          </div>
+        </div>`).join('');
+    }
+
+    // 6) 최종검수 체크리스트
+    const cg = document.getElementById('checklistGrid');
+    if (cg && Array.isArray(PERIOD.checklistItems)) {
+      cg.innerHTML = PERIOD.checklistItems.map(c => `
+        <div class="check-item" onclick="this.classList.toggle('open')">
+          <div class="check-item-bar ${c.bar}"></div>
+          <div class="check-item-content">
+            <div class="check-item-header">
+              <span class="check-item-name">${c.name}</span>
+              <span class="check-status ${c.status}">${c.statusLabel}</span>
+            </div>
+            <div class="check-item-desc">${c.desc}</div>
+          </div>
+        </div>`).join('');
+    }
+
+    // 7) 캘린더 이번 달 일정 (eventList)
+    const ev = document.getElementById('eventList');
+    if (ev && Array.isArray(PERIOD.calendarEvents)) {
+      ev.innerHTML = PERIOD.calendarEvents.map(e => {
+        const d = new Date(e.date);
+        const md = (d.getMonth() + 1) + '/' + d.getDate();
+        return `
+          <div class="event-item">
+            <div class="event-dot" style="background:var(--accent-${e.color})"></div>
+            <div class="event-text">${e.title}</div>
+            <div class="event-date">${md} (${e.weekday})</div>
+          </div>`;
+      }).join('');
+    }
+  }
+
+  // 페이지 로드 시 period.json을 불러와 바인딩
+  (async () => {
+    await loadPeriod();
+    bindPeriod();
+  })();
 
   // ==================== INIT ====================
   generateBrands();

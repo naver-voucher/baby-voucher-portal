@@ -1,0 +1,195 @@
+{
+  "year": 2026,
+  "month": 5,
+  "label": "2026년 5월",
+  "phase": "신규입점 9차",
+  "phaseLabel": "신규입점 (9차·5월)",
+  "openDate": "2026-05-04",
+  "openDateText": "2026년 5월 4일 (월) 10시",
+  "exitDate": "2026-05-29",
+  "exitDateText": "2026년 5월 29일(금) 18:00",
+  "exitMonthLabel": "5월",
+  "contractDeadlineText": "5/22(금)",
+  "assetDeadlineText": "5/22(금)",
+  "formUrl": "https://naver.me/5fdn6Ums",
+  "brandCount": 188,
+  "submissionDeadlineText": "5/14(목)",
+  "dashboardSubtitle": "베이비바우처 운영 현황 요약",
+
+  "dashboardCards": [
+    {
+      "id": "materials",
+      "icon": "&#9745;",
+      "iconBg": "var(--accent-orange-dim)",
+      "badge": { "color": "orange", "text": "4건 미제출" },
+      "title": "5월 소재 취합 현황",
+      "desc": "마감일 5/14(목) · D-1<br>연출컷 미제출 2사, 대표상품 미제출 2사, 로고 미제출 1사",
+      "onclick": "navigateTo('admin-submissions')"
+    },
+    {
+      "id": "newJoin",
+      "icon": "&#9998;",
+      "iconBg": "var(--accent-blue-dim)",
+      "badge": { "color": "blue", "text": "진행 중" },
+      "title": "6월 입점 준비",
+      "desc": "신규 12사 중 계약 완료 8사, 미완료 4사<br>CNS 등록 예정: 6/1(월) 09:50",
+      "onclick": ""
+    },
+    {
+      "id": "exit",
+      "icon": "&#9888;",
+      "iconBg": "var(--accent-red-dim)",
+      "badge": { "color": "red", "text": "주의" },
+      "title": "5월 퇴점 처리",
+      "desc": "퇴점 예정 5사 · 쿠폰 중지, CNS 삭제, 카드 할인 제외 처리 필요<br>처리 완료: 2사 / 미처리: 3사",
+      "onclick": ""
+    },
+    {
+      "id": "settlement",
+      "icon": "&#8361;",
+      "iconBg": "var(--accent-green-dim)",
+      "badge": { "color": "green", "text": "완료" },
+      "title": "4월 정산",
+      "desc": "인보이스 170건 발송 완료 (5/5)<br>총 정산액: &#8361;284,500,000",
+      "onclick": ""
+    },
+    {
+      "id": "shorts",
+      "icon": "&#9654;",
+      "iconBg": "var(--accent-purple-dim)",
+      "badge": { "color": "purple", "text": "3건 접수" },
+      "title": "쇼츠 외부 광고 신청",
+      "desc": "신규 접수 3건 · 마케팅팀 검토 대기 중<br>보뇨르베베, 리틀자이언트, 꼬마농장",
+      "onclick": ""
+    },
+    {
+      "id": "live",
+      "icon": "&#127909;",
+      "iconBg": "var(--accent-teal-dim)",
+      "badge": { "color": "blue", "text": "모집 중" },
+      "title": "5월 연합 라이브",
+      "desc": "참여 신청 15사 / 마감 5/22(금)<br>라이브 예정: 5/28(목) 20:00",
+      "onclick": ""
+    }
+  ],
+
+  "remindList": [
+    {
+      "icon": "&#9993;",
+      "iconBg": "var(--accent-orange-dim)",
+      "badgeColor": "orange",
+      "badgeText": "4사",
+      "title": "5월 소재 미제출 리마인드",
+      "desc": "대상: 연출컷/대표상품/로고 미제출 4사<br>마감: 5/14(목) D-1",
+      "sendToast": "4개 브랜드사에 리마인드 메일 발송 완료"
+    },
+    {
+      "icon": "&#9993;",
+      "iconBg": "var(--accent-blue-dim)",
+      "badgeColor": "blue",
+      "badgeText": "4사",
+      "title": "계약 미완료 리마인드",
+      "desc": "대상: 6월 신규 입점 계약 미완료 4사<br>마감: 5/22(금)",
+      "sendToast": "4개 브랜드사에 계약 미완료 리마인드 발송 완료",
+      "listToast": "미완료사 목록: 리틀베어, 아이그로우, 키즈넷, 베이비핑크"
+    },
+    {
+      "icon": "&#9993;",
+      "iconBg": "var(--accent-purple-dim)",
+      "badgeColor": "purple",
+      "badgeText": "6사",
+      "title": "라이브 ID 미제출 리마인드",
+      "desc": "대상: 라이브 참여 희망했으나 ID 미제출 6사<br>마감: 5/22(금)",
+      "sendToast": "6개 브랜드사에 라이브 ID 미제출 리마인드 발송 완료",
+      "listToast": "미제출사: 꼬마농장, 베베숲, 토들러랩, 키즈캐슬, 맘앤베이비, 아이조이"
+    }
+  ],
+
+  "mailHistory": [
+    { "date": "2026.05.13", "type": "소재 미제출 리마인드", "target": "12사", "status": "발송 완료" },
+    { "date": "2026.05.05", "type": "4월 정산 인보이스", "target": "188사", "status": "발송 완료" },
+    { "date": "2026.05.01", "type": "5월 소재 취합 안내", "target": "188사", "status": "발송 완료" },
+    { "date": "2026.04.28", "type": "계약 미완료 리마인드", "target": "6사", "status": "발송 완료" }
+  ],
+
+  "announcements": [
+    {
+      "tag": "important",
+      "tagLabel": "중요",
+      "title": "5월 입점 브랜드사 소재 취합 안내",
+      "preview": "5월 바우처 갱신을 위한 소재를 네이버 폼을 통해 제출해 주세요. 마감: 5/14(목)",
+      "date": "2026.05.01",
+      "scope": "전체",
+      "views": 148
+    },
+    {
+      "tag": "event",
+      "tagLabel": "이벤트",
+      "title": "브랜드사 제작 쇼츠 외부 광고 노출 프로그램 오픈",
+      "preview": "네이버가 비용을 부담하여 외부 매체에 광고 노출하는 프로그램이 오픈되었습니다.",
+      "date": "2026.05.01",
+      "scope": "전체",
+      "views": 134
+    },
+    {
+      "tag": "guide",
+      "tagLabel": "가이드",
+      "title": "2026년 바우처 에셋 활용 가이드 업데이트",
+      "preview": "2026년 버전 바우처 에셋 PSD 파일이 업데이트되었습니다.",
+      "date": "2026.04.25",
+      "scope": "전체",
+      "views": 121
+    },
+    {
+      "tag": "event",
+      "tagLabel": "이벤트",
+      "title": "5월 베이비바우처 연합 라이브 참여사 모집",
+      "preview": "5월 연합 라이브에 참여하실 브랜드사를 모집합니다. 마감: 5/22(금)",
+      "date": "2026.04.20",
+      "scope": "전체",
+      "views": 98
+    },
+    {
+      "tag": "notice",
+      "tagLabel": "안내",
+      "title": "4월 정산 내역 및 인보이스 발송 완료",
+      "preview": "4월 쿠폰/적립 사용 내역 및 인보이스를 메일로 발송하였습니다.",
+      "date": "2026.05.05",
+      "scope": "전체",
+      "views": 165
+    },
+    {
+      "tag": "notice",
+      "tagLabel": "안내",
+      "title": "5월 운영 일정 안내",
+      "preview": "5월 바우처 운영 주요 일정을 안내드립니다. 입퇴점 확정, 계약/소재 취합, 입점 적용 일정을 확인해 주세요.",
+      "date": "2026.05.01",
+      "scope": "전체",
+      "views": 87
+    }
+  ],
+
+  "checklistStats": { "ok": 5, "warn": 2, "etc": 1 },
+  "checklistItems": [
+    { "id": "coupon", "bar": "green", "name": "쿠폰 발행 여부", "status": "ok", "statusLabel": "정상", "desc": "5월 바우처 쿠폰 12개 브랜드 정상 발행 완료" },
+    { "id": "mem", "bar": "orange", "name": "MEM 지면 반영 여부", "status": "warn", "statusLabel": "확인필요", "desc": "신규 3사 지면 미반영, 6/1 반영 예정" },
+    { "id": "card", "bar": "green", "name": "카드할인 등록 여부", "status": "ok", "statusLabel": "정상", "desc": "NH/신한/KB 3개사 등록 완료" },
+    { "id": "cns", "bar": "orange", "name": "신규 입점사 CNS/NSS 반영", "status": "warn", "statusLabel": "확인필요", "desc": "아이크레 에셋 미제출, 베베숲/쁘레베베 계약 진행중" },
+    { "id": "exit", "bar": "green", "name": "퇴점사 제외 여부", "status": "ok", "statusLabel": "정상", "desc": "페도라 CNS 삭제 완료, MEM 제외 완료" },
+    { "id": "product", "bar": "green", "name": "대표상품/브랜드관 노출", "status": "ok", "statusLabel": "정상", "desc": "12개 브랜드 대표상품 등록 확인" },
+    { "id": "banner", "bar": "green", "name": "배너 교체 여부", "status": "ok", "statusLabel": "정상", "desc": "5월 시즌 배너 교체 완료" },
+    { "id": "integrity", "bar": "purple", "name": "전체 시스템 정합성", "status": "etc", "statusLabel": "기타", "desc": "닥터아토 에셋 재취합 중 (5/22 마감)" }
+  ],
+
+  "calendarTitle": "2026년 5월",
+  "calendarHeading": "이번 달 주요 일정 — [키즈] 베이비바우처 6월 입·퇴점사 확정 (6/1 오픈)",
+  "calendarEvents": [
+    { "date": "2026-05-02", "weekday": "토", "title": "바우처 생일쿠폰 개인정보 상신 (매달)", "color": "purple" },
+    { "date": "2026-05-04", "weekday": "월", "title": "바우처 생일쿠폰 발행", "color": "green" },
+    { "date": "2026-05-19", "weekday": "화", "title": "5월 입점사 계약 및 준비사항 안내 메일 발송", "color": "blue" },
+    { "date": "2026-05-22", "weekday": "금", "title": "6월 베이비바우처 신규입점사 준비사항 마감", "color": "teal" },
+    { "date": "2026-05-28", "weekday": "목", "title": "전체 입점 세팅 체크", "color": "orange" },
+    { "date": "2026-05-29", "weekday": "금", "title": "5월 퇴점사 퇴점일 (오후 6시)", "color": "red" },
+    { "date": "2026-06-01", "weekday": "월", "title": "5월 입점사 오픈일 · 오전 10시", "color": "green" }
+  ]
+}
