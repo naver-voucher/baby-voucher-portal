@@ -11,7 +11,12 @@
   "exitMonthLabel": "5월",
   "contractDeadlineText": "5/22(금)",
   "assetDeadlineText": "5/22(금)",
-  "formUrl": "https://naver.me/5fdn6Ums",
+  "formUrl": "https://naver.me/FP8nF9wY",
+  "contractFormUrls": {
+    "2026-06": "https://naver.me/FP8nF9wY",
+    "2026-07": "https://naver.me/54KLwsIx",
+    "2026-08": "https://naver.me/xG0IRJov"
+  },
   "daApplicationFormUrl": "https://naver.me/GuCl9nB2",
   "daGuideWikiUrl": "https://wiki.navercorp.com/spaces/~KR22623/pages/5102824247",
   "brandCount": 188,
