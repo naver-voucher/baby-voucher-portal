@@ -2601,6 +2601,44 @@
         </div>
       </div>
 
+      <!-- ====== 상시 업무 ====== -->
+      <div class="ops-category" data-ops="ongoing">
+        <div class="sub-title" style="margin-bottom:16px;margin-top:32px">상시 업무</div>
+
+        <div class="ops-card" onclick="toggleOpsDetail(this)">
+          <div class="ops-card-header">
+            <div class="ops-card-icon" style="background:var(--accent-purple-dim);color:var(--accent-purple)">A</div>
+            <div class="ops-card-title">
+              <div class="ops-title-text">마케팅 DA 신청</div>
+              <div class="ops-title-sub">디스플레이 광고 / 외부 매체 노출 신청 (수시 접수)</div>
+            </div>
+            <span class="ops-toggle">&#9662;</span>
+          </div>
+          <div class="ops-card-detail">
+            <div class="ops-flow-bar">
+              <span class="flow-step">신청 폼 작성</span>
+              <span class="flow-arrow">&rarr;</span>
+              <span class="flow-step">담당자 검토</span>
+              <span class="flow-arrow">&rarr;</span>
+              <span class="flow-step">광고 집행</span>
+              <span class="flow-arrow">&rarr;</span>
+              <span class="flow-step">실적 회신</span>
+            </div>
+            <div class="ops-step-group">
+              <div class="ops-step"><strong>신청 폼 작성</strong> &mdash; 브랜드명/혜택구분/희망 노출 매체(메타/구글/네트워크 지면 등)/소재 첨부</div>
+              <div class="ops-step"><strong>담당자 검토</strong> &mdash; 베이비바우처 에셋 활용 여부 + 인플루언서 출연 동의서 확인</div>
+              <div class="ops-step"><strong>광고 집행</strong> &mdash; 페이먼트마케팅팀에서 매체 송출, 비용은 네이버 부담</div>
+              <div class="ops-step"><strong>실적 회신</strong> &mdash; 집행 후 노출/클릭/거래액 리포트 공유</div>
+            </div>
+            <div class="ops-alert">상시 접수 — 마감 없음. 단, 신청 후 매체 일정에 따라 송출까지 1~2주 소요</div>
+            <div class="ops-links">
+              <a href="#" target="_blank" class="ops-wiki-link" data-bind="period.daApplicationFormUrl">DA 신청 폼</a>
+              <a href="#" target="_blank" class="ops-wiki-link" data-bind="period.daGuideWikiUrl">마케팅 DA 운영 가이드</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- ====== 시스템 가이드 ====== -->
       <div class="ops-category" data-ops="system">
         <div class="sub-title" style="margin-bottom:16px;margin-top:32px">시스템별 가이드 바로가기</div>
@@ -6585,8 +6623,14 @@ NAVER 키즈사업`
       const key = el.getAttribute('data-bind');
       const val = aliases.hasOwnProperty(key) ? aliases[key] : _getByPath({ period: PERIOD }, key);
       if (val == null) return;
-      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.value = val;
-      else el.textContent = val;
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+        el.value = val;
+      } else if (el.tagName === 'A' && /^https?:\/\//.test(String(val))) {
+        // <a data-bind="...Url"> 는 href만 갱신, 라벨 텍스트는 유지
+        el.href = val;
+      } else {
+        el.textContent = val;
+      }
     });
 
     // 2) 대시보드 카드 6개
